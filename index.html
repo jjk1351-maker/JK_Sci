@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JK SCIENCE LEARNING</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <style>
+    :root {
+      --bg:#0e1830; --surface:#162038; --card:#1b2a45; --card-h:#243454;
+      --accent:#5bffc8; --a-glow:rgba(91,255,200,0.14);
+      --blue:#5aa0ff; --red:#ff7b7b; --green:#74d883; --gold:#ffd166; --purple:#a78bfa;
+      --text:#eaf3ff; --sub:#9aabc8;
+      --border:rgba(255,255,255,0.1); --border-h:rgba(91,255,200,0.3);
+    }
+    *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:smooth; }
+    body {
+      font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--text);
+      min-height:100vh; padding:0 20px 60px; display:flex; flex-direction:column; align-items:center;
+    }
+    body::before {
+      content:''; position:fixed; inset:0; z-index:0;
+      background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+      background-size:48px 48px; pointer-events:none;
+    }
+    .bg-glow { position:fixed; z-index:0; pointer-events:none; border-radius:50%; filter:blur(120px); opacity:0.12; }
+    .bg-glow-1 { width:600px; height:600px; background:var(--accent); top:-200px; left:-200px; }
+    .bg-glow-2 { width:500px; height:500px; background:var(--blue); bottom:-150px; right:-150px; }
+
+    .wrap { position:relative; z-index:1; width:100%; max-width:1100px; display:flex; flex-direction:column; gap:30px; padding-top:44px; }
+
+    /* HEADER */
+    header { display:flex; justify-content:space-between; align-items:center; padding-bottom:24px; border-bottom:1px solid var(--border); }
+    .logo h1 { font-family:'Syne',sans-serif; font-size:25px; font-weight:800; letter-spacing:2px; color:var(--accent); text-shadow:0 0 20px rgba(91,255,200,0.4); cursor:pointer; }
+    .logo p { font-size:13px; color:var(--sub); margin-top:5px; }
+    .rank-chip { display:flex; align-items:center; gap:9px; background:var(--card); border:1px solid var(--border); border-radius:50px; padding:10px 18px; font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; }
+    .rank-chip:hover { border-color:var(--gold); color:var(--gold); box-shadow:0 0 16px rgba(255,209,102,0.15); }
+    .rank-chip i { color:var(--gold); }
+
+    /* VIEW */
+    .view { display:none; flex-direction:column; gap:28px; }
+    .view.active { display:flex; animation:fadeIn 0.4s ease; }
+
+    /* WELCOME */
+    .welcome { background:linear-gradient(135deg,var(--card) 0%,#112038 100%); border:1px solid var(--border); border-radius:20px; padding:38px 42px; position:relative; overflow:hidden; }
+    .welcome::before { content:''; position:absolute; top:-70px; right:-70px; width:240px; height:240px; background:radial-gradient(circle,rgba(91,255,200,0.14),transparent 65%); }
+    .welcome::after { content:''; position:absolute; bottom:0; left:0; width:100%; height:3px; background:linear-gradient(90deg,var(--accent),var(--blue),transparent); }
+    .welcome h2 { font-size:25px; font-weight:900; line-height:1.35; margin-bottom:10px; }
+    .welcome h2 em { font-style:normal; color:var(--accent); }
+    .welcome p { font-size:14.5px; color:var(--sub); line-height:1.7; max-width:640px; }
+    .welcome p em { font-style:normal; color:var(--accent); font-weight:700; }
+
+    /* SECTION LABEL */
+    .sec-head { display:flex; align-items:center; gap:12px; }
+    .sec-label { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; color:var(--accent); }
+    .sec-div { flex:1; height:1px; background:var(--border); }
+
+    /* GRADE CARDS (home) */
+    .grade-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+    @media (max-width:820px){ .grade-grid{ grid-template-columns:1fr; } }
+    .grade-card {
+      background:var(--card); border:1px solid var(--border); border-radius:22px; padding:40px 30px;
+      cursor:pointer; transition:all 0.28s cubic-bezier(.25,.8,.25,1); position:relative; overflow:hidden;
+      display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px; min-height:280px; justify-content:center;
+    }
+    .grade-card::before { content:''; position:absolute; top:0; left:0; width:100%; height:4px; background:var(--gc); }
+    .grade-card .gcard-glow { position:absolute; width:200px; height:200px; border-radius:50%; background:var(--gc); opacity:0; filter:blur(70px); top:-40px; right:-40px; transition:opacity 0.4s; }
+    .grade-card:not(.disabled):hover { transform:translateY(-8px); background:var(--card-h); border-color:rgba(255,255,255,0.14); box-shadow:0 22px 55px rgba(0,0,0,0.5); }
+    .grade-card:not(.disabled):hover .gcard-glow { opacity:0.22; }
+    .grade-card.disabled { opacity:0.5; cursor:not-allowed; }
+    .gc-icon { width:72px; height:72px; border-radius:18px; display:grid; place-items:center; font-size:32px; color:var(--gc); border:1px solid var(--gc); background:color-mix(in srgb, var(--gc) 10%, transparent); margin-bottom:8px; }
+    .gc-num { font-family:'Syne',sans-serif; font-size:46px; font-weight:800; color:var(--gc); line-height:1; letter-spacing:1px; }
+    .gc-label { font-family:'Noto Sans KR',sans-serif; font-size:16px; font-weight:700; color:var(--text); }
+    .gc-meta { font-family:'DM Mono',monospace; font-size:13px; color:var(--sub); margin-top:2px; }
+    .gc-btn { margin-top:12px; font-size:13px; font-weight:700; color:var(--gc); display:flex; align-items:center; gap:7px; }
+    .gc-btn.locked { color:var(--sub); }
+
+    /* SUBPAGE HEAD */
+    .sub-head { display:flex; align-items:center; gap:16px; }
+    .back-btn { width:44px; height:44px; border-radius:12px; background:var(--card); border:1px solid var(--border); color:var(--text); display:grid; place-items:center; font-size:16px; cursor:pointer; transition:all 0.2s; flex-shrink:0; }
+    .back-btn:hover { border-color:var(--border-h); color:var(--accent); }
+    .sub-title { display:flex; flex-direction:column; }
+    .sub-title h2 { font-size:24px; font-weight:900; letter-spacing:-0.5px; }
+    .sub-title .crumb { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--sub); margin-bottom:4px; }
+    .sub-actions { margin-left:auto; }
+
+    /* FILTER TABS */
+    .filters { display:flex; gap:8px; flex-wrap:wrap; }
+    .ftab { padding:8px 16px; border-radius:9px; background:var(--card); border:1px solid var(--border); color:var(--sub); font-size:13px; font-weight:600; cursor:pointer; transition:all 0.2s; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .ftab:hover { color:var(--text); }
+    .ftab.active { background:var(--accent); color:var(--bg); border-color:var(--accent); }
+
+    /* CHAPTER GRID */
+    .ch-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:18px; }
+    .ch-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px; cursor:pointer; transition:all 0.25s; display:flex; flex-direction:column; gap:11px; }
+    .ch-card:hover { background:var(--card-h); border-color:var(--border-h); transform:translateY(-4px); box-shadow:0 12px 30px rgba(0,0,0,0.4); }
+    .ch-top { display:flex; justify-content:space-between; align-items:center; }
+    .ch-ic { width:40px; height:40px; background:rgba(91,255,200,0.08); border:1px solid rgba(91,255,200,0.2); border-radius:10px; display:grid; place-items:center; color:var(--accent); font-size:16px; }
+    .ch-cnt { font-family:'DM Mono',monospace; font-size:13px; color:var(--sub); }
+    .ch-title { font-size:15px; font-weight:700; line-height:1.4; }
+    .ch-levels { display:flex; gap:6px; }
+    .lv { font-size:11px; padding:3px 8px; border-radius:5px; font-weight:700; }
+    .lv1 { color:var(--green); background:rgba(107,203,119,0.1); }
+    .lv2 { color:var(--blue); background:rgba(77,150,255,0.1); }
+    .lv3 { color:var(--red); background:rgba(255,107,107,0.1); }
+    .ch-go { font-size:13px; font-weight:700; color:var(--accent); display:flex; align-items:center; gap:6px; margin-top:2px; }
+
+    /* CHAPTER HUB (mode select) */
+    .mode-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+    @media (max-width:820px){ .mode-grid{ grid-template-columns:1fr; } }
+    .mode-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:32px 26px; cursor:pointer; transition:all 0.28s; position:relative; overflow:hidden; display:flex; flex-direction:column; gap:10px; }
+    .mode-card::before { content:''; position:absolute; bottom:0; left:0; width:100%; height:3px; background:var(--mc); transform:scaleX(0); transform-origin:left; transition:transform 0.35s; }
+    .mode-card:hover { transform:translateY(-6px); background:var(--card-h); border-color:rgba(255,255,255,0.14); box-shadow:0 18px 44px rgba(0,0,0,0.45); }
+    .mode-card:hover::before { transform:scaleX(1); }
+    .mc-ic { width:56px; height:56px; border-radius:14px; display:grid; place-items:center; font-size:24px; color:var(--mc); border:1px solid var(--mc); background:color-mix(in srgb,var(--mc) 8%,transparent); margin-bottom:6px; }
+    .mc-title { font-size:20px; font-weight:900; display:flex; align-items:center; gap:8px; }
+    .mc-en { font-family:'DM Mono',monospace; font-size:11px; color:var(--mc); letter-spacing:0.1em; }
+    .mc-desc { font-size:13px; color:var(--sub); line-height:1.6; }
+    .mc-go { margin-top:8px; font-size:13px; font-weight:700; color:var(--mc); display:flex; align-items:center; gap:6px; }
+
+    /* FLASHCARD */
+    .fc-container { perspective:1200px; width:100%; max-width:580px; height:330px; margin:14px auto; cursor:pointer; }
+    .fc-inner { width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform 0.55s cubic-bezier(0.4,0,0.2,1); }
+    .fc-inner.flipped { transform:rotateY(180deg); }
+    .fc-face { position:absolute; width:100%; height:100%; backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:20px; border:2px solid var(--border-h); padding:38px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; box-shadow:0 15px 40px rgba(0,0,0,0.4); }
+    .fc-front { background:linear-gradient(135deg,var(--card) 0%,#162a45 100%); }
+    .fc-front .fc-hint { font-size:13px; color:var(--accent); margin-bottom:16px; font-weight:700; }
+    .fc-front h2 { font-size:40px; font-weight:900; word-break:keep-all; line-height:1.25; }
+    .fc-front .fc-tap { position:absolute; bottom:18px; font-size:12px; color:var(--sub); opacity:0.6; }
+    .fc-back { background:linear-gradient(135deg,#162a45 0%,var(--card) 100%); transform:rotateY(180deg); border-color:rgba(77,150,255,0.35); }
+    .fc-back h3 { font-size:23px; color:var(--accent); margin-bottom:16px; }
+    .fc-back .def { font-size:18px; line-height:1.6; word-break:keep-all; margin-bottom:16px; }
+    .fc-back .ex { font-size:14px; color:var(--sub); font-style:italic; margin-bottom:8px; }
+    .fc-back .rus { font-size:13px; color:var(--blue); }
+    .fc-ctrl { display:flex; justify-content:center; align-items:center; gap:22px; }
+    .fc-ctrl button { background:var(--card); border:1px solid var(--border); color:var(--text); width:52px; height:52px; border-radius:50%; cursor:pointer; font-size:18px; transition:0.2s; }
+    .fc-ctrl button:hover { border-color:var(--accent); color:var(--accent); transform:scale(1.08); }
+    .fc-prog { font-family:'DM Mono',monospace; font-size:16px; font-weight:700; color:var(--sub); min-width:80px; text-align:center; }
+
+    /* GAME HUD */
+    .game-hud { display:flex; gap:14px; flex-wrap:wrap; }
+    .hud-box { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 22px; text-align:center; flex:1; min-width:90px; }
+    .hud-val { font-family:'DM Mono',monospace; font-size:24px; font-weight:700; }
+    .hud-label { font-size:11px; color:var(--sub); margin-top:2px; }
+    .hud-time .hud-val { color:var(--gold); }
+    .hud-score .hud-val { color:var(--accent); }
+    .hud-combo .hud-val { color:var(--red); }
+
+    /* RACE */
+    .race-q { background:linear-gradient(135deg,var(--card),#162a45); border:1px solid var(--border-h); border-radius:18px; padding:36px 30px; text-align:center; min-height:120px; display:flex; flex-direction:column; justify-content:center; gap:8px; }
+    .race-q .q-hint { font-size:12px; color:var(--accent); font-weight:700; }
+    .race-q .q-def { font-size:22px; font-weight:700; line-height:1.5; word-break:keep-all; }
+    .race-opts { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+    @media (max-width:560px){ .race-opts{ grid-template-columns:1fr; } }
+    .opt-btn { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:20px; font-family:'Noto Sans KR',sans-serif; font-size:18px; font-weight:700; color:var(--text); cursor:pointer; transition:all 0.15s; }
+    .opt-btn:hover { border-color:var(--accent); background:var(--card-h); }
+    .opt-btn.correct { background:rgba(91,255,200,0.2); border-color:var(--accent); color:var(--accent); }
+    .opt-btn.wrong { background:rgba(255,107,107,0.18); border-color:var(--red); color:var(--red); }
+
+    /* HUNT */
+    .hunt-target { background:linear-gradient(135deg,var(--card),#162a45); border:1px solid var(--border-h); border-radius:16px; padding:24px; text-align:center; }
+    .hunt-target .ht-hint { font-size:12px; color:var(--green); font-weight:700; margin-bottom:8px; }
+    .hunt-target .ht-def { font-size:19px; font-weight:700; line-height:1.5; word-break:keep-all; }
+    .hunt-board { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+    @media (max-width:560px){ .hunt-board{ grid-template-columns:repeat(2,1fr); } }
+    .hunt-cell { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px 10px; text-align:center; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.15s; min-height:64px; display:flex; align-items:center; justify-content:center; word-break:keep-all; }
+    .hunt-cell:hover { border-color:var(--green); background:var(--card-h); }
+    .hunt-cell.found { background:rgba(107,203,119,0.15); border-color:var(--green); color:var(--green); pointer-events:none; opacity:0.65; }
+    .hunt-cell.shake { animation:shake 0.35s; border-color:var(--red); }
+    @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+    /* RESULT */
+    .result-card { background:linear-gradient(135deg,var(--card),#162a45); border:1px solid var(--border-h); border-radius:20px; padding:44px; text-align:center; }
+    .result-card .trophy { font-size:50px; color:var(--gold); margin-bottom:16px; }
+    .result-card h2 { font-size:26px; font-weight:900; margin-bottom:8px; }
+    .result-card .score-big { font-family:'DM Mono',monospace; font-size:54px; font-weight:700; color:var(--accent); margin:10px 0; }
+    .result-card .res-detail { color:var(--sub); font-size:14px; }
+
+    /* RANKING */
+    .rank-table { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+    .rank-row { display:flex; align-items:center; padding:14px 20px; border-bottom:1px solid var(--border); gap:14px; }
+    .rank-row:last-child { border-bottom:none; }
+    .rank-row.me { background:rgba(91,255,200,0.06); }
+    .rank-pos { font-family:'DM Mono',monospace; font-size:18px; font-weight:700; width:40px; color:var(--sub); }
+    .rank-pos.top1 { color:var(--gold); }
+    .rank-pos.top2 { color:#c0c8d4; }
+    .rank-pos.top3 { color:#cd7f32; }
+    .rank-name { flex:1; font-weight:700; font-size:15px; }
+    .rank-meta { font-size:12px; color:var(--sub); }
+    .rank-score { font-family:'DM Mono',monospace; font-size:18px; font-weight:700; color:var(--accent); }
+
+    /* BUTTONS */
+    .btn { padding:14px 28px; border-radius:11px; border:none; font-family:'Noto Sans KR',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s; }
+    .btn-primary { background:var(--accent); color:var(--bg); }
+    .btn-primary:hover { box-shadow:0 0 24px var(--a-glow); transform:translateY(-2px); }
+    .btn-ghost { background:transparent; color:var(--sub); border:1px solid var(--border); }
+    .btn-ghost:hover { color:var(--text); border-color:rgba(255,255,255,0.2); }
+    .btn-row { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+
+    /* EMPTY */
+    .empty { padding:70px 30px; text-align:center; border:1.5px dashed var(--border); border-radius:18px; }
+    .empty i { font-size:38px; color:var(--sub); opacity:0.5; margin-bottom:16px; }
+    .empty h4 { font-size:16px; font-weight:700; margin-bottom:8px; }
+    .empty p { font-size:13px; color:var(--sub); }
+
+    /* MODAL */
+    .overlay { display:none; position:fixed; inset:0; z-index:1000; background:rgba(2,8,20,0.8); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:20px; }
+    .overlay.open { display:flex; animation:fadeIn 0.25s; }
+    .modal { background:var(--surface); border:1px solid var(--border-h); border-radius:18px; width:100%; max-width:420px; padding:34px; box-shadow:0 30px 70px rgba(0,0,0,0.6); animation:pop 0.3s cubic-bezier(.2,.9,.3,1.2); text-align:center; }
+    .modal .trophy { font-size:42px; color:var(--gold); margin-bottom:12px; }
+    .modal h3 { font-size:20px; font-weight:900; margin-bottom:6px; }
+    .modal p { font-size:13px; color:var(--sub); margin-bottom:20px; }
+    .modal input { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:13px 16px; color:var(--text); font-family:'Noto Sans KR',sans-serif; font-size:16px; text-align:center; margin-bottom:18px; }
+    .modal input:focus { outline:none; border-color:var(--accent); }
+
+    /* FOOTER */
+    footer { border-top:1px solid var(--border); padding-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+    footer .fbrand { font-family:'Syne',sans-serif; font-size:13px; font-weight:800; color:var(--accent); letter-spacing:1px; }
+    footer p { font-size:12px; color:var(--sub); }
+
+    /* TOAST */
+    .toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--card); border:1px solid var(--border-h); color:var(--text); padding:13px 24px; border-radius:10px; font-size:13.5px; font-weight:600; opacity:0; pointer-events:none; z-index:2000; transition:all 0.3s; box-shadow:0 10px 30px rgba(0,0,0,0.5); display:flex; align-items:center; gap:9px; }
+    .toast i { color:var(--accent); }
+    .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+    @keyframes pop { from{opacity:0;transform:scale(.92) translateY(10px)} to{opacity:1;transform:none} }
+  </style>
+</head>
+<body>
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<div class="wrap">
+  <header>
+    <div class="logo">
+      <h1 onclick="goHome()">JK SCIENCE LEARNING</h1>
+      <p>중학 과학 통합 학습 포털 시스템</p>
+    </div>
+    <div class="rank-chip" onclick="openRanking('race')"><i class="fa-solid fa-trophy"></i><span>랭킹</span></div>
+  </header>
+
+  <!-- ════ HOME ════ -->
+  <div class="view active" id="view-home">
+    <div class="welcome">
+      <h2>안녕하세요,&nbsp;<em>JK 과학 클래스</em>에 오신 것을 환영합니다!</h2>
+      <p>학년을 선택하고 단원별 과학 용어를 플래시카드로 학습한 뒤, <em>레이스</em>와 <em>헌트</em> 게임으로 친구들과 점수 대결을 펼쳐 보세요!</p>
+    </div>
+    <div class="sec-head"><span class="sec-label">Select Grade</span><div class="sec-div"></div></div>
+    <div class="grade-grid" id="grade-grid"></div>
+  </div>
+
+  <!-- ════ GRADE (단원 목록) ════ -->
+  <div class="view" id="view-grade">
+    <div class="sub-head">
+      <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb" id="grade-crumb"></span><h2 id="grade-h2"></h2></div>
+    </div>
+    <div class="filters" id="grade-filters"></div>
+    <div class="ch-grid" id="grade-chapters"></div>
+  </div>
+
+  <!-- ════ CHAPTER HUB (모드 선택) ════ -->
+  <div class="view" id="view-hub">
+    <div class="sub-head">
+      <button class="back-btn" id="hub-back"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb" id="hub-crumb"></span><h2 id="hub-h2"></h2></div>
+    </div>
+    <div class="sec-head"><span class="sec-label">학습 모드를 선택하세요</span><div class="sec-div"></div></div>
+    <div class="mode-grid">
+      <div class="mode-card" style="--mc:var(--accent)" onclick="startFlashcard()">
+        <div class="mc-ic"><i class="fa-solid fa-clone"></i></div>
+        <div class="mc-title">플래시카드</div>
+        <div class="mc-en">STUDY</div>
+        <div class="mc-desc">단어와 뜻을 카드로 넘기며 차근차근 암기합니다. 게임 전 준비운동!</div>
+        <div class="mc-go">학습하기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+      <div class="mode-card" style="--mc:var(--blue)" onclick="startRace()">
+        <div class="mc-ic"><i class="fa-solid fa-flag-checkered"></i></div>
+        <div class="mc-title">레이스</div>
+        <div class="mc-en">RACE</div>
+        <div class="mc-desc">제한시간 60초! 뜻을 보고 가장 빠르게 단어를 골라 점수를 쌓는 스피드 퀴즈.</div>
+        <div class="mc-go">도전하기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+      <div class="mode-card" style="--mc:var(--green)" onclick="startHunt()">
+        <div class="mc-ic"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <div class="mc-title">헌트</div>
+        <div class="mc-en">HUNT</div>
+        <div class="mc-desc">흩어진 단어 카드 속에서 뜻에 맞는 단어를 찾아내는 추적 게임!</div>
+        <div class="mc-go">찾으러가기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="openRanking('race')"><i class="fa-solid fa-trophy"></i>&nbsp; 이 게임 랭킹 보기</button></div>
+  </div>
+
+  <!-- ════ FLASHCARD ════ -->
+  <div class="view" id="view-flashcard">
+    <div class="sub-head">
+      <button class="back-btn" id="fc-back"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb" id="fc-crumb"></span><h2 id="fc-chapter"></h2></div>
+      <div class="sub-actions"><span class="fc-prog" id="fc-prog-top"></span></div>
+    </div>
+    <div class="fc-container" onclick="flipCard()">
+      <div class="fc-inner" id="fc-inner">
+        <div class="fc-face fc-front">
+          <div class="fc-hint" id="fc-level"></div>
+          <h2 id="fc-word"></h2>
+          <div class="fc-tap">탭하여 뜻 확인</div>
+        </div>
+        <div class="fc-face fc-back">
+          <h3 id="fc-word-b"></h3>
+          <p class="def" id="fc-def"></p>
+          <p class="ex" id="fc-ex"></p>
+          <p class="rus" id="fc-rus"></p>
+        </div>
+      </div>
+    </div>
+    <div class="fc-ctrl">
+      <button onclick="prevCard(event)"><i class="fa-solid fa-chevron-left"></i></button>
+      <div class="fc-prog" id="fc-prog"></div>
+      <button onclick="nextCard(event)"><i class="fa-solid fa-chevron-right"></i></button>
+    </div>
+  </div>
+
+  <!-- ════ RACE ════ -->
+  <div class="view" id="view-race">
+    <div class="sub-head">
+      <button class="back-btn" id="race-back"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb">RACE · 레이스</span><h2 id="race-chapter"></h2></div>
+    </div>
+    <div class="game-hud">
+      <div class="hud-box hud-time"><div class="hud-val" id="race-time">60</div><div class="hud-label">남은 시간</div></div>
+      <div class="hud-box hud-score"><div class="hud-val" id="race-score">0</div><div class="hud-label">점수</div></div>
+      <div class="hud-box hud-combo"><div class="hud-val" id="race-combo">0</div><div class="hud-label">콤보</div></div>
+    </div>
+    <div class="race-q"><div class="q-hint">이 뜻에 해당하는 단어는?</div><div class="q-def" id="race-def"></div></div>
+    <div class="race-opts" id="race-opts"></div>
+  </div>
+
+  <!-- ════ HUNT ════ -->
+  <div class="view" id="view-hunt">
+    <div class="sub-head">
+      <button class="back-btn" id="hunt-back"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb">HUNT · 헌트</span><h2 id="hunt-chapter"></h2></div>
+    </div>
+    <div class="game-hud">
+      <div class="hud-box hud-score"><div class="hud-val" id="hunt-found">0</div><div class="hud-label">찾은 단어</div></div>
+      <div class="hud-box hud-time"><div class="hud-val" id="hunt-timer">0</div><div class="hud-label">경과 시간</div></div>
+      <div class="hud-box hud-combo"><div class="hud-val" id="hunt-miss">0</div><div class="hud-label">실수</div></div>
+    </div>
+    <div class="hunt-target"><div class="ht-hint">이 뜻에 맞는 단어를 찾으세요!</div><div class="ht-def" id="hunt-def"></div></div>
+    <div class="hunt-board" id="hunt-board"></div>
+  </div>
+
+  <!-- ════ RESULT ════ -->
+  <div class="view" id="view-result">
+    <div class="result-card">
+      <div class="trophy"><i class="fa-solid fa-trophy"></i></div>
+      <h2 id="result-title">게임 종료!</h2>
+      <div class="score-big" id="result-score">0</div>
+      <div class="res-detail" id="result-detail"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="result-retry">다시 도전</button>
+      <button class="btn btn-primary" id="result-rank">랭킹 보기 <i class="fa-solid fa-trophy"></i></button>
+    </div>
+  </div>
+
+  <!-- ════ RANKING ════ -->
+  <div class="view" id="view-ranking">
+    <div class="sub-head">
+      <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb">Leaderboard</span><h2>명예의 전당</h2></div>
+    </div>
+    <div class="filters">
+      <button class="ftab active" id="rtab-race" onclick="switchRankTab('race')"><i class="fa-solid fa-flag-checkered"></i>&nbsp; 레이스</button>
+      <button class="ftab" id="rtab-hunt" onclick="switchRankTab('hunt')"><i class="fa-solid fa-magnifying-glass"></i>&nbsp; 헌트</button>
+    </div>
+    <div class="filters" style="margin-top:-14px">
+      <button class="ftab period active" id="ptab-all" onclick="switchPeriod('all')">전체 기간</button>
+      <button class="ftab period" id="ptab-month" onclick="switchPeriod('month')">월간</button>
+      <button class="ftab period" id="ptab-week" onclick="switchPeriod('week')">주간</button>
+    </div>
+    <div class="filters" style="margin-top:-14px">
+      <button class="ftab gradef active" id="gtab-all" onclick="switchRankGrade('all')">전체 학년</button>
+      <button class="ftab gradef" id="gtab-1" onclick="switchRankGrade('1')">중1</button>
+      <button class="ftab gradef" id="gtab-2" onclick="switchRankGrade('2')">중2</button>
+      <button class="ftab gradef" id="gtab-3" onclick="switchRankGrade('3')">중3</button>
+    </div>
+    <div class="filters" id="rank-chapter-filters" style="margin-top:-14px"></div>
+    <div id="rank-list"></div>
+  </div>
+
+  <footer>
+    <span class="fbrand">JK SCIENCE LEARNING</span>
+    <p>&copy; 2026 JK SCIENCE LEARNING Portal · Powered by JK &amp; SH</p>
+  </footer>
+</div>
+
+<!-- 이름 입력 모달 -->
+<div class="overlay" id="nameModal">
+  <div class="modal">
+    <div class="trophy"><i class="fa-solid fa-medal"></i></div>
+    <h3>랭킹 등록</h3>
+    <p id="nameModalDesc">점수를 랭킹에 등록합니다. 이름을 입력하세요.</p>
+    <input type="text" id="nameInput" maxlength="10" placeholder="이름 (최대 10자)" onkeydown="if(event.key==='Enter')submitScore()"/>
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="closeNameModal()">건너뛰기</button>
+      <button class="btn btn-primary" onclick="submitScore()">등록</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastMsg"></span></div>
+
+<script>
+/* ════════════════════════════════════════════════
+   ⚙️  설정 영역 — GitHub 배포 후 여기만 수정하세요
+   ──────────────────────────────────────────────────
+   각 학년 구글 시트 "웹에 게시(CSV)" 주소를 넣으면
+   단어장이 자동으로 연동됩니다. 비워두면 "준비 중"으로 표시됩니다.
+
+   [컬럼 순서] 단원 | 단어 | 난이도 | 한국어 정의 | 러시아어 번역 | 예문
+════════════════════════════════════════════════ */
+const GRADE_SHEETS = {
+  '1': "https://docs.google.com/spreadsheets/d/e/2PACX-1vQVcWKvLm3Q21Yz3mgReUaHL4UvZSa78JCmiJU-RdSIPOnog7WEQn0Yc3CMDrXUI0FtHBoAUY-LH1RI/pubhtml",   // ← 중1 구글시트 CSV 주소
+  '2': "https://docs.google.com/spreadsheets/d/e/2PACX-1vSUKIFv2Xo4jSZLWjD_f6OeUzStm752uz01p6Yv2kx4gMLPPcPN9ndgCXLmi1MzmSrRzxvieltPkfEM/pub?output=csv",   // ← 중2 구글시트 CSV 주소
+  '3': "https://docs.google.com/spreadsheets/d/e/2PACX-1vTqIg84mcIXRYfB6BcXhVGmF4wpBgyVTsxLe5ZxJydYIWCkxXb3IGreaEJjr-GdWJWncel7djBfAgp7/pubhtml"    // ← 중3 구글시트 CSV 주소
+};
+
+// 통합 랭킹 서버 (Apps Script 웹앱 /exec 주소)
+// 비워두면 이 기기 안에서만 저장되는 로컬 랭킹으로 동작합니다.
+const RANK_API = "https://script.google.com/macros/s/AKfycbydONh4q8U4D-QciXHyR9jg0DkRRiAkoGKfyYXBMjHYjQHGbG9m0y6iLRDVv3BQeVXwJQ/exec";
+
+const GRADE_INFO = {
+  '1': { name:'중학교 1학년', icon:'fa-seedling', color:'#ff7b7b' },
+  '2': { name:'중학교 2학년', icon:'fa-atom',     color:'#5aa0ff' },
+  '3': { name:'중학교 3학년', icon:'fa-rocket',   color:'#74d883' }
+};
+
+// 학년별 단어 데이터 (구글시트에서 로딩되어 채워짐)
+const GRADE_DATA = { '1':[], '2':[], '3':[] };
+
+/* ── 강력한 CSV 파서 (따옴표 안 쉼표·줄바꿈 처리) ── */
+function parseCSV(text){
+  const rows=[]; let row=[], cur='', inQ=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i], nx=text[i+1];
+    if(ch==='"'){ if(inQ&&nx==='"'){cur+='"';i++;} else inQ=!inQ; }
+    else if(ch===','&&!inQ){ row.push(cur.trim()); cur=''; }
+    else if((ch==='\n'||ch==='\r')&&!inQ){ if(ch==='\r'&&nx==='\n')i++; row.push(cur.trim()); if(row.some(v=>v!==''))rows.push(row); row=[]; cur=''; }
+    else cur+=ch;
+  }
+  if(cur!==''||row.length){ row.push(cur.trim()); rows.push(row); }
+  return rows.slice(1).map(c=>({
+    chapter:c[0]||'미분류', word:c[1]||'', level:c[2]||'',
+    def:c[3]||'', russian:c[4]||'', example:c[5]||''
+  })).filter(r=>r.word);
+}
+
+/* ── 구글 시트에서 학년 데이터 로딩 ── */
+async function loadGradeSheet(g){
+  const url=GRADE_SHEETS[g];
+  if(!url) return [];
+  try{
+    const res=await fetch(url);
+    if(!res.ok) throw new Error('네트워크 오류');
+    const text=await res.text();
+    GRADE_DATA[g]=parseCSV(text);
+    return GRADE_DATA[g];
+  }catch(e){ console.error('중'+g+' 시트 로딩 실패:',e); return []; }
+}
+
+/* ── 전체 학년 로딩 후 홈 다시 렌더 ── */
+async function loadAllSheets(){
+  await Promise.all(['1','2','3'].map(g=>loadGradeSheet(g)));
+  renderHome();
+}
+
+/* ════════════ 상태 ════════════ */
+let curGrade=null, curChapter=null, curWords=[];
+
+/* ════════════ 유틸 ════════════ */
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function chaptersOf(g){ const seen=new Set(); return (GRADE_DATA[g]||[]).map(w=>w.chapter).filter(c=>{ if(seen.has(c))return false; seen.add(c); return true; }); }
+function wordsOf(g,ch){ return (GRADE_DATA[g]||[]).filter(w=>w.chapter===ch); }
+
+/* ════════════ 화면 전환 ════════════ */
+function showView(id){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById('view-'+id).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+function goHome(){ stopRaceTimer(); stopHuntTimer(); renderHome(); showView('home'); }
+
+/* ════════════ HOME: 학년 카드 ════════════ */
+function renderHome(){
+  const grid=document.getElementById('grade-grid'); grid.innerHTML='';
+  ['1','2','3'].forEach(g=>{
+    const info=GRADE_INFO[g]; const words=GRADE_DATA[g]; const ready=words&&words.length>0;
+    const chCnt=ready?new Set(words.map(w=>w.chapter)).size:0;
+    const card=document.createElement('div');
+    card.className='grade-card'+(ready?'':' disabled'); card.style.setProperty('--gc',info.color);
+    card.innerHTML=
+      '<div class="gcard-glow"></div>'+
+      '<div class="gc-icon"><i class="fa-solid '+info.icon+'"></i></div>'+
+      '<div class="gc-num">'+g+'</div>'+
+      '<div class="gc-label">'+info.name+'</div>'+
+      (ready
+        ? '<div class="gc-meta">'+chCnt+'개 단원 · '+words.length+'개 단어</div><div class="gc-btn">학습 시작 <i class="fa-solid fa-arrow-right"></i></div>'
+        : '<div class="gc-meta">준비 중</div><div class="gc-btn locked"><i class="fa-solid fa-lock"></i> 준비 중</div>');
+    if(ready) card.onclick=()=>openGrade(g);
+    grid.appendChild(card);
+  });
+}
+
+/* ════════════ GRADE: 단원 목록 ════════════ */
+function openGrade(g){
+  curGrade=g; const info=GRADE_INFO[g];
+  document.getElementById('grade-crumb').textContent='Grade '+g+' · 단원 선택';
+  document.getElementById('grade-h2').textContent=info.name;
+  const chapters=chaptersOf(g);
+  const fr=document.getElementById('grade-filters'); fr.innerHTML='';
+  const tabs=[{k:'all',l:'전체'},...chapters.map(c=>({k:c,l:c}))];
+  tabs.forEach((t,i)=>{ const b=document.createElement('button'); b.className='ftab'+(i===0?' active':''); b.textContent=t.l;
+    b.onclick=()=>{ fr.querySelectorAll('.ftab').forEach(x=>x.classList.remove('active')); b.classList.add('active'); drawChapters(g,t.k); }; fr.appendChild(b); });
+  drawChapters(g,'all'); showView('grade');
+}
+function drawChapters(g,filter){
+  const grid=document.getElementById('grade-chapters'); grid.innerHTML='';
+  const chapters=chaptersOf(g).filter(c=>filter==='all'||c===filter);
+  chapters.forEach(ch=>{
+    const cw=wordsOf(g,ch);
+    const card=document.createElement('div'); card.className='ch-card';
+    card.innerHTML=
+      '<div class="ch-top"><div class="ch-ic"><i class="fa-solid fa-book-open"></i></div><div class="ch-cnt">'+cw.length+'개</div></div>'+
+      '<div class="ch-title">'+ch+'</div>'+
+      '<div class="ch-levels"><span class="lv lv1">★ '+cw.filter(w=>w.level==='★').length+'</span><span class="lv lv2">★★ '+cw.filter(w=>w.level==='★★').length+'</span><span class="lv lv3">★★★ '+cw.filter(w=>w.level==='★★★').length+'</span></div>'+
+      '<div class="ch-go">모드 선택 <i class="fa-solid fa-arrow-right"></i></div>';
+    card.onclick=()=>openHub(g,ch); grid.appendChild(card);
+  });
+}
+
+/* ════════════ CHAPTER HUB: 모드 선택 ════════════ */
+function openHub(g,ch){
+  curGrade=g; curChapter=ch; curWords=wordsOf(g,ch);
+  document.getElementById('hub-crumb').textContent=GRADE_INFO[g].name+' · '+ch;
+  document.getElementById('hub-h2').textContent=ch;
+  document.getElementById('hub-back').onclick=()=>openGrade(g);
+  showView('hub');
+}
+
+/* ════════════ 플래시카드 ════════════ */
+let fcIdx=0, fcFlip=false;
+function startFlashcard(){
+  fcIdx=0; fcFlip=false;
+  document.getElementById('fc-crumb').textContent=GRADE_INFO[curGrade].name+' · STUDY';
+  document.getElementById('fc-chapter').textContent=curChapter;
+  document.getElementById('fc-back').onclick=()=>openHub(curGrade,curChapter);
+  renderCard(); showView('flashcard');
+}
+function renderCard(){
+  const w=curWords[fcIdx]; fcFlip=false;
+  document.getElementById('fc-inner').classList.remove('flipped');
+  document.getElementById('fc-level').textContent=w.level?'난이도 '+w.level:'';
+  document.getElementById('fc-word').textContent=w.word;
+  document.getElementById('fc-word-b').textContent=w.word;
+  document.getElementById('fc-def').textContent=w.def;
+  const ex=document.getElementById('fc-ex'); if(w.example){ex.style.display='block';ex.textContent='"'+w.example+'"';}else ex.style.display='none';
+  const ru=document.getElementById('fc-rus'); if(w.russian){ru.style.display='block';ru.innerHTML='<i class="fa-solid fa-language"></i> '+w.russian;}else ru.style.display='none';
+  const p=(fcIdx+1)+' / '+curWords.length; document.getElementById('fc-prog').textContent=p; document.getElementById('fc-prog-top').textContent=p;
+}
+function flipCard(){ fcFlip=!fcFlip; document.getElementById('fc-inner').classList.toggle('flipped',fcFlip); }
+function nextCard(e){ if(e)e.stopPropagation(); if(fcIdx<curWords.length-1){fcIdx++;document.getElementById('fc-inner').classList.remove('flipped');setTimeout(renderCard,160);}else showToast('마지막 단어입니다!'); }
+function prevCard(e){ if(e)e.stopPropagation(); if(fcIdx>0){fcIdx--;document.getElementById('fc-inner').classList.remove('flipped');setTimeout(renderCard,160);}else showToast('첫 번째 단어입니다!'); }
+
+/* ════════════ RACE 게임 ════════════ */
+let raceScore=0, raceCombo=0, raceTime=60, raceTimer=null, raceAnswer=null, raceLocked=false;
+function startRace(){
+  raceScore=0; raceCombo=0; raceTime=60; raceLocked=false;
+  document.getElementById('race-chapter').textContent=curChapter;
+  document.getElementById('race-back').onclick=()=>{ stopRaceTimer(); openHub(curGrade,curChapter); };
+  document.getElementById('race-score').textContent='0';
+  document.getElementById('race-combo').textContent='0';
+  document.getElementById('race-time').textContent='60';
+  showView('race'); nextRaceQ();
+  stopRaceTimer();
+  raceTimer=setInterval(()=>{ raceTime--; document.getElementById('race-time').textContent=raceTime; if(raceTime<=0) endRace(); },1000);
+}
+function stopRaceTimer(){ if(raceTimer){ clearInterval(raceTimer); raceTimer=null; } }
+function nextRaceQ(){
+  raceLocked=false;
+  const pool=GRADE_DATA[curGrade];
+  raceAnswer=curWords[Math.floor(Math.random()*curWords.length)];
+  // 오답 3개: 같은 학년 내 다른 단어
+  const others=shuffle(pool.filter(w=>w.word!==raceAnswer.word)).slice(0,3);
+  const opts=shuffle([raceAnswer,...others]);
+  document.getElementById('race-def').textContent=raceAnswer.def;
+  const box=document.getElementById('race-opts'); box.innerHTML='';
+  opts.forEach(o=>{ const b=document.createElement('button'); b.className='opt-btn'; b.textContent=o.word; b.onclick=()=>answerRace(b,o); box.appendChild(b); });
+}
+function answerRace(btn,opt){
+  if(raceLocked) return; raceLocked=true;
+  if(opt.word===raceAnswer.word){
+    raceCombo++; const pts=10+(raceCombo-1)*2; raceScore+=pts;
+    btn.classList.add('correct');
+    document.getElementById('race-score').textContent=raceScore;
+    document.getElementById('race-combo').textContent=raceCombo;
+  } else {
+    raceCombo=0; document.getElementById('race-combo').textContent='0';
+    btn.classList.add('wrong');
+    document.querySelectorAll('#race-opts .opt-btn').forEach(b=>{ if(b.textContent===raceAnswer.word) b.classList.add('correct'); });
+  }
+  setTimeout(()=>{ if(raceTime>0) nextRaceQ(); },450);
+}
+function endRace(){
+  stopRaceTimer();
+  pendingResult={ mode:'race', score:raceScore, grade:curGrade, chapter:curChapter };
+  showResult('레이스 종료!', raceScore, '점', '60초 동안 '+raceScore+'점을 획득했습니다!');
+}
+
+/* ════════════ HUNT 게임 ════════════ */
+let huntCards=[], huntRemain=[], huntTargetIdx=null, huntFound=0, huntMiss=0, huntTime=0, huntTimer=null;
+function startHunt(){
+  const N=Math.min(12,curWords.length);
+  huntCards=shuffle(curWords).slice(0,N);
+  huntRemain=huntCards.map((_,i)=>i);
+  huntFound=0; huntMiss=0; huntTime=0;
+  document.getElementById('hunt-chapter').textContent=curChapter;
+  document.getElementById('hunt-back').onclick=()=>{ stopHuntTimer(); openHub(curGrade,curChapter); };
+  document.getElementById('hunt-found').textContent='0';
+  document.getElementById('hunt-miss').textContent='0';
+  document.getElementById('hunt-timer').textContent='0';
+  // 보드 렌더
+  const board=document.getElementById('hunt-board'); board.innerHTML='';
+  huntCards.forEach((w,i)=>{ const c=document.createElement('div'); c.className='hunt-cell'; c.id='hunt-cell-'+i; c.textContent=w.word; c.onclick=()=>clickHunt(i); board.appendChild(c); });
+  nextHuntTarget(); showView('hunt');
+  stopHuntTimer();
+  huntTimer=setInterval(()=>{ huntTime++; document.getElementById('hunt-timer').textContent=huntTime; },1000);
+}
+function stopHuntTimer(){ if(huntTimer){ clearInterval(huntTimer); huntTimer=null; } }
+function nextHuntTarget(){
+  if(huntRemain.length===0){ endHunt(); return; }
+  huntTargetIdx=huntRemain[Math.floor(Math.random()*huntRemain.length)];
+  document.getElementById('hunt-def').textContent=huntCards[huntTargetIdx].def;
+}
+function clickHunt(i){
+  const cell=document.getElementById('hunt-cell-'+i);
+  if(i===huntTargetIdx){
+    cell.classList.add('found'); huntFound++; document.getElementById('hunt-found').textContent=huntFound;
+    huntRemain=huntRemain.filter(x=>x!==i);
+    nextHuntTarget();
+  } else {
+    huntMiss++; document.getElementById('hunt-miss').textContent=huntMiss;
+    cell.classList.add('shake'); setTimeout(()=>cell.classList.remove('shake'),350);
+  }
+}
+function endHunt(){
+  stopHuntTimer();
+  const score=Math.max(0, huntFound*100 - huntMiss*20 + Math.max(0,300-huntTime*5));
+  pendingResult={ mode:'hunt', score:score, grade:curGrade, chapter:curChapter };
+  showResult('헌트 완료!', score, '점', huntCards.length+'개 단어를 '+huntTime+'초에 찾았습니다! (실수 '+huntMiss+'회)');
+}
+
+/* ════════════ 결과 화면 ════════════ */
+let pendingResult=null;
+function showResult(title, score, unit, detail){
+  document.getElementById('result-title').textContent=title;
+  document.getElementById('result-score').textContent=score;
+  document.getElementById('result-detail').textContent=detail;
+  document.getElementById('result-retry').onclick=()=>{ if(pendingResult.mode==='race') startRace(); else startHunt(); };
+  document.getElementById('result-rank').onclick=()=>openRanking(pendingResult.mode);
+  showView('result');
+  // 이름 입력 모달
+  document.getElementById('nameModalDesc').textContent=score+'점을 랭킹에 등록합니다. 이름을 입력하세요.';
+  document.getElementById('nameInput').value='';
+  openOverlay('nameModal');
+  setTimeout(()=>document.getElementById('nameInput').focus(),200);
+}
+
+/* ════════════ 랭킹 (통합 서버 + 로컬 폴백) ════════════
+   RANK_API 가 설정되어 있으면 구글시트 통합 랭킹을 사용하고,
+   비어 있으면 이 기기 안에서만 저장되는 로컬 랭킹으로 자동 전환됩니다.
+*/
+const memStore={};
+function storeGet(k){ try{ return localStorage.getItem(k); }catch(e){ return memStore[k]??null; } }
+function storeSet(k,v){ memStore[k]=v; try{ localStorage.setItem(k,v); }catch(e){} }
+function loadLocalRank(){ try{ return JSON.parse(storeGet('jk_rank_all'))||[]; }catch(e){ return []; } }
+function saveLocalRank(list){ storeSet('jk_rank_all', JSON.stringify(list)); }
+
+let allRows=[];          // 서버/로컬에서 받은 전체 레코드
+let rankTab='race', rankPeriod='all', rankGrade='all', rankChapter='all', rankHighlight=null;
+
+/* ── JSONP 호출 ── */
+function jsonp(url){
+  return new Promise((resolve,reject)=>{
+    const cb='jk_cb_'+Math.random().toString(36).slice(2);
+    const t=setTimeout(()=>{ cleanup(); reject(new Error('timeout')); },8000);
+    function cleanup(){ clearTimeout(t); delete window[cb]; if(s.parentNode)s.parentNode.removeChild(s); }
+    window[cb]=(data)=>{ cleanup(); resolve(data); };
+    const s=document.createElement('script');
+    s.src=url+(url.indexOf('?')>=0?'&':'?')+'callback='+cb;
+    s.onerror=()=>{ cleanup(); reject(new Error('network')); };
+    document.body.appendChild(s);
+  });
+}
+
+/* ── 점수 등록 ── */
+async function submitScore(){
+  const name=(document.getElementById('nameInput').value||'익명').trim().slice(0,12)||'익명';
+  if(!pendingResult){ closeNameModal(); return; }
+  const rec={ name, mode:pendingResult.mode, grade:pendingResult.grade, chapter:pendingResult.chapter, score:pendingResult.score, ts:new Date().toISOString() };
+  closeNameModal();
+  if(RANK_API){
+    showToast('랭킹에 등록 중...');
+    try{
+      const u=RANK_API+'?action=add&name='+encodeURIComponent(name)+'&mode='+rec.mode+'&grade='+encodeURIComponent(rec.grade)+'&chapter='+encodeURIComponent(rec.chapter)+'&score='+rec.score;
+      await jsonp(u);
+      showToast('통합 랭킹에 등록되었습니다!');
+    }catch(e){ showToast('등록 실패 — 인터넷을 확인하세요'); }
+  } else {
+    const list=loadLocalRank(); list.push(rec); saveLocalRank(list.slice(-500));
+    showToast('랭킹에 등록되었습니다 (이 기기)');
+  }
+  openRanking(pendingResult.mode, name);
+}
+function closeNameModal(){ closeOverlay('nameModal'); }
+
+/* ── 랭킹 열기 ── */
+async function openRanking(mode,highlight){
+  rankTab=mode||'race'; rankHighlight=highlight||null;
+  rankGrade='all'; rankChapter='all';
+  document.getElementById('rtab-race').classList.toggle('active',rankTab==='race');
+  document.getElementById('rtab-hunt').classList.toggle('active',rankTab==='hunt');
+  ['all','1','2','3'].forEach(x=>document.getElementById('gtab-'+x).classList.toggle('active',x==='all'));
+  showView('ranking');
+  await fetchRows();
+  buildChapterFilter();
+  renderRank();
+}
+async function fetchRows(){
+  const box=document.getElementById('rank-list');
+  box.innerHTML='<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i><h4>랭킹 불러오는 중...</h4></div>';
+  if(RANK_API){
+    try{ const d=await jsonp(RANK_API+'?action=list'); allRows=(d&&d.rows)?d.rows:[]; }
+    catch(e){ allRows=[]; box.innerHTML='<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i><h4>랭킹 서버 연결 실패</h4><p>인터넷 연결을 확인해 주세요.</p></div>'; return; }
+  } else {
+    allRows=loadLocalRank();
+  }
+}
+function switchRankTab(mode){ rankTab=mode; rankHighlight=null;
+  document.getElementById('rtab-race').classList.toggle('active',mode==='race');
+  document.getElementById('rtab-hunt').classList.toggle('active',mode==='hunt');
+  buildChapterFilter(); renderRank();
+}
+function switchPeriod(p){ rankPeriod=p;
+  ['all','month','week'].forEach(x=>document.getElementById('ptab-'+x).classList.toggle('active',x===p));
+  renderRank();
+}
+function switchRankGrade(g){ rankGrade=g; rankChapter='all';
+  ['all','1','2','3'].forEach(x=>document.getElementById('gtab-'+x).classList.toggle('active',x===g));
+  buildChapterFilter(); renderRank();
+}
+function switchRankChapter(ch){ rankChapter=ch;
+  document.querySelectorAll('#rank-chapter-filters .ftab').forEach(b=>b.classList.toggle('active', b.dataset.ch===ch));
+  renderRank();
+}
+
+/* ── 단원 필터 동적 생성 (선택된 학년·모드 기준) ── */
+function buildChapterFilter(){
+  const row=document.getElementById('rank-chapter-filters'); row.innerHTML='';
+  if(rankGrade==='all'){ row.style.display='none'; return; }
+  row.style.display='flex';
+  const seen=new Set();
+  const chapters=allRows.filter(r=>r.mode===rankTab && String(r.grade)===rankGrade).map(r=>r.chapter).filter(c=>{ if(seen.has(c))return false; seen.add(c); return true; });
+  const tabs=[{ch:'all',label:'전체 단원'},...chapters.map(c=>({ch:c,label:c}))];
+  tabs.forEach((t,i)=>{ const b=document.createElement('button'); b.className='ftab'+(i===0?' active':''); b.dataset.ch=t.ch; b.textContent=t.label;
+    b.style.cssText='max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
+    b.onclick=()=>switchRankChapter(t.ch); row.appendChild(b); });
+  rankChapter='all';
+}
+
+/* ── 필터 + 이름별 최고점 + 정렬 ── */
+function withinPeriod(ts,period){
+  if(period==='all') return true;
+  const days=(Date.now()-new Date(ts).getTime())/(1000*60*60*24);
+  return period==='week' ? days<=7 : days<=30;
+}
+function dedupeByName(list){
+  const best={};
+  list.forEach(r=>{ if(!best[r.name] || r.score>best[r.name].score) best[r.name]=r; });
+  return Object.values(best).sort((a,b)=>b.score-a.score);
+}
+function renderRank(){
+  let list=allRows.filter(r=>
+    r.mode===rankTab &&
+    withinPeriod(r.ts, rankPeriod) &&
+    (rankGrade==='all' || String(r.grade)===rankGrade) &&
+    (rankChapter==='all' || r.chapter===rankChapter)
+  );
+  list=dedupeByName(list);
+  const box=document.getElementById('rank-list');
+  if(!list.length){
+    box.innerHTML='<div class="empty"><i class="fa-solid fa-trophy"></i><h4>해당 조건의 기록이 없습니다</h4><p>게임을 플레이하고 첫 번째 기록의 주인공이 되어보세요!</p></div>'; return;
+  }
+  let html='<div class="rank-table">'; let used=false;
+  list.slice(0,30).forEach((r,i)=>{
+    const pos=i+1; let pc=''; if(pos===1)pc='top1'; else if(pos===2)pc='top2'; else if(pos===3)pc='top3';
+    const isMe=(!used && rankHighlight && r.name===rankHighlight); if(isMe)used=true;
+    const medal = pos<=3 ? '<i class="fa-solid fa-medal"></i>' : pos;
+    const dateStr = (r.ts||'').slice(0,10);
+    html+='<div class="rank-row'+(isMe?' me':'')+'">'+
+      '<div class="rank-pos '+pc+'">'+medal+'</div>'+
+      '<div class="rank-name">'+escapeHtml(r.name)+'<div class="rank-meta">중'+r.grade+' · '+escapeHtml(r.chapter)+' · '+dateStr+'</div></div>'+
+      '<div class="rank-score">'+r.score+'</div></div>';
+  });
+  html+='</div>'; box.innerHTML=html;
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ════════════ 모달 / 토스트 ════════════ */
+function openOverlay(id){ document.getElementById(id).classList.add('open'); }
+function closeOverlay(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); }));
+let toastT;
+function showToast(msg){ const t=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2400); }
+
+/* 키보드 (플래시카드) */
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('view-flashcard').classList.contains('active')){
+    if(e.code==='Space'){ e.preventDefault(); flipCard(); }
+    if(e.code==='ArrowRight') nextCard(e);
+    if(e.code==='ArrowLeft') prevCard(e);
+  }
+});
+
+/* ════════════ 초기화 ════════════ */
+renderHome();      // 먼저 '준비 중' 상태로 즉시 표시
+loadAllSheets();   // 구글 시트 로딩 완료 후 자동 갱신
+</script>
+</body>
+</html>

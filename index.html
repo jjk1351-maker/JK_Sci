@@ -253,8 +253,8 @@
     .mem-hud-btns { display:flex; gap:8px; }
     .mem-btn { background:var(--card); border:1px solid var(--border); color:var(--text); cursor:pointer; padding:10px 16px; border-radius:30px; font-weight:700; font-size:14px; transition:all 0.2s; }
     .mem-btn:hover { border-color:var(--border-h); color:var(--accent); }
-    .mem-board { display:grid; gap:clamp(6px,1.5vw,12px); margin:0 auto; perspective:1000px; max-width:660px; }
-    .mem-card { aspect-ratio:3/4; cursor:pointer; position:relative; transform-style:preserve-3d; transition:transform 0.45s; }
+    .mem-board { display:grid; gap:clamp(6px,1.5vw,12px); margin:0 auto; perspective:1000px; max-width:680px; width:100%; }
+    .mem-card { width:100%; aspect-ratio:3/4; min-height:80px; cursor:pointer; position:relative; transform-style:preserve-3d; transition:transform 0.45s; }
     .mem-card.flipped { transform:rotateY(180deg); }
     .mem-card.matched { animation:memPop .4s ease; pointer-events:none; }
     @keyframes memPop{0%{transform:rotateY(180deg) scale(1);}50%{transform:rotateY(180deg) scale(1.12);}100%{transform:rotateY(180deg) scale(1);}}
@@ -1263,18 +1263,22 @@ function renderMemRankUI(){
 function loadMemRanking(){
   const box=document.getElementById('mem-rank-list');
   box.innerHTML='<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i><h4>불러오는 중...</h4></div>';
-  jsonp(MEM_RANK_API+'?action=list&level='+memRankLv+'&game_type='+memRankGameType)
+  // game_type은 새 스크립트에서만 지원 — 없으면 전체 반환
+  jsonp(MEM_RANK_API+'?action=list&level='+memRankLv)
     .then(res=>{
       let rows=(res&&res.rankings)||[];
+      // game_type 필드가 있는 경우만 필터 (없으면 원소기호로 간주)
+      rows=rows.filter(r=>(!r.game_type || r.game_type===memRankGameType));
+      // 주간 필터
       rows=rows.filter(r=>withinThisWeek(r.ts||r.date));
       if(memRankType==='accum'){
-        const acc={}; rows.forEach(r=>{ const k=r.name; if(!acc[k]) acc[k]={name:k,score:0,seconds:0}; acc[k].score+=Number(r.score); acc[k].seconds+=Number(r.seconds||0); });
+        const acc={}; rows.forEach(r=>{ const k=r.name; if(!acc[k]) acc[k]={name:k,score:0}; acc[k].score+=Number(r.score); });
         rows=Object.values(acc).sort((a,b)=>b.score-a.score);
       } else {
         const best={}; rows.forEach(r=>{ if(!best[r.name]||Number(r.score)>Number(best[r.name].score)) best[r.name]=r; });
         rows=Object.values(best).sort((a,b)=>b.score-a.score);
       }
-      if(!rows.length){ box.innerHTML='<div class="empty"><i class="fa-solid fa-trophy"></i><h4>아직 기록이 없습니다</h4><p>첫 번째 도전자가 되어보세요!</p></div>'; return; }
+      if(!rows.length){ box.innerHTML='<div class="empty"><i class="fa-solid fa-trophy"></i><h4>이번 주 기록이 없습니다</h4><p>첫 번째 도전자가 되어보세요!</p></div>'; return; }
       const med=['🥇','🥈','🥉'];
       let html='<div class="rank-table">';
       rows.slice(0,20).forEach((r,i)=>{

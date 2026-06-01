@@ -9,6 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
   <style>
+    /* ══════════════════════════════════════
+       JK SCIENCE LEARNING — 통합 디자인 시스템
+       ══════════════════════════════════════ */
     :root {
       --bg:#0e1830; --surface:#162038; --card:#1b2a45; --card-h:#243454;
       --accent:#5bffc8; --a-glow:rgba(91,255,200,0.14);
@@ -59,7 +62,25 @@
     .sec-label { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; color:var(--accent); }
     .sec-div { flex:1; height:1px; background:var(--border); }
 
-    /* GRADE CARDS (home) */
+    /* ══ 홈 2탭 메뉴 ══ */
+    .home-tab-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:22px; }
+    @media (max-width:620px){ .home-tab-grid{ grid-template-columns:1fr; } }
+    .home-tab-card {
+      background:var(--card); border:1px solid var(--border); border-radius:22px; padding:44px 32px;
+      cursor:pointer; transition:all 0.28s cubic-bezier(.25,.8,.25,1); position:relative; overflow:hidden;
+      display:flex; flex-direction:column; align-items:center; text-align:center; gap:12px;
+    }
+    .home-tab-card::before { content:''; position:absolute; top:0; left:0; width:100%; height:4px; background:var(--htc); }
+    .home-tab-card .htc-glow { position:absolute; width:280px; height:280px; border-radius:50%; background:var(--htc); opacity:0; filter:blur(80px); top:-80px; right:-80px; transition:opacity 0.4s; }
+    .home-tab-card:hover { transform:translateY(-8px); background:var(--card-h); border-color:rgba(255,255,255,0.14); box-shadow:0 22px 55px rgba(0,0,0,0.5); }
+    .home-tab-card:hover .htc-glow { opacity:0.18; }
+    .htc-icon { width:80px; height:80px; border-radius:20px; display:grid; place-items:center; font-size:36px; color:var(--htc); border:1px solid var(--htc); background:color-mix(in srgb, var(--htc) 10%, transparent); margin-bottom:6px; }
+    .htc-title { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; color:var(--text); }
+    .htc-en { font-family:'DM Mono',monospace; font-size:11px; color:var(--htc); letter-spacing:0.12em; }
+    .htc-desc { font-size:13.5px; color:var(--sub); line-height:1.65; max-width:280px; }
+    .htc-go { margin-top:6px; font-size:14px; font-weight:700; color:var(--htc); display:flex; align-items:center; gap:7px; }
+
+    /* GRADE CARDS */
     .grade-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
     @media (max-width:820px){ .grade-grid{ grid-template-columns:1fr; } }
     .grade-card {
@@ -193,6 +214,75 @@
     .rank-meta { font-size:12px; color:var(--sub); }
     .rank-score { font-family:'DM Mono',monospace; font-size:18px; font-weight:700; color:var(--accent); }
 
+    /* ══ 기억력 게임 — 게임 선택 카드 ══ */
+    .mem-game-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:22px; }
+    @media (max-width:620px){ .mem-game-grid{ grid-template-columns:1fr; } }
+    .mem-game-card {
+      background:var(--card); border:1px solid var(--border); border-radius:22px; padding:40px 30px;
+      cursor:pointer; transition:all 0.28s; position:relative; overflow:hidden;
+      display:flex; flex-direction:column; align-items:center; text-align:center; gap:10px;
+    }
+    .mem-game-card::before { content:''; position:absolute; top:0; left:0; width:100%; height:4px; background:var(--mgc); }
+    .mem-game-card .mgc-glow { position:absolute; width:200px; height:200px; border-radius:50%; background:var(--mgc); opacity:0; filter:blur(70px); top:-40px; right:-40px; transition:opacity 0.4s; }
+    .mem-game-card:hover { transform:translateY(-8px); background:var(--card-h); border-color:rgba(255,255,255,0.14); box-shadow:0 22px 55px rgba(0,0,0,0.5); }
+    .mem-game-card:hover .mgc-glow { opacity:0.22; }
+    .mgc-icon { width:72px; height:72px; border-radius:18px; display:grid; place-items:center; font-size:32px; color:var(--mgc); border:1px solid var(--mgc); background:color-mix(in srgb,var(--mgc) 10%,transparent); margin-bottom:8px; }
+    .mgc-title { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; }
+    .mgc-en { font-family:'DM Mono',monospace; font-size:11px; color:var(--mgc); letter-spacing:0.1em; }
+    .mgc-desc { font-size:13px; color:var(--sub); line-height:1.6; }
+    .mgc-go { font-size:13px; font-weight:700; color:var(--mgc); display:flex; align-items:center; gap:6px; margin-top:6px; }
+
+    /* ══ 기억력 게임 — 난이도 선택 ══ */
+    .mem-name-box { display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px 20px; }
+    .mem-name-box label { font-size:13px; color:var(--sub); font-weight:600; white-space:nowrap; }
+    .mem-name-box input { flex:1; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:10px 14px; color:var(--text); font-family:'Noto Sans KR',sans-serif; font-size:15px; font-weight:700; max-width:200px; }
+    .mem-name-box input:focus { outline:none; border-color:var(--accent); }
+    .levels-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; }
+    .lvl-card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:22px 16px; cursor:pointer; transition:all 0.2s; text-align:center; display:flex; flex-direction:column; gap:8px; }
+    .lvl-card:hover { transform:translateY(-4px); background:var(--card-h); border-color:var(--border-h); box-shadow:0 12px 30px rgba(0,0,0,0.4); }
+    .lvl-num { font-family:'Syne',sans-serif; font-size:38px; font-weight:800; color:var(--accent); line-height:1; }
+    .lvl-desc { font-size:13px; color:var(--sub); }
+    .lvl-pts { font-size:12px; font-weight:700; color:var(--bg); background:var(--accent); padding:3px 10px; border-radius:20px; display:inline-block; }
+    .lvl-best { font-size:11px; color:var(--gold); }
+
+    /* ══ 기억력 게임 — 게임 보드 ══ */
+    .mem-hud { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+    .mem-hud .chip { background:var(--card); border:1px solid var(--border); border-radius:30px; padding:10px 16px; font-weight:700; font-size:14px; display:flex; align-items:center; gap:6px; }
+    .mem-hud .chip b { font-size:18px; color:var(--accent); font-family:'DM Mono',monospace; }
+    .mem-hud .chip.time-chip b { color:var(--gold); }
+    .mem-hud-btns { display:flex; gap:8px; }
+    .mem-btn { background:var(--card); border:1px solid var(--border); color:var(--text); cursor:pointer; padding:10px 16px; border-radius:30px; font-weight:700; font-size:14px; transition:all 0.2s; }
+    .mem-btn:hover { border-color:var(--border-h); color:var(--accent); }
+    .mem-board { display:grid; gap:clamp(6px,1.5vw,12px); margin:0 auto; perspective:1000px; max-width:660px; }
+    .mem-card { aspect-ratio:3/4; cursor:pointer; position:relative; transform-style:preserve-3d; transition:transform 0.45s; }
+    .mem-card.flipped { transform:rotateY(180deg); }
+    .mem-card.matched { animation:memPop .4s ease; pointer-events:none; }
+    @keyframes memPop{0%{transform:rotateY(180deg) scale(1);}50%{transform:rotateY(180deg) scale(1.12);}100%{transform:rotateY(180deg) scale(1);}}
+    .mem-face { position:absolute; inset:0; border-radius:14px; backface-visibility:hidden; -webkit-backface-visibility:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 4px 10px rgba(0,0,0,.3); overflow:hidden; }
+    /* 앞면 (뒤집히기 전) */
+    .mem-front { background:linear-gradient(135deg,#1b2a45,#243454); border:2px solid rgba(255,255,255,0.1); color:var(--sub); font-size:clamp(24px,7vw,40px); }
+    .mem-front::after { content:"?"; font-weight:800; }
+    /* 뒷면 — 원소기호 (심볼) */
+    .mem-back { transform:rotateY(180deg); }
+    .mem-back.sym { background:linear-gradient(135deg,#ffffff,#fff4e6); color:#9a3412; }
+    /* 뒷면 — 원소기호 (이름) */
+    .mem-back.name { background:linear-gradient(135deg,#11998e,#38ef7d); color:#053b30; }
+    /* 뒷면 — 생물분류 (카테고리) */
+    .mem-back.bio-cat { background:linear-gradient(135deg,#5aa0ff,#a78bfa); color:#fff; }
+    /* 뒷면 — 생물분류 (예시) */
+    .mem-back.bio-ex { background:linear-gradient(135deg,#74d883,#38ef7d); color:#052a0a; }
+    .mem-back .mem-emoji { font-size:clamp(22px,7vw,36px); line-height:1; }
+    .mem-back .mem-symbol { font-size:clamp(20px,7vw,38px); font-weight:800; margin-top:2px; }
+    .mem-back .mem-nm { font-size:clamp(14px,4.5vw,24px); font-weight:800; text-align:center; padding:4px; word-break:keep-all; }
+    .mem-back .mem-anum { position:absolute; top:6px; left:8px; font-size:11px; font-weight:700; opacity:0.65; }
+    .mem-card.matched .mem-face { box-shadow:0 0 0 3px var(--gold), 0 4px 10px rgba(0,0,0,.3); }
+
+    /* ══ 기억력 랭킹 ══ */
+    .mem-rank-section { display:flex; flex-direction:column; gap:14px; }
+    .mem-rank-tabs { display:flex; gap:6px; flex-wrap:wrap; }
+    .mem-rank-tabs button { background:var(--card); border:1px solid var(--border); color:var(--sub); cursor:pointer; padding:8px 14px; border-radius:9px; font-weight:700; font-size:13px; transition:all 0.2s; }
+    .mem-rank-tabs button.on { background:var(--accent); color:var(--bg); border-color:var(--accent); }
+
     /* BUTTONS */
     .btn { padding:14px 28px; border-radius:11px; border:none; font-family:'Noto Sans KR',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s; }
     .btn-primary { background:var(--accent); color:var(--bg); }
@@ -216,6 +306,20 @@
     .modal p { font-size:13px; color:var(--sub); margin-bottom:20px; }
     .modal input { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:10px; padding:13px 16px; color:var(--text); font-family:'Noto Sans KR',sans-serif; font-size:16px; text-align:center; margin-bottom:18px; }
     .modal input:focus { outline:none; border-color:var(--accent); }
+    /* 기억력 게임 결과 모달 */
+    .mem-result-modal { background:var(--surface); border:1px solid var(--border-h); border-radius:24px; width:100%; max-width:380px; padding:32px 28px; box-shadow:0 30px 70px rgba(0,0,0,0.6); animation:pop 0.3s cubic-bezier(.2,.9,.3,1.2); text-align:center; }
+    .mem-result-modal .trophy { font-size:54px; margin-bottom:8px; }
+    .mem-result-modal h2 { font-size:22px; font-weight:900; margin-bottom:4px; }
+    .mem-result-modal .mem-score { font-family:'DM Mono',monospace; font-size:48px; font-weight:700; color:var(--accent); }
+    .mem-result-modal .mem-sub { font-size:13px; color:var(--sub); margin:4px 0 12px; }
+    .newbest-badge { display:inline-block; background:var(--gold); color:#3a2500; font-weight:800; padding:5px 14px; border-radius:20px; font-size:13px; margin-bottom:10px; }
+    .submit-msg { font-size:13px; color:var(--green); font-weight:700; min-height:18px; margin-bottom:10px; }
+    .mem-modal-btns { display:flex; gap:10px; margin-top:8px; }
+    .mmb { flex:1; border:none; cursor:pointer; padding:14px; border-radius:14px; font-weight:800; font-size:15px; color:#fff; transition:all 0.2s; }
+    .mmb:hover { transform:translateY(-2px); }
+    .mmb.again { background:#f97316; }
+    .mmb.rank  { background:var(--blue); }
+    .mmb.home  { background:#4b5563; }
 
     /* FOOTER */
     footer { border-top:1px solid var(--border); padding-top:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
@@ -226,6 +330,9 @@
     .toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--card); border:1px solid var(--border-h); color:var(--text); padding:13px 24px; border-radius:10px; font-size:13.5px; font-weight:600; opacity:0; pointer-events:none; z-index:2000; transition:all 0.3s; box-shadow:0 10px 30px rgba(0,0,0,0.5); display:flex; align-items:center; gap:9px; }
     .toast i { color:var(--accent); }
     .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+    /* confetti */
+    .confetti-piece { position:fixed; top:-12px; width:10px; height:16px; z-index:3000; pointer-events:none; }
 
     @keyframes fadeIn { from{opacity:0} to{opacity:1} }
     @keyframes pop { from{opacity:0;transform:scale(.92) translateY(10px)} to{opacity:1;transform:none} }
@@ -241,14 +348,41 @@
       <h1 onclick="goHome()">JK SCIENCE LEARNING</h1>
       <p>중학 과학 통합 학습 포털 시스템</p>
     </div>
-    <div class="rank-chip" onclick="openRanking('race')"><i class="fa-solid fa-trophy"></i><span>랭킹</span></div>
+    <div class="rank-chip" onclick="openWordRanking('race')"><i class="fa-solid fa-trophy"></i><span>랭킹</span></div>
   </header>
 
   <!-- ════ HOME ════ -->
   <div class="view active" id="view-home">
     <div class="welcome">
       <h2>안녕하세요,&nbsp;<em>JK 과학 클래스</em>에 오신 것을 환영합니다!</h2>
-      <p>학년을 선택하고 단원별 과학 용어를 플래시카드로 학습한 뒤, <em>레이스</em>와 <em>헌트</em> 게임으로 친구들과 점수 대결을 펼쳐 보세요!</p>
+      <p><em>과학 단어장</em>으로 학년별 용어를 익히고, <em>기억력 게임</em>으로 재미있게 학습하세요!</p>
+    </div>
+    <div class="sec-head"><span class="sec-label">Select Mode</span><div class="sec-div"></div></div>
+    <div class="home-tab-grid">
+      <div class="home-tab-card" style="--htc:var(--accent)" onclick="enterWordSection()">
+        <div class="htc-glow"></div>
+        <div class="htc-icon"><i class="fa-solid fa-book-open-reader"></i></div>
+        <div class="htc-title">과학 단어장</div>
+        <div class="htc-en">VOCABULARY</div>
+        <div class="htc-desc">중1·2·3 학년별 과학 용어를 플래시카드로 익히고, 게임으로 점수 대결!</div>
+        <div class="htc-go">학습하러 가기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+      <div class="home-tab-card" style="--htc:var(--gold)" onclick="enterMemSection()">
+        <div class="htc-glow"></div>
+        <div class="htc-icon"><i class="fa-solid fa-brain"></i></div>
+        <div class="htc-title">기억력 게임</div>
+        <div class="htc-en">MEMORY GAME</div>
+        <div class="htc-desc">과학 분류 카드를 짝지으며 과학 개념을 재미있게 암기!</div>
+        <div class="htc-go">게임하러 가기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ 과학 단어장 학년 선택 ════ -->
+  <div class="view" id="view-word-home">
+    <div class="sub-head">
+      <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb">VOCABULARY · 학년 선택</span><h2>과학 단어장</h2></div>
     </div>
     <div class="sec-head"><span class="sec-label">Select Grade</span><div class="sec-div"></div></div>
     <div class="grade-grid" id="grade-grid"></div>
@@ -257,7 +391,7 @@
   <!-- ════ GRADE (단원 목록) ════ -->
   <div class="view" id="view-grade">
     <div class="sub-head">
-      <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+      <button class="back-btn" onclick="showView('word-home')"><i class="fa-solid fa-arrow-left"></i></button>
       <div class="sub-title"><span class="crumb" id="grade-crumb"></span><h2 id="grade-h2"></h2></div>
     </div>
     <div class="filters" id="grade-filters"></div>
@@ -294,7 +428,7 @@
         <div class="mc-go">찾으러가기 <i class="fa-solid fa-arrow-right"></i></div>
       </div>
     </div>
-    <div class="btn-row"><button class="btn btn-ghost" onclick="openRanking('race')"><i class="fa-solid fa-trophy"></i>&nbsp; 이 게임 랭킹 보기</button></div>
+    <div class="btn-row"><button class="btn btn-ghost" onclick="openWordRanking('race')"><i class="fa-solid fa-trophy"></i>&nbsp; 이 게임 랭킹 보기</button></div>
   </div>
 
   <!-- ════ FLASHCARD ════ -->
@@ -356,7 +490,7 @@
     <div class="hunt-board" id="hunt-board"></div>
   </div>
 
-  <!-- ════ RESULT ════ -->
+  <!-- ════ RESULT (단어 게임) ════ -->
   <div class="view" id="view-result">
     <div class="result-card">
       <div class="trophy"><i class="fa-solid fa-trophy"></i></div>
@@ -370,20 +504,19 @@
     </div>
   </div>
 
-  <!-- ════ RANKING ════ -->
-  <div class="view" id="view-ranking">
+  <!-- ════ RANKING (단어 게임) ════ -->
+  <div class="view" id="view-word-ranking">
     <div class="sub-head">
-      <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
-      <div class="sub-title"><span class="crumb">Leaderboard</span><h2>명예의 전당</h2></div>
+      <button class="back-btn" onclick="showView('word-home')"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb">Leaderboard · 단어장</span><h2>명예의 전당</h2></div>
     </div>
     <div class="filters">
       <button class="ftab active" id="rtab-race" onclick="switchRankTab('race')"><i class="fa-solid fa-flag-checkered"></i>&nbsp; 레이스</button>
       <button class="ftab" id="rtab-hunt" onclick="switchRankTab('hunt')"><i class="fa-solid fa-magnifying-glass"></i>&nbsp; 헌트</button>
     </div>
     <div class="filters" style="margin-top:-14px">
-      <button class="ftab period active" id="ptab-all" onclick="switchPeriod('all')">전체 기간</button>
-      <button class="ftab period" id="ptab-month" onclick="switchPeriod('month')">월간</button>
-      <button class="ftab period" id="ptab-week" onclick="switchPeriod('week')">주간</button>
+      <button class="ftab period active" id="ptab-accum" onclick="switchPeriod('accum')">누적 순위</button>
+      <button class="ftab period" id="ptab-best" onclick="switchPeriod('best')">최고 순위</button>
     </div>
     <div class="filters" style="margin-top:-14px">
       <button class="ftab gradef active" id="gtab-all" onclick="switchRankGrade('all')">전체 학년</button>
@@ -395,22 +528,122 @@
     <div id="rank-list"></div>
   </div>
 
+  <!-- ════ 기억력 게임 선택 ════ -->
+  <div class="view" id="view-mem-home">
+    <div class="sub-head">
+      <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb">MEMORY GAME · 게임 선택</span><h2>기억력 게임</h2></div>
+    </div>
+    <div class="sec-head"><span class="sec-label">Select Game</span><div class="sec-div"></div></div>
+    <div class="mem-game-grid">
+      <div class="mem-game-card" style="--mgc:var(--gold)" onclick="enterMemGame('element')">
+        <div class="mgc-glow"></div>
+        <div class="mgc-icon"><i class="fa-solid fa-atom"></i></div>
+        <div class="mgc-title">원소기호</div>
+        <div class="mgc-en">ELEMENT MEMORY</div>
+        <div class="mgc-desc">그림·기호 카드와 이름 카드를 짝짓는 메모리 게임! 1~20번 원소를 난이도별로 도전.</div>
+        <div class="mgc-go">게임하기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+      <div class="mem-game-card" style="--mgc:var(--green)" onclick="enterMemGame('bio')">
+        <div class="mgc-glow"></div>
+        <div class="mgc-icon"><i class="fa-solid fa-paw"></i></div>
+        <div class="mgc-title">생물 분류</div>
+        <div class="mgc-en">BIO CLASSIFICATION</div>
+        <div class="mgc-desc">생물 분류 카드를 짝지으며 동물계·식물계 분류 체계를 재미있게 익혀요!</div>
+        <div class="mgc-go">게임하기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ 기억력 게임 난이도 선택 ════ -->
+  <div class="view" id="view-mem-level">
+    <div class="sub-head">
+      <button class="back-btn" onclick="showView('mem-home')"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb" id="mem-level-crumb"></span><h2 id="mem-level-title"></h2></div>
+      <div class="sub-actions">
+        <button class="btn btn-ghost" onclick="openMemRanking()" style="font-size:13px;padding:10px 18px;">
+          <i class="fa-solid fa-trophy"></i>&nbsp; 랭킹
+        </button>
+      </div>
+    </div>
+    <div class="mem-name-box">
+      <label><i class="fa-solid fa-user"></i>&nbsp; 이름</label>
+      <input type="text" id="memPlayerName" maxlength="12" placeholder="이름을 입력하세요"/>
+    </div>
+    <div class="sec-head"><span class="sec-label">Select Level</span><div class="sec-div"></div></div>
+    <div class="levels-grid" id="levels-grid"></div>
+  </div>
+
+  <!-- ════ 기억력 게임 보드 ════ -->
+  <div class="view" id="view-mem-game">
+    <div class="sub-head">
+      <button class="back-btn" id="mem-game-back"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb" id="mem-game-crumb"></span><h2 id="mem-game-title"></h2></div>
+    </div>
+    <div class="mem-hud">
+      <div class="chip time-chip">⏱️ <b id="mem-timer">0.0</b>초</div>
+      <div class="chip">🃏 <b id="mem-found">0</b>/<span id="mem-total">0</span></div>
+      <div class="mem-hud-btns">
+        <button class="mem-btn" id="mem-sound-btn">🔊</button>
+        <button class="mem-btn" id="mem-exit-btn">🏠 나가기</button>
+      </div>
+    </div>
+    <div class="mem-board" id="mem-board"></div>
+  </div>
+
+  <!-- ════ 기억력 게임 랭킹 ════ -->
+  <div class="view" id="view-mem-ranking">
+    <div class="sub-head">
+      <button class="back-btn" id="mem-rank-back"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb" id="mem-rank-crumb">Leaderboard · 기억력</span><h2 id="mem-rank-title">명예의 전당</h2></div>
+    </div>
+    <div class="mem-rank-section">
+      <!-- 게임 종류 탭 -->
+      <div class="mem-rank-tabs" id="mem-rank-game-tabs"></div>
+      <!-- 순위 종류 탭 (누적/최고) -->
+      <div class="mem-rank-tabs" id="mem-rank-type-tabs">
+        <button class="on" data-t="accum">누적 순위</button>
+        <button data-t="best">최고 순위</button>
+      </div>
+      <!-- 난이도 탭 -->
+      <div class="mem-rank-tabs" id="mem-rank-lv-tabs"></div>
+      <div id="mem-rank-list"><div class="empty"><i class="fa-solid fa-spinner fa-spin"></i><h4>불러오는 중...</h4></div></div>
+    </div>
+  </div>
+
   <footer>
     <span class="fbrand">JK SCIENCE LEARNING</span>
     <p>&copy; 2026 JK SCIENCE LEARNING Portal · Powered by JK &amp; SH</p>
   </footer>
 </div>
 
-<!-- 이름 입력 모달 -->
+<!-- 단어 게임 이름 입력 모달 -->
 <div class="overlay" id="nameModal">
   <div class="modal">
     <div class="trophy"><i class="fa-solid fa-medal"></i></div>
     <h3>랭킹 등록</h3>
-    <p id="nameModalDesc">점수를 랭킹에 등록합니다. 이름을 입력하세요.</p>
-    <input type="text" id="nameInput" maxlength="10" placeholder="이름 (최대 10자)" onkeydown="if(event.key==='Enter')submitScore()"/>
+    <p id="nameModalDesc">점수를 랭킹에 등록합니다.</p>
+    <input type="text" id="nameInput" maxlength="10" placeholder="이름 (최대 10자)" onkeydown="if(event.key==='Enter')submitWordScore()"/>
     <div class="btn-row">
-      <button class="btn btn-ghost" onclick="closeNameModal()">건너뛰기</button>
-      <button class="btn btn-primary" onclick="submitScore()">등록</button>
+      <button class="btn btn-ghost" onclick="closeOverlay('nameModal')">건너뛰기</button>
+      <button class="btn btn-primary" onclick="submitWordScore()">등록</button>
+    </div>
+  </div>
+</div>
+
+<!-- 기억력 게임 결과 모달 -->
+<div class="overlay" id="memModal">
+  <div class="mem-result-modal">
+    <div class="trophy" id="mem-trophy">🏆</div>
+    <h2 id="mem-result-title">클리어!</h2>
+    <div id="mem-newbest" class="newbest-badge" style="display:none;">🎉 내 최고기록 갱신!</div>
+    <div class="mem-score"><span id="mem-final-score">0</span>점</div>
+    <div class="mem-sub" id="mem-result-sub"></div>
+    <div class="submit-msg" id="mem-submit-msg"></div>
+    <div class="mem-modal-btns">
+      <button class="mmb again" id="mem-again-btn">다시</button>
+      <button class="mmb rank"  id="mem-rank-btn">랭킹</button>
+      <button class="mmb home"  id="mem-home-btn">난이도</button>
     </div>
   </div>
 </div>
@@ -418,34 +651,131 @@
 <div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastMsg"></span></div>
 
 <script>
-/* ════════════════════════════════════════════════
-   ⚙️  설정 영역 — GitHub 배포 후 여기만 수정하세요
-   ──────────────────────────────────────────────────
-   각 학년 구글 시트 "웹에 게시(CSV)" 주소를 넣으면
-   단어장이 자동으로 연동됩니다. 비워두면 "준비 중"으로 표시됩니다.
+/* ════════════════════════════════════════════════════════
+   ⚙️  API 설정
+   ════════════════════════════════════════════════════════ */
+// 단어장 랭킹 서버 (JK Science Learning Apps Script)
+const WORD_RANK_API = "https://script.google.com/macros/s/AKfycbydONh4q8U4D-QciXHyR9jg0DkRRiAkoGKfyYXBMjHYjQHGbG9m0y6iLRDVv3BQeVXwJQ/exec";
+// 기억력 게임 랭킹 서버 (Element Game Apps Script)
+const MEM_RANK_API  = "https://script.google.com/macros/s/AKfycbwRJ02wtBve_yEyexJUFSyNuRNY9RlxicSZsXbqi-pv4325oHJC82wCkDeW6WLxevG2/exec";
 
-   [컬럼 순서] 단원 | 단어 | 난이도 | 한국어 정의 | 러시아어 번역 | 예문
-════════════════════════════════════════════════ */
+/* 단어장 시트 */
 const GRADE_SHEETS = {
-  '1': "https://docs.google.com/spreadsheets/d/e/2PACX-1vQVcWKvLm3Q21Yz3mgReUaHL4UvZSa78JCmiJU-RdSIPOnog7WEQn0Yc3CMDrXUI0FtHBoAUY-LH1RI/pub?output=csv",   // ← 중1 구글시트 CSV 주소
-  '2': "https://docs.google.com/spreadsheets/d/e/2PACX-1vSUKIFv2Xo4jSZLWjD_f6OeUzStm752uz01p6Yv2kx4gMLPPcPN9ndgCXLmi1MzmSrRzxvieltPkfEM/pub?output=csv",   // ← 중2 구글시트 CSV 주소
-  '3': "https://docs.google.com/spreadsheets/d/e/2PACX-1vTqIg84mcIXRYfB6BcXhVGmF4wpBgyVTsxLe5ZxJydYIWCkxXb3IGreaEJjr-GdWJWncel7djBfAgp7/pub?output=csv"    // ← 중3 구글시트 CSV 주소
+  '1': "https://docs.google.com/spreadsheets/d/e/2PACX-1vQVcWKvLm3Q21Yz3mgReUaHL4UvZSa78JCmiJU-RdSIPOnog7WEQn0Yc3CMDrXUI0FtHBoAUY-LH1RI/pub?output=csv",
+  '2': "https://docs.google.com/spreadsheets/d/e/2PACX-1vSUKIFv2Xo4jSZLWjD_f6OeUzStm752uz01p6Yv2kx4gMLPPcPN9ndgCXLmi1MzmSrRzxvieltPkfEM/pub?output=csv",
+  '3': "https://docs.google.com/spreadsheets/d/e/2PACX-1vTqIg84mcIXRYfB6BcXhVGmF4wpBgyVTsxLe5ZxJydYIWCkxXb3IGreaEJjr-GdWJWncel7djBfAgp7/pub?output=csv"
 };
-
-// 통합 랭킹 서버 (Apps Script 웹앱 /exec 주소)
-// 비워두면 이 기기 안에서만 저장되는 로컬 랭킹으로 동작합니다.
-const RANK_API = "https://script.google.com/macros/s/AKfycbydONh4q8U4D-QciXHyR9jg0DkRRiAkoGKfyYXBMjHYjQHGbG9m0y6iLRDVv3BQeVXwJQ/exec";
-
 const GRADE_INFO = {
   '1': { name:'중학교 1학년', icon:'fa-seedling', color:'#ff7b7b' },
   '2': { name:'중학교 2학년', icon:'fa-atom',     color:'#5aa0ff' },
   '3': { name:'중학교 3학년', icon:'fa-rocket',   color:'#74d883' }
 };
-
-// 학년별 단어 데이터 (구글시트에서 로딩되어 채워짐)
 const GRADE_DATA = { '1':[], '2':[], '3':[] };
 
-/* ── 강력한 CSV 파서 (따옴표 안 쉼표·줄바꿈 처리) ── */
+/* ════════════════════════════════════════════════════════
+   🔬 원소 데이터
+   ════════════════════════════════════════════════════════ */
+const ELEMENTS = [
+  {n:1, sym:"H",  name:"수소",    emoji:"💧"},
+  {n:2, sym:"He", name:"헬륨",    emoji:"🎈"},
+  {n:3, sym:"Li", name:"리튬",    emoji:"🔋"},
+  {n:4, sym:"Be", name:"베릴륨",  emoji:"💎"},
+  {n:5, sym:"B",  name:"붕소",    emoji:"🧼"},
+  {n:6, sym:"C",  name:"탄소",    emoji:"✏️"},
+  {n:7, sym:"N",  name:"질소",    emoji:"💨"},
+  {n:8, sym:"O",  name:"산소",    emoji:"🫁"},
+  {n:9, sym:"F",  name:"플루오린",emoji:"🦷"},
+  {n:10,sym:"Ne", name:"네온",    emoji:"🪧"},
+  {n:11,sym:"Na", name:"나트륨",  emoji:"🧂"},
+  {n:12,sym:"Mg", name:"마그네슘",emoji:"🌿"},
+  {n:13,sym:"Al", name:"알루미늄",emoji:"✈️"},
+  {n:14,sym:"Si", name:"규소",    emoji:"💻"},
+  {n:15,sym:"P",  name:"인",      emoji:"🔥"},
+  {n:16,sym:"S",  name:"황",      emoji:"🥚"},
+  {n:17,sym:"Cl", name:"염소",    emoji:"🏊"},
+  {n:18,sym:"Ar", name:"아르곤",  emoji:"💡"},
+  {n:19,sym:"K",  name:"칼륨",    emoji:"🍌"},
+  {n:20,sym:"Ca", name:"칼슘",    emoji:"🦴"},
+];
+const ELEM_LEVELS = [
+  {lv:1, pairs:3,  cols:3, base:500,  target:25,  desc:"입문"},
+  {lv:2, pairs:4,  cols:4, base:1000, target:40,  desc:"쉬움"},
+  {lv:3, pairs:6,  cols:4, base:1500, target:60,  desc:"보통"},
+  {lv:4, pairs:8,  cols:4, base:2000, target:90,  desc:"어려움"},
+  {lv:5, pairs:10, cols:5, base:2500, target:130, desc:"마스터"},
+];
+
+/* ════════════════════════════════════════════════════════
+   🧬 생물 분류 데이터
+   ════════════════════════════════════════════════════════ */
+const BIO_PAIRS = [
+  {id:1,  cat:"포유류",    ex:"고래·박쥐·소",    emoji:"🐋"},
+  {id:2,  cat:"조류",      ex:"독수리·펭귄",      emoji:"🦅"},
+  {id:3,  cat:"파충류",    ex:"뱀·거북·악어",    emoji:"🐍"},
+  {id:4,  cat:"양서류",    ex:"개구리·도롱뇽",   emoji:"🐸"},
+  {id:5,  cat:"어류",      ex:"상어·연어·잉어",  emoji:"🐟"},
+  {id:6,  cat:"곤충류",    ex:"나비·메뚜기",      emoji:"🦋"},
+  {id:7,  cat:"거미류",    ex:"거미·진드기",      emoji:"🕷️"},
+  {id:8,  cat:"갑각류",    ex:"새우·게·가재",    emoji:"🦀"},
+  {id:9,  cat:"연체동물",  ex:"달팽이·오징어",   emoji:"🦑"},
+  {id:10, cat:"환형동물",  ex:"지렁이·거머리",   emoji:"🪱"},
+];
+const BIO_LEVELS = [
+  {lv:1, pairs:4,  cols:4, base:500,  target:30,  desc:"입문"},
+  {lv:2, pairs:6,  cols:4, base:1000, target:55,  desc:"보통"},
+  {lv:3, pairs:10, cols:5, base:2000, target:100, desc:"마스터"},
+];
+
+/* ════════════════════════════════════════════════════════
+   🧰 공통 유틸
+   ════════════════════════════════════════════════════════ */
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function showView(id){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById('view-'+id).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
+function goHome(){ stopRaceTimer(); stopHuntTimer(); clearInterval(memTimerId); showView('home'); }
+const memStore={};
+function storeGet(k){ try{ return localStorage.getItem(k); }catch(e){ return memStore[k]??null; } }
+function storeSet(k,v){ memStore[k]=v; try{ localStorage.setItem(k,v); }catch(e){} }
+
+/* ════════════════════════════════════════════════════════
+   📡 JSONP
+   ════════════════════════════════════════════════════════ */
+function jsonp(url){
+  return new Promise((resolve,reject)=>{
+    const cb='jk_cb_'+Math.random().toString(36).slice(2);
+    const t=setTimeout(()=>{ cleanup(); reject(new Error('timeout')); },8000);
+    function cleanup(){ clearTimeout(t); delete window[cb]; if(s.parentNode)s.parentNode.removeChild(s); }
+    window[cb]=(data)=>{ cleanup(); resolve(data); };
+    const s=document.createElement('script');
+    s.src=url+(url.indexOf('?')>=0?'&':'?')+'callback='+cb;
+    s.onerror=()=>{ cleanup(); reject(new Error('network')); };
+    document.body.appendChild(s);
+  });
+}
+
+/* ════════════════════════════════════════════════════════
+   🔊 사운드 (기억력 게임용)
+   ════════════════════════════════════════════════════════ */
+let actx=null, memSoundOn=true;
+function beep(f,d,t="sine",v=.15){
+  if(!memSoundOn)return;
+  try{
+    actx=actx||new(window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(),g=actx.createGain();
+    o.type=t; o.frequency.value=f; o.connect(g); g.connect(actx.destination);
+    g.gain.setValueAtTime(v,actx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+d);
+    o.start(); o.stop(actx.currentTime+d);
+  }catch(e){}
+}
+const sFlip=()=>beep(420,.08,"triangle");
+const sMatch=()=>{beep(660,.1);setTimeout(()=>beep(880,.14),90);};
+const sFail=()=>beep(180,.18,"sawtooth",.1);
+const sWin=()=>{[523,659,784,1046].forEach((f,i)=>setTimeout(()=>beep(f,.18),i*120));};
+
+/* ════════════════════════════════════════════════════════
+   📚 단어장 기능
+   ════════════════════════════════════════════════════════ */
 function parseCSV(text){
   const rows=[]; let row=[], cur='', inQ=false;
   for(let i=0;i<text.length;i++){
@@ -461,60 +791,37 @@ function parseCSV(text){
     def:c[3]||'', russian:c[4]||'', example:c[5]||''
   })).filter(r=>r.word);
 }
-
-/* ── 구글 시트에서 학년 데이터 로딩 ── */
 async function loadGradeSheet(g){
   const url=GRADE_SHEETS[g];
   if(!url) return [];
-  try{
-    const res=await fetch(url);
-    if(!res.ok) throw new Error('네트워크 오류');
-    const text=await res.text();
-    GRADE_DATA[g]=parseCSV(text);
-    return GRADE_DATA[g];
-  }catch(e){ console.error('중'+g+' 시트 로딩 실패:',e); return []; }
+  try{ const res=await fetch(url); if(!res.ok) throw new Error(); const text=await res.text(); GRADE_DATA[g]=parseCSV(text); return GRADE_DATA[g]; }
+  catch(e){ return []; }
 }
+async function loadAllSheets(){ await Promise.all(['1','2','3'].map(g=>loadGradeSheet(g))); renderWordHome(); }
 
-/* ── 전체 학년 로딩 후 홈 다시 렌더 ── */
-async function loadAllSheets(){
-  await Promise.all(['1','2','3'].map(g=>loadGradeSheet(g)));
-  renderHome();
-}
-
-/* ════════════ 상태 ════════════ */
 let curGrade=null, curChapter=null, curWords=[];
-
-/* ════════════ 유틸 ════════════ */
-function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function chaptersOf(g){ const seen=new Set(); return (GRADE_DATA[g]||[]).map(w=>w.chapter).filter(c=>{ if(seen.has(c))return false; seen.add(c); return true; }); }
 function wordsOf(g,ch){ return (GRADE_DATA[g]||[]).filter(w=>w.chapter===ch); }
 
-/* ════════════ 화면 전환 ════════════ */
-function showView(id){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById('view-'+id).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
-function goHome(){ stopRaceTimer(); stopHuntTimer(); renderHome(); showView('home'); }
-
-/* ════════════ HOME: 학년 카드 ════════════ */
-function renderHome(){
+function enterWordSection(){ renderWordHome(); showView('word-home'); }
+function renderWordHome(){
   const grid=document.getElementById('grade-grid'); grid.innerHTML='';
   ['1','2','3'].forEach(g=>{
     const info=GRADE_INFO[g]; const words=GRADE_DATA[g]; const ready=words&&words.length>0;
     const chCnt=ready?new Set(words.map(w=>w.chapter)).size:0;
     const card=document.createElement('div');
     card.className='grade-card'+(ready?'':' disabled'); card.style.setProperty('--gc',info.color);
-    card.innerHTML=
-      '<div class="gcard-glow"></div>'+
+    card.innerHTML='<div class="gcard-glow"></div>'+
       '<div class="gc-icon"><i class="fa-solid '+info.icon+'"></i></div>'+
       '<div class="gc-num">'+g+'</div>'+
       '<div class="gc-label">'+info.name+'</div>'+
       (ready
-        ? '<div class="gc-meta">'+chCnt+'개 단원 · '+words.length+'개 단어</div><div class="gc-btn">학습 시작 <i class="fa-solid fa-arrow-right"></i></div>'
-        : '<div class="gc-meta">준비 중</div><div class="gc-btn locked"><i class="fa-solid fa-lock"></i> 준비 중</div>');
+        ?'<div class="gc-meta">'+chCnt+'개 단원 · '+words.length+'개 단어</div><div class="gc-btn">학습 시작 <i class="fa-solid fa-arrow-right"></i></div>'
+        :'<div class="gc-meta">준비 중</div><div class="gc-btn locked"><i class="fa-solid fa-lock"></i> 준비 중</div>');
     if(ready) card.onclick=()=>openGrade(g);
     grid.appendChild(card);
   });
 }
-
-/* ════════════ GRADE: 단원 목록 ════════════ */
 function openGrade(g){
   curGrade=g; const info=GRADE_INFO[g];
   document.getElementById('grade-crumb').textContent='Grade '+g+' · 단원 선택';
@@ -528,20 +835,16 @@ function openGrade(g){
 }
 function drawChapters(g,filter){
   const grid=document.getElementById('grade-chapters'); grid.innerHTML='';
-  const chapters=chaptersOf(g).filter(c=>filter==='all'||c===filter);
-  chapters.forEach(ch=>{
+  chaptersOf(g).filter(c=>filter==='all'||c===filter).forEach(ch=>{
     const cw=wordsOf(g,ch);
     const card=document.createElement('div'); card.className='ch-card';
-    card.innerHTML=
-      '<div class="ch-top"><div class="ch-ic"><i class="fa-solid fa-book-open"></i></div><div class="ch-cnt">'+cw.length+'개</div></div>'+
+    card.innerHTML='<div class="ch-top"><div class="ch-ic"><i class="fa-solid fa-book-open"></i></div><div class="ch-cnt">'+cw.length+'개</div></div>'+
       '<div class="ch-title">'+ch+'</div>'+
       '<div class="ch-levels"><span class="lv lv1">★ '+cw.filter(w=>w.level==='★').length+'</span><span class="lv lv2">★★ '+cw.filter(w=>w.level==='★★').length+'</span><span class="lv lv3">★★★ '+cw.filter(w=>w.level==='★★★').length+'</span></div>'+
       '<div class="ch-go">모드 선택 <i class="fa-solid fa-arrow-right"></i></div>';
     card.onclick=()=>openHub(g,ch); grid.appendChild(card);
   });
 }
-
-/* ════════════ CHAPTER HUB: 모드 선택 ════════════ */
 function openHub(g,ch){
   curGrade=g; curChapter=ch; curWords=wordsOf(g,ch);
   document.getElementById('hub-crumb').textContent=GRADE_INFO[g].name+' · '+ch;
@@ -550,16 +853,16 @@ function openHub(g,ch){
   showView('hub');
 }
 
-/* ════════════ 플래시카드 ════════════ */
+/* 플래시카드 */
 let fcIdx=0, fcFlip=false;
 function startFlashcard(){
   fcIdx=0; fcFlip=false;
   document.getElementById('fc-crumb').textContent=GRADE_INFO[curGrade].name+' · STUDY';
   document.getElementById('fc-chapter').textContent=curChapter;
   document.getElementById('fc-back').onclick=()=>openHub(curGrade,curChapter);
-  renderCard(); showView('flashcard');
+  renderFCCard(); showView('flashcard');
 }
-function renderCard(){
+function renderFCCard(){
   const w=curWords[fcIdx]; fcFlip=false;
   document.getElementById('fc-inner').classList.remove('flipped');
   document.getElementById('fc-level').textContent=w.level?'난이도 '+w.level:'';
@@ -571,10 +874,10 @@ function renderCard(){
   const p=(fcIdx+1)+' / '+curWords.length; document.getElementById('fc-prog').textContent=p; document.getElementById('fc-prog-top').textContent=p;
 }
 function flipCard(){ fcFlip=!fcFlip; document.getElementById('fc-inner').classList.toggle('flipped',fcFlip); }
-function nextCard(e){ if(e)e.stopPropagation(); if(fcIdx<curWords.length-1){fcIdx++;document.getElementById('fc-inner').classList.remove('flipped');setTimeout(renderCard,160);}else showToast('마지막 단어입니다!'); }
-function prevCard(e){ if(e)e.stopPropagation(); if(fcIdx>0){fcIdx--;document.getElementById('fc-inner').classList.remove('flipped');setTimeout(renderCard,160);}else showToast('첫 번째 단어입니다!'); }
+function nextCard(e){ if(e)e.stopPropagation(); if(fcIdx<curWords.length-1){fcIdx++;document.getElementById('fc-inner').classList.remove('flipped');setTimeout(renderFCCard,160);}else showToast('마지막 단어입니다!'); }
+function prevCard(e){ if(e)e.stopPropagation(); if(fcIdx>0){fcIdx--;document.getElementById('fc-inner').classList.remove('flipped');setTimeout(renderFCCard,160);}else showToast('첫 번째 단어입니다!'); }
 
-/* ════════════ RACE 게임 ════════════ */
+/* 레이스 */
 let raceScore=0, raceCombo=0, raceTime=60, raceTimer=null, raceAnswer=null, raceLocked=false;
 function startRace(){
   raceScore=0; raceCombo=0; raceTime=60; raceLocked=false;
@@ -592,7 +895,6 @@ function nextRaceQ(){
   raceLocked=false;
   const pool=GRADE_DATA[curGrade];
   raceAnswer=curWords[Math.floor(Math.random()*curWords.length)];
-  // 오답 3개: 같은 학년 내 다른 단어
   const others=shuffle(pool.filter(w=>w.word!==raceAnswer.word)).slice(0,3);
   const opts=shuffle([raceAnswer,...others]);
   document.getElementById('race-def').textContent=raceAnswer.def;
@@ -615,11 +917,11 @@ function answerRace(btn,opt){
 }
 function endRace(){
   stopRaceTimer();
-  pendingResult={ mode:'race', score:raceScore, grade:curGrade, chapter:curChapter };
-  showResult('레이스 종료!', raceScore, '점', '60초 동안 '+raceScore+'점을 획득했습니다!');
+  wordPendingResult={ mode:'race', score:raceScore, grade:curGrade, chapter:curChapter };
+  showWordResult('레이스 종료!', raceScore, '60초 동안 '+raceScore+'점을 획득했습니다!');
 }
 
-/* ════════════ HUNT 게임 ════════════ */
+/* 헌트 */
 let huntCards=[], huntRemain=[], huntTargetIdx=null, huntFound=0, huntMiss=0, huntTime=0, huntTimer=null;
 function startHunt(){
   const N=Math.min(12,curWords.length);
@@ -631,7 +933,6 @@ function startHunt(){
   document.getElementById('hunt-found').textContent='0';
   document.getElementById('hunt-miss').textContent='0';
   document.getElementById('hunt-timer').textContent='0';
-  // 보드 렌더
   const board=document.getElementById('hunt-board'); board.innerHTML='';
   huntCards.forEach((w,i)=>{ const c=document.createElement('div'); c.className='hunt-cell'; c.id='hunt-cell-'+i; c.textContent=w.word; c.onclick=()=>clickHunt(i); board.appendChild(c); });
   nextHuntTarget(); showView('hunt');
@@ -648,8 +949,7 @@ function clickHunt(i){
   const cell=document.getElementById('hunt-cell-'+i);
   if(i===huntTargetIdx){
     cell.classList.add('found'); huntFound++; document.getElementById('hunt-found').textContent=huntFound;
-    huntRemain=huntRemain.filter(x=>x!==i);
-    nextHuntTarget();
+    huntRemain=huntRemain.filter(x=>x!==i); nextHuntTarget();
   } else {
     huntMiss++; document.getElementById('hunt-miss').textContent=huntMiss;
     cell.classList.add('shake'); setTimeout(()=>cell.classList.remove('shake'),350);
@@ -658,147 +958,122 @@ function clickHunt(i){
 function endHunt(){
   stopHuntTimer();
   const score=Math.max(0, huntFound*100 - huntMiss*20 + Math.max(0,300-huntTime*5));
-  pendingResult={ mode:'hunt', score:score, grade:curGrade, chapter:curChapter };
-  showResult('헌트 완료!', score, '점', huntCards.length+'개 단어를 '+huntTime+'초에 찾았습니다! (실수 '+huntMiss+'회)');
+  wordPendingResult={ mode:'hunt', score:score, grade:curGrade, chapter:curChapter };
+  showWordResult('헌트 완료!', score, huntCards.length+'개 단어를 '+huntTime+'초에 찾았습니다! (실수 '+huntMiss+'회)');
 }
 
-/* ════════════ 결과 화면 ════════════ */
-let pendingResult=null;
-function showResult(title, score, unit, detail){
+/* 단어 게임 결과 */
+let wordPendingResult=null;
+function showWordResult(title,score,detail){
   document.getElementById('result-title').textContent=title;
   document.getElementById('result-score').textContent=score;
   document.getElementById('result-detail').textContent=detail;
-  document.getElementById('result-retry').onclick=()=>{ if(pendingResult.mode==='race') startRace(); else startHunt(); };
-  document.getElementById('result-rank').onclick=()=>openRanking(pendingResult.mode);
+  document.getElementById('result-retry').onclick=()=>{ if(wordPendingResult.mode==='race') startRace(); else startHunt(); };
+  document.getElementById('result-rank').onclick=()=>openWordRanking(wordPendingResult.mode);
   showView('result');
-  // 이름 입력 모달
   document.getElementById('nameModalDesc').textContent=score+'점을 랭킹에 등록합니다. 이름을 입력하세요.';
   document.getElementById('nameInput').value='';
   openOverlay('nameModal');
   setTimeout(()=>document.getElementById('nameInput').focus(),200);
 }
 
-/* ════════════ 랭킹 (통합 서버 + 로컬 폴백) ════════════
-   RANK_API 가 설정되어 있으면 구글시트 통합 랭킹을 사용하고,
-   비어 있으면 이 기기 안에서만 저장되는 로컬 랭킹으로 자동 전환됩니다.
-*/
-const memStore={};
-function storeGet(k){ try{ return localStorage.getItem(k); }catch(e){ return memStore[k]??null; } }
-function storeSet(k,v){ memStore[k]=v; try{ localStorage.setItem(k,v); }catch(e){} }
+/* 단어 게임 랭킹 */
+let wordAllRows=[], wRankTab='race', wRankPeriod='accum', wRankGrade='all', wRankChapter='all', wRankHighlight=null;
 function loadLocalRank(){ try{ return JSON.parse(storeGet('jk_rank_all'))||[]; }catch(e){ return []; } }
 function saveLocalRank(list){ storeSet('jk_rank_all', JSON.stringify(list)); }
-
-let allRows=[];          // 서버/로컬에서 받은 전체 레코드
-let rankTab='race', rankPeriod='all', rankGrade='all', rankChapter='all', rankHighlight=null;
-
-/* ── JSONP 호출 ── */
-function jsonp(url){
-  return new Promise((resolve,reject)=>{
-    const cb='jk_cb_'+Math.random().toString(36).slice(2);
-    const t=setTimeout(()=>{ cleanup(); reject(new Error('timeout')); },8000);
-    function cleanup(){ clearTimeout(t); delete window[cb]; if(s.parentNode)s.parentNode.removeChild(s); }
-    window[cb]=(data)=>{ cleanup(); resolve(data); };
-    const s=document.createElement('script');
-    s.src=url+(url.indexOf('?')>=0?'&':'?')+'callback='+cb;
-    s.onerror=()=>{ cleanup(); reject(new Error('network')); };
-    document.body.appendChild(s);
-  });
-}
-
-/* ── 점수 등록 ── */
-async function submitScore(){
+async function submitWordScore(){
   const name=(document.getElementById('nameInput').value||'익명').trim().slice(0,12)||'익명';
-  if(!pendingResult){ closeNameModal(); return; }
-  const rec={ name, mode:pendingResult.mode, grade:pendingResult.grade, chapter:pendingResult.chapter, score:pendingResult.score, ts:new Date().toISOString() };
-  closeNameModal();
-  if(RANK_API){
+  if(!wordPendingResult){ closeOverlay('nameModal'); return; }
+  const rec={ name, mode:wordPendingResult.mode, grade:wordPendingResult.grade, chapter:wordPendingResult.chapter, score:wordPendingResult.score, ts:new Date().toISOString() };
+  closeOverlay('nameModal');
+  if(WORD_RANK_API){
     showToast('랭킹에 등록 중...');
     try{
-      const u=RANK_API+'?action=add&name='+encodeURIComponent(name)+'&mode='+rec.mode+'&grade='+encodeURIComponent(rec.grade)+'&chapter='+encodeURIComponent(rec.chapter)+'&score='+rec.score;
-      await jsonp(u);
-      showToast('통합 랭킹에 등록되었습니다!');
+      const u=WORD_RANK_API+'?action=add&name='+encodeURIComponent(name)+'&mode='+rec.mode+'&grade='+encodeURIComponent(rec.grade)+'&chapter='+encodeURIComponent(rec.chapter)+'&score='+rec.score;
+      await jsonp(u); showToast('통합 랭킹에 등록되었습니다!');
     }catch(e){ showToast('등록 실패 — 인터넷을 확인하세요'); }
   } else {
     const list=loadLocalRank(); list.push(rec); saveLocalRank(list.slice(-500));
     showToast('랭킹에 등록되었습니다 (이 기기)');
   }
-  openRanking(pendingResult.mode, name);
+  openWordRanking(wordPendingResult.mode, name);
 }
-function closeNameModal(){ closeOverlay('nameModal'); }
-
-/* ── 랭킹 열기 ── */
-async function openRanking(mode,highlight){
-  rankTab=mode||'race'; rankHighlight=highlight||null;
-  rankGrade='all'; rankChapter='all';
-  document.getElementById('rtab-race').classList.toggle('active',rankTab==='race');
-  document.getElementById('rtab-hunt').classList.toggle('active',rankTab==='hunt');
+async function openWordRanking(mode,highlight){
+  wRankTab=mode||'race'; wRankHighlight=highlight||null; wRankGrade='all'; wRankChapter='all'; wRankPeriod='accum';
+  document.getElementById('rtab-race').classList.toggle('active',wRankTab==='race');
+  document.getElementById('rtab-hunt').classList.toggle('active',wRankTab==='hunt');
   ['all','1','2','3'].forEach(x=>document.getElementById('gtab-'+x).classList.toggle('active',x==='all'));
-  showView('ranking');
-  await fetchRows();
-  buildChapterFilter();
-  renderRank();
+  ['accum','best'].forEach(x=>document.getElementById('ptab-'+x).classList.toggle('active',x==='accum'));
+  showView('word-ranking');
+  await fetchWordRows();
+  buildWordChapterFilter();
+  renderWordRank();
 }
-async function fetchRows(){
+async function fetchWordRows(){
   const box=document.getElementById('rank-list');
   box.innerHTML='<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i><h4>랭킹 불러오는 중...</h4></div>';
-  if(RANK_API){
-    try{ const d=await jsonp(RANK_API+'?action=list'); allRows=(d&&d.rows)?d.rows:[]; }
-    catch(e){ allRows=[]; box.innerHTML='<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i><h4>랭킹 서버 연결 실패</h4><p>인터넷 연결을 확인해 주세요.</p></div>'; return; }
-  } else {
-    allRows=loadLocalRank();
-  }
+  if(WORD_RANK_API){
+    try{ const d=await jsonp(WORD_RANK_API+'?action=list'); wordAllRows=(d&&d.rows)?d.rows:[]; }
+    catch(e){ wordAllRows=[]; box.innerHTML='<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i><h4>랭킹 서버 연결 실패</h4><p>로컬 테스트 중에는 서버에 연결되지 않습니다.</p></div>'; return; }
+  } else { wordAllRows=loadLocalRank(); }
 }
-function switchRankTab(mode){ rankTab=mode; rankHighlight=null;
+function switchRankTab(mode){ wRankTab=mode; wRankHighlight=null;
   document.getElementById('rtab-race').classList.toggle('active',mode==='race');
   document.getElementById('rtab-hunt').classList.toggle('active',mode==='hunt');
-  buildChapterFilter(); renderRank();
+  buildWordChapterFilter(); renderWordRank();
 }
-function switchPeriod(p){ rankPeriod=p;
-  ['all','month','week'].forEach(x=>document.getElementById('ptab-'+x).classList.toggle('active',x===p));
-  renderRank();
+function switchPeriod(p){ wRankPeriod=p;
+  ['accum','best'].forEach(x=>document.getElementById('ptab-'+x).classList.toggle('active',x===p));
+  renderWordRank();
 }
-function switchRankGrade(g){ rankGrade=g; rankChapter='all';
+function switchRankGrade(g){ wRankGrade=g; wRankChapter='all';
   ['all','1','2','3'].forEach(x=>document.getElementById('gtab-'+x).classList.toggle('active',x===g));
-  buildChapterFilter(); renderRank();
+  buildWordChapterFilter(); renderWordRank();
 }
-function switchRankChapter(ch){ rankChapter=ch;
+function switchRankChapter(ch){ wRankChapter=ch;
   document.querySelectorAll('#rank-chapter-filters .ftab').forEach(b=>b.classList.toggle('active', b.dataset.ch===ch));
-  renderRank();
+  renderWordRank();
 }
-
-/* ── 단원 필터 동적 생성 (선택된 학년·모드 기준) ── */
-function buildChapterFilter(){
+function buildWordChapterFilter(){
   const row=document.getElementById('rank-chapter-filters'); row.innerHTML='';
-  if(rankGrade==='all'){ row.style.display='none'; return; }
+  if(wRankGrade==='all'){ row.style.display='none'; return; }
   row.style.display='flex';
   const seen=new Set();
-  const chapters=allRows.filter(r=>r.mode===rankTab && String(r.grade)===rankGrade).map(r=>r.chapter).filter(c=>{ if(seen.has(c))return false; seen.add(c); return true; });
+  const chapters=wordAllRows.filter(r=>r.mode===wRankTab && String(r.grade)===wRankGrade).map(r=>r.chapter).filter(c=>{ if(seen.has(c))return false; seen.add(c); return true; });
   const tabs=[{ch:'all',label:'전체 단원'},...chapters.map(c=>({ch:c,label:c}))];
   tabs.forEach((t,i)=>{ const b=document.createElement('button'); b.className='ftab'+(i===0?' active':''); b.dataset.ch=t.ch; b.textContent=t.label;
     b.style.cssText='max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';
     b.onclick=()=>switchRankChapter(t.ch); row.appendChild(b); });
-  rankChapter='all';
+  wRankChapter='all';
 }
-
-/* ── 필터 + 이름별 최고점 + 정렬 ── */
-function withinPeriod(ts,period){
-  if(period==='all') return true;
-  const days=(Date.now()-new Date(ts).getTime())/(1000*60*60*24);
-  return period==='week' ? days<=7 : days<=30;
+// 이번 주 기준 (월요일 13:00 기준 1주)
+function withinThisWeek(ts){
+  if(!ts) return true;
+  const now=new Date();
+  const day=now.getDay(); // 0=일,1=월,...
+  const diffToMon=(day===0?-6:1-day);
+  const monday=new Date(now); monday.setDate(now.getDate()+diffToMon); monday.setHours(13,0,0,0);
+  if(now<monday) monday.setDate(monday.getDate()-7);
+  return new Date(ts)>=monday;
 }
-function dedupeByName(list){
+function accumByName(list){
+  const acc={};
+  list.forEach(r=>{ const k=r.name; if(!acc[k]) acc[k]={name:k,score:0,grade:r.grade,chapter:r.chapter,ts:r.ts}; acc[k].score+=Number(r.score); });
+  return Object.values(acc).sort((a,b)=>b.score-a.score);
+}
+function bestByName(list){
   const best={};
-  list.forEach(r=>{ if(!best[r.name] || r.score>best[r.name].score) best[r.name]=r; });
+  list.forEach(r=>{ if(!best[r.name]||Number(r.score)>Number(best[r.name].score)) best[r.name]=r; });
   return Object.values(best).sort((a,b)=>b.score-a.score);
 }
-function renderRank(){
-  let list=allRows.filter(r=>
-    r.mode===rankTab &&
-    withinPeriod(r.ts, rankPeriod) &&
-    (rankGrade==='all' || String(r.grade)===rankGrade) &&
-    (rankChapter==='all' || r.chapter===rankChapter)
+function renderWordRank(){
+  let list=wordAllRows.filter(r=>
+    r.mode===wRankTab &&
+    withinThisWeek(r.ts) &&
+    (wRankGrade==='all'||String(r.grade)===wRankGrade) &&
+    (wRankChapter==='all'||r.chapter===wRankChapter)
   );
-  list=dedupeByName(list);
+  list = wRankPeriod==='accum' ? accumByName(list) : bestByName(list);
   const box=document.getElementById('rank-list');
   if(!list.length){
     box.innerHTML='<div class="empty"><i class="fa-solid fa-trophy"></i><h4>해당 조건의 기록이 없습니다</h4><p>게임을 플레이하고 첫 번째 기록의 주인공이 되어보세요!</p></div>'; return;
@@ -806,19 +1081,240 @@ function renderRank(){
   let html='<div class="rank-table">'; let used=false;
   list.slice(0,30).forEach((r,i)=>{
     const pos=i+1; let pc=''; if(pos===1)pc='top1'; else if(pos===2)pc='top2'; else if(pos===3)pc='top3';
-    const isMe=(!used && rankHighlight && r.name===rankHighlight); if(isMe)used=true;
-    const medal = pos<=3 ? '<i class="fa-solid fa-medal"></i>' : pos;
-    const dateStr = (r.ts||'').slice(0,10);
+    const isMe=(!used&&wRankHighlight&&r.name===wRankHighlight); if(isMe)used=true;
+    const medal=pos<=3?'<i class="fa-solid fa-medal"></i>':pos;
     html+='<div class="rank-row'+(isMe?' me':'')+'">'+
       '<div class="rank-pos '+pc+'">'+medal+'</div>'+
-      '<div class="rank-name">'+escapeHtml(r.name)+'<div class="rank-meta">중'+r.grade+' · '+escapeHtml(r.chapter)+' · '+dateStr+'</div></div>'+
+      '<div class="rank-name">'+escapeHtml(r.name)+'<div class="rank-meta">중'+r.grade+' · '+escapeHtml(r.chapter||'-')+'</div></div>'+
       '<div class="rank-score">'+r.score+'</div></div>';
   });
   html+='</div>'; box.innerHTML=html;
 }
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-/* ════════════ 모달 / 토스트 ════════════ */
+/* ════════════════════════════════════════════════════════
+   🎮 기억력 게임
+   ════════════════════════════════════════════════════════ */
+let memGameType='element'; // 'element' | 'bio'
+let memCurLevel=null, memDeck=[], memFirst=null, memLock=false, memFound=0, memTotal=0;
+let memStartTime=0, memTimerId=null, memLastResult=null;
+let memRankGameType='element', memRankType='accum', memRankLv=1;
+const memBestKey=(game,lv)=>'memBest_'+game+'_lv'+lv;
+const getMemBest=(game,lv)=>{ try{ return parseInt(storeGet(memBestKey(game,lv))||'0',10); }catch(e){ return 0; } };
+const getMemLevels=()=> memGameType==='element' ? ELEM_LEVELS : BIO_LEVELS;
+const getMemData=()=> memGameType==='element' ? ELEMENTS : BIO_PAIRS;
+
+function enterMemSection(){ showView('mem-home'); }
+function enterMemGame(type){
+  memGameType=type;
+  const isElem=type==='element';
+  document.getElementById('mem-level-crumb').textContent=(isElem?'원소기호':'생물 분류')+' · 난이도 선택';
+  document.getElementById('mem-level-title').textContent=isElem?'⚛️ 원소기호 메모리':'🧬 생물 분류 짝맞추기';
+  // 이름 불러오기
+  const savedName=storeGet('memPlayerName')||'';
+  document.getElementById('memPlayerName').value=savedName;
+  renderMemLevels();
+  showView('mem-level');
+}
+function renderMemLevels(){
+  const grid=document.getElementById('levels-grid'); grid.innerHTML='';
+  getMemLevels().forEach(L=>{
+    const best=getMemBest(memGameType,L.lv);
+    const card=document.createElement('div'); card.className='lvl-card';
+    card.innerHTML='<div class="lvl-num">'+L.lv+'</div>'+
+      '<div class="lvl-desc">'+L.desc+' · '+L.pairs+'쌍</div>'+
+      '<div class="lvl-pts">기본 '+L.base.toLocaleString()+'점</div>'+
+      '<div class="lvl-best">🏅 내 최고 '+best.toLocaleString()+'</div>';
+    card.onclick=()=>startMemGame(L);
+    grid.appendChild(card);
+  });
+}
+function startMemGame(L){
+  memCurLevel=L; memFound=0; memFirst=null; memLock=false; memTotal=L.pairs;
+  const data=getMemData();
+  const chosen=shuffle([...data]).slice(0,L.pairs);
+  memDeck=[];
+  if(memGameType==='element'){
+    chosen.forEach(el=>{ memDeck.push({el,type:'sym'}); memDeck.push({el,type:'name'}); });
+  } else {
+    chosen.forEach(bp=>{ memDeck.push({bp,type:'cat'}); memDeck.push({bp,type:'ex'}); });
+  }
+  shuffle(memDeck);
+  document.getElementById('mem-total').textContent=L.pairs;
+  document.getElementById('mem-found').textContent=0;
+  document.getElementById('mem-timer').textContent='0.0';
+  const isElem=memGameType==='element';
+  document.getElementById('mem-game-crumb').textContent=(isElem?'원소기호':'생물 분류')+' · 난이도 '+L.lv;
+  document.getElementById('mem-game-title').textContent=isElem?'⚛️ 원소기호':'🧬 생물 분류';
+  document.getElementById('mem-game-back').onclick=()=>{ clearInterval(memTimerId); enterMemGame(memGameType); };
+  renderMemBoard();
+  showView('mem-game');
+  memStartTime=0; clearInterval(memTimerId);
+}
+function renderMemBoard(){
+  const board=document.getElementById('mem-board');
+  board.style.gridTemplateColumns='repeat('+memCurLevel.cols+',1fr)';
+  board.innerHTML='';
+  memDeck.forEach((c,i)=>{
+    const card=document.createElement('div'); card.className='mem-card'; card.dataset.idx=i;
+    let backHTML='';
+    if(memGameType==='element'){
+      if(c.type==='sym'){
+        backHTML=`<div class="mem-face mem-back sym"><span class="mem-anum">${c.el.n}</span><div class="mem-emoji">${c.el.emoji}</div><div class="mem-symbol">${c.el.sym}</div></div>`;
+      } else {
+        backHTML=`<div class="mem-face mem-back name"><div class="mem-nm">${c.el.name}</div></div>`;
+      }
+    } else {
+      if(c.type==='cat'){
+        backHTML=`<div class="mem-face mem-back bio-cat"><div class="mem-emoji">${c.bp.emoji}</div><div class="mem-nm">${c.bp.cat}</div></div>`;
+      } else {
+        backHTML=`<div class="mem-face mem-back bio-ex"><div class="mem-nm" style="font-size:clamp(11px,3.5vw,18px)">${c.bp.ex}</div></div>`;
+      }
+    }
+    card.innerHTML=`<div class="mem-face mem-front"></div>${backHTML}`;
+    card.onclick=()=>memFlip(card,c,i);
+    board.appendChild(card);
+  });
+}
+function memFlip(card,data,idx){
+  if(memLock||card.classList.contains('flipped')||card.classList.contains('matched')) return;
+  if(memStartTime===0){
+    memStartTime=Date.now();
+    memTimerId=setInterval(()=>{ document.getElementById('mem-timer').textContent=((Date.now()-memStartTime)/1000).toFixed(1); },100);
+  }
+  card.classList.add('flipped'); sFlip();
+  if(!memFirst){ memFirst={card,data}; return; }
+  memLock=true;
+  const a=memFirst.data, b=data;
+  let isMatch=false;
+  if(memGameType==='element') isMatch=(a.el.n===b.el.n && a.type!==b.type);
+  else isMatch=(a.bp.id===b.bp.id && a.type!==b.type);
+  if(isMatch){
+    setTimeout(()=>{
+      card.classList.add('matched'); memFirst.card.classList.add('matched'); sMatch();
+      memFound++; document.getElementById('mem-found').textContent=memFound;
+      memFirst=null; memLock=false;
+      if(memFound===memTotal) finishMem();
+    },350);
+  } else {
+    sFail();
+    setTimeout(()=>{ card.classList.remove('flipped'); memFirst.card.classList.remove('flipped'); memFirst=null; memLock=false; },900);
+  }
+}
+function calcMemScore(sec){ return memCurLevel.base+Math.max(0,Math.round((memCurLevel.target-sec)*memCurLevel.lv*10)); }
+function finishMem(){
+  clearInterval(memTimerId);
+  const sec=(Date.now()-memStartTime)/1000;
+  const score=calcMemScore(sec);
+  const isNew=score>getMemBest(memGameType,memCurLevel.lv);
+  if(isNew){ try{ storeSet(memBestKey(memGameType,memCurLevel.lv),String(score)); }catch(e){} }
+  memLastResult={game:memGameType, lv:memCurLevel.lv, score, seconds:sec};
+  document.getElementById('mem-final-score').textContent=score.toLocaleString();
+  document.getElementById('mem-result-sub').textContent='난이도 '+memCurLevel.lv+' · '+sec.toFixed(1)+'초';
+  document.getElementById('mem-newbest').style.display=isNew?'inline-block':'none';
+  document.getElementById('mem-trophy').textContent=score>=memCurLevel.base*0.8?'🏆':'🎯';
+  document.getElementById('mem-result-title').textContent=isNew?'신기록!':'클리어!';
+  document.getElementById('mem-submit-msg').textContent='';
+  setTimeout(()=>{ openOverlay('memModal'); sWin(); launchConfetti(); submitMemScore(); },450);
+}
+function submitMemScore(){
+  const name=(storeGet('memPlayerName')||'익명').trim()||'익명';
+  document.getElementById('mem-submit-msg').textContent='랭킹 등록 중…';
+  const params={action:'add', name, game_type:memLastResult.game, level:memLastResult.lv, score:memLastResult.score, seconds:memLastResult.seconds.toFixed(1)};
+  const qs=Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+  jsonp(MEM_RANK_API+'?'+qs)
+    .then(()=>{ document.getElementById('mem-submit-msg').textContent='✅ 랭킹에 등록되었습니다!'; renderMemLevels(); })
+    .catch(()=>{ document.getElementById('mem-submit-msg').textContent='⚠️ 등록 실패 (로컬 테스트 중)'; });
+}
+
+/* 기억력 랭킹 */
+function openMemRanking(){
+  memRankGameType=memGameType;
+  memRankType='accum';
+  memRankLv=1;
+  renderMemRankUI();
+  showView('mem-ranking');
+  loadMemRanking();
+  document.getElementById('mem-rank-back').onclick=()=>enterMemGame(memGameType);
+}
+function renderMemRankUI(){
+  // 게임 종류 탭
+  const gameTabs=document.getElementById('mem-rank-game-tabs');
+  gameTabs.innerHTML='';
+  [{k:'element',l:'⚛️ 원소기호'},{k:'bio',l:'🧬 생물 분류'}].forEach(({k,l})=>{
+    const b=document.createElement('button'); b.textContent=l;
+    b.className=k===memRankGameType?'on':'';
+    b.onclick=()=>{ memRankGameType=k; memRankLv=1; renderMemRankUI(); loadMemRanking(); };
+    gameTabs.appendChild(b);
+  });
+  // 순위 종류 탭
+  const typeTabs=document.getElementById('mem-rank-type-tabs');
+  typeTabs.querySelectorAll('button').forEach(b=>{ b.classList.toggle('on',b.dataset.t===memRankType); b.onclick=()=>{ memRankType=b.dataset.t; typeTabs.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.t===memRankType)); loadMemRanking(); }; });
+  // 난이도 탭
+  const lvTabs=document.getElementById('mem-rank-lv-tabs'); lvTabs.innerHTML='';
+  const levels=memRankGameType==='element'?ELEM_LEVELS:BIO_LEVELS;
+  levels.forEach(L=>{
+    const b=document.createElement('button'); b.textContent='난이도 '+L.lv;
+    b.className=L.lv===memRankLv?'on':'';
+    b.onclick=()=>{ memRankLv=L.lv; renderMemRankUI(); loadMemRanking(); };
+    lvTabs.appendChild(b);
+  });
+  document.getElementById('mem-rank-crumb').textContent='Leaderboard · '+(memRankGameType==='element'?'원소기호':'생물 분류');
+}
+function loadMemRanking(){
+  const box=document.getElementById('mem-rank-list');
+  box.innerHTML='<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i><h4>불러오는 중...</h4></div>';
+  jsonp(MEM_RANK_API+'?action=list&level='+memRankLv+'&game_type='+memRankGameType)
+    .then(res=>{
+      let rows=(res&&res.rankings)||[];
+      rows=rows.filter(r=>withinThisWeek(r.ts||r.date));
+      if(memRankType==='accum'){
+        const acc={}; rows.forEach(r=>{ const k=r.name; if(!acc[k]) acc[k]={name:k,score:0,seconds:0}; acc[k].score+=Number(r.score); acc[k].seconds+=Number(r.seconds||0); });
+        rows=Object.values(acc).sort((a,b)=>b.score-a.score);
+      } else {
+        const best={}; rows.forEach(r=>{ if(!best[r.name]||Number(r.score)>Number(best[r.name].score)) best[r.name]=r; });
+        rows=Object.values(best).sort((a,b)=>b.score-a.score);
+      }
+      if(!rows.length){ box.innerHTML='<div class="empty"><i class="fa-solid fa-trophy"></i><h4>아직 기록이 없습니다</h4><p>첫 번째 도전자가 되어보세요!</p></div>'; return; }
+      const med=['🥇','🥈','🥉'];
+      let html='<div class="rank-table">';
+      rows.slice(0,20).forEach((r,i)=>{
+        const pos=i+1; let pc=''; if(pos===1)pc='top1'; else if(pos===2)pc='top2'; else if(pos===3)pc='top3';
+        html+='<div class="rank-row">'+
+          '<div class="rank-pos '+pc+'">'+(med[i]||(i+1))+'</div>'+
+          '<div class="rank-name">'+escapeHtml(r.name)+'</div>'+
+          '<div class="rank-score">'+Number(r.score).toLocaleString()+'점</div></div>';
+      });
+      html+='</div>'; box.innerHTML=html;
+    })
+    .catch(()=>{ box.innerHTML='<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i><h4>서버 연결 실패</h4><p>로컬 테스트 중에는 랭킹이 표시되지 않습니다.</p></div>'; });
+}
+
+/* 기억력 게임 모달 버튼 */
+document.getElementById('mem-again-btn').onclick=()=>{ closeOverlay('memModal'); startMemGame(memCurLevel); };
+document.getElementById('mem-rank-btn').onclick=()=>{ closeOverlay('memModal'); openMemRanking(); };
+document.getElementById('mem-home-btn').onclick=()=>{ closeOverlay('memModal'); enterMemGame(memGameType); };
+document.getElementById('mem-sound-btn').onclick=function(){ memSoundOn=!memSoundOn; this.textContent=memSoundOn?'🔊':'🔇'; };
+document.getElementById('mem-exit-btn').onclick=()=>{ clearInterval(memTimerId); enterMemGame(memGameType); };
+document.getElementById('memPlayerName').addEventListener('input',e=>storeSet('memPlayerName',e.target.value));
+
+/* ════════════════════════════════════════════════════════
+   🎉 색종이 효과
+   ════════════════════════════════════════════════════════ */
+function launchConfetti(){
+  const cl=['#ff8c42','#38ef7d','#2575fc','#ffd23f','#ff5e7e','#a78bfa'];
+  for(let i=0;i<60;i++){
+    const c=document.createElement('div'); c.className='confetti-piece';
+    c.style.left=Math.random()*100+'vw'; c.style.background=cl[Math.floor(Math.random()*cl.length)];
+    c.style.transform='rotate('+Math.random()*360+'deg)'; document.body.appendChild(c);
+    const fall=2000+Math.random()*1500, drift=(Math.random()-.5)*200;
+    c.animate([{transform:'translate(0,0) rotate(0deg)',opacity:1},{transform:'translate('+drift+'px,105vh) rotate('+Math.random()*720+'deg)',opacity:.9}],{duration:fall,easing:'ease-in'});
+    setTimeout(()=>c.remove(),fall);
+  }
+}
+
+/* ════════════════════════════════════════════════════════
+   🔧 모달 / 토스트 / 공통
+   ════════════════════════════════════════════════════════ */
 function openOverlay(id){ document.getElementById(id).classList.add('open'); }
 function closeOverlay(id){ document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); }));
@@ -828,15 +1324,17 @@ function showToast(msg){ const t=document.getElementById('toast'); document.getE
 /* 키보드 (플래시카드) */
 document.addEventListener('keydown',e=>{
   if(document.getElementById('view-flashcard').classList.contains('active')){
-    if(e.code==='Space'){ e.preventDefault(); flipCard(); }
+    if(e.code==='Space'){e.preventDefault();flipCard();}
     if(e.code==='ArrowRight') nextCard(e);
     if(e.code==='ArrowLeft') prevCard(e);
   }
 });
 
-/* ════════════ 초기화 ════════════ */
-renderHome();      // 먼저 '준비 중' 상태로 즉시 표시
-loadAllSheets();   // 구글 시트 로딩 완료 후 자동 갱신
+/* ════════════════════════════════════════════════════════
+   🚀 초기화
+   ════════════════════════════════════════════════════════ */
+renderWordHome();   // '준비 중' 상태로 즉시 표시
+loadAllSheets();    // 구글 시트 로딩 (로컬에서는 CORS로 실패하나 UI는 정상)
 </script>
 </body>
 </html>

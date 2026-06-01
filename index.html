@@ -1263,34 +1263,46 @@ function renderMemRankUI(){
 function loadMemRanking(){
   const box=document.getElementById('mem-rank-list');
   box.innerHTML='<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i><h4>불러오는 중...</h4></div>';
-  // game_type은 새 스크립트에서만 지원 — 없으면 전체 반환
-  jsonp(MEM_RANK_API+'?action=list&level='+memRankLv)
+  // 서버에 game_type + level 전달 → 서버에서 1차 필터
+  const url=MEM_RANK_API+'?action=list&game_type='+memRankGameType+'&level='+memRankLv;
+  jsonp(url)
     .then(res=>{
       let rows=(res&&res.rankings)||[];
-      // game_type 필드가 있는 경우만 필터 (없으면 원소기호로 간주)
-      rows=rows.filter(r=>(!r.game_type || r.game_type===memRankGameType));
-      // 주간 필터
+      // 이번 주 데이터만 (월요일 13:00 기준)
       rows=rows.filter(r=>withinThisWeek(r.ts||r.date));
+
+      // 누적 순위: 같은 닉네임 점수 합산, 시간 표시 없음
       if(memRankType==='accum'){
-        const acc={}; rows.forEach(r=>{ const k=r.name; if(!acc[k]) acc[k]={name:k,score:0}; acc[k].score+=Number(r.score); });
+        const acc={};
+        rows.forEach(r=>{ const k=r.name; if(!acc[k]) acc[k]={name:k,score:0}; acc[k].score+=Number(r.score); });
         rows=Object.values(acc).sort((a,b)=>b.score-a.score);
-      } else {
-        const best={}; rows.forEach(r=>{ if(!best[r.name]||Number(r.score)>Number(best[r.name].score)) best[r.name]=r; });
-        rows=Object.values(best).sort((a,b)=>b.score-a.score);
+        renderMemRankRows(box, rows, false);
       }
-      if(!rows.length){ box.innerHTML='<div class="empty"><i class="fa-solid fa-trophy"></i><h4>이번 주 기록이 없습니다</h4><p>첫 번째 도전자가 되어보세요!</p></div>'; return; }
-      const med=['🥇','🥈','🥉'];
-      let html='<div class="rank-table">';
-      rows.slice(0,20).forEach((r,i)=>{
-        const pos=i+1; let pc=''; if(pos===1)pc='top1'; else if(pos===2)pc='top2'; else if(pos===3)pc='top3';
-        html+='<div class="rank-row">'+
-          '<div class="rank-pos '+pc+'">'+(med[i]||(i+1))+'</div>'+
-          '<div class="rank-name">'+escapeHtml(r.name)+'</div>'+
-          '<div class="rank-score">'+Number(r.score).toLocaleString()+'점</div></div>';
-      });
-      html+='</div>'; box.innerHTML=html;
+      // 최고 순위: 이름별 최고점 1개, 시간 표시
+      else {
+        const best={};
+        rows.forEach(r=>{ if(!best[r.name]||Number(r.score)>Number(best[r.name].score)) best[r.name]=r; });
+        rows=Object.values(best).sort((a,b)=>b.score-a.score);
+        renderMemRankRows(box, rows, true);
+      }
     })
-    .catch(()=>{ box.innerHTML='<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i><h4>서버 연결 실패</h4><p>로컬 테스트 중에는 랭킹이 표시되지 않습니다.</p></div>'; });
+    .catch(()=>{ box.innerHTML='<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i><h4>서버 연결 실패</h4><p>GitHub Pages에서 실행하면 정상 표시됩니다.</p></div>'; });
+}
+function renderMemRankRows(box, rows, showTime){
+  if(!rows.length){
+    box.innerHTML='<div class="empty"><i class="fa-solid fa-trophy"></i><h4>이번 주 기록이 없습니다</h4><p>첫 번째 도전자가 되어보세요!</p></div>'; return;
+  }
+  const med=['🥇','🥈','🥉'];
+  let html='<div class="rank-table">';
+  rows.slice(0,20).forEach((r,i)=>{
+    const pos=i+1; let pc=''; if(pos===1)pc='top1'; else if(pos===2)pc='top2'; else if(pos===3)pc='top3';
+    const timeStr=showTime&&r.seconds ? '<span style="font-size:12px;color:var(--sub);margin-left:8px;">'+Number(r.seconds).toFixed(1)+'초</span>' : '';
+    html+='<div class="rank-row">'+
+      '<div class="rank-pos '+pc+'">'+(med[i]||(i+1))+'</div>'+
+      '<div class="rank-name">'+escapeHtml(r.name)+'</div>'+
+      '<div class="rank-score">'+Number(r.score).toLocaleString()+'점'+timeStr+'</div></div>';
+  });
+  html+='</div>'; box.innerHTML=html;
 }
 
 /* 기억력 게임 모달 버튼 */

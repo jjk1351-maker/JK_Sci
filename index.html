@@ -348,7 +348,7 @@
       <h1 onclick="goHome()">JK SCIENCE LEARNING</h1>
       <p>중학 과학 통합 학습 포털 시스템</p>
     </div>
-    <div class="rank-chip" onclick="openWordRanking('race')"><i class="fa-solid fa-trophy"></i><span>랭킹</span></div>
+    <div class="rank-chip" onclick="openRankingHub()"><i class="fa-solid fa-trophy"></i><span>랭킹</span></div>
   </header>
 
   <!-- ════ HOME ════ -->
@@ -374,6 +374,33 @@
         <div class="htc-en">MEMORY GAME</div>
         <div class="htc-desc">과학 분류 카드를 짝지으며 과학 개념을 재미있게 암기!</div>
         <div class="htc-go">게임하러 가기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ 랭킹 선택 허브 ════ -->
+  <div class="view" id="view-rank-hub">
+    <div class="sub-head">
+      <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb">LEADERBOARD · 랭킹 선택</span><h2>명예의 전당</h2></div>
+    </div>
+    <div class="sec-head"><span class="sec-label">랭킹을 선택하세요</span><div class="sec-div"></div></div>
+    <div class="home-tab-grid">
+      <div class="home-tab-card" style="--htc:var(--accent)" onclick="openWordRanking('race')">
+        <div class="htc-glow"></div>
+        <div class="htc-icon"><i class="fa-solid fa-book-open-reader"></i></div>
+        <div class="htc-title">과학 단어장</div>
+        <div class="htc-en">VOCABULARY RANKING</div>
+        <div class="htc-desc">레이스·헌트 게임의 누적 순위와 최고 순위를 확인하세요.</div>
+        <div class="htc-go">랭킹 보기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+      <div class="home-tab-card" style="--htc:var(--gold)" onclick="openMemRankingFromHub()">
+        <div class="htc-glow"></div>
+        <div class="htc-icon"><i class="fa-solid fa-brain"></i></div>
+        <div class="htc-title">기억력 게임</div>
+        <div class="htc-en">MEMORY RANKING</div>
+        <div class="htc-desc">원소기호·생물 분류 게임의 난이도별 순위를 확인하세요.</div>
+        <div class="htc-go">랭킹 보기 <i class="fa-solid fa-arrow-right"></i></div>
       </div>
     </div>
   </div>
@@ -507,7 +534,7 @@
   <!-- ════ RANKING (단어 게임) ════ -->
   <div class="view" id="view-word-ranking">
     <div class="sub-head">
-      <button class="back-btn" onclick="showView('word-home')"><i class="fa-solid fa-arrow-left"></i></button>
+      <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
       <div class="sub-title"><span class="crumb">Leaderboard · 단어장</span><h2>명예의 전당</h2></div>
     </div>
     <div class="filters">
@@ -1049,12 +1076,14 @@ function buildWordChapterFilter(){
 // 이번 주 기준 (월요일 13:00 기준 1주)
 function withinThisWeek(ts){
   if(!ts) return true;
+  const t=new Date(ts);
+  if(isNaN(t.getTime())) return true; // 날짜 파싱 실패 시 통과 (기존 데이터 보존)
   const now=new Date();
   const day=now.getDay(); // 0=일,1=월,...
   const diffToMon=(day===0?-6:1-day);
   const monday=new Date(now); monday.setDate(now.getDate()+diffToMon); monday.setHours(13,0,0,0);
   if(now<monday) monday.setDate(monday.getDate()-7);
-  return new Date(ts)>=monday;
+  return t>=monday;
 }
 function accumByName(list){
   const acc={};
@@ -1227,14 +1256,25 @@ function submitMemScore(){
 }
 
 /* 기억력 랭킹 */
-function openMemRanking(){
+function openRankingHub(){ showView('rank-hub'); }
+function openMemRankingFromHub(){
+  // 허브에서 진입 → 기본 원소기호, 뒤로가기는 허브로
+  memGameType='element';
+  openMemRanking('hub');
+}
+function openMemRanking(from){
   memRankGameType=memGameType;
   memRankType='accum';
   memRankLv=1;
   renderMemRankUI();
   showView('mem-ranking');
   loadMemRanking();
-  document.getElementById('mem-rank-back').onclick=()=>enterMemGame(memGameType);
+  // 진입 경로에 따라 뒤로가기 목적지 분기
+  if(from==='hub'){
+    document.getElementById('mem-rank-back').onclick=()=>showView('rank-hub');
+  } else {
+    document.getElementById('mem-rank-back').onclick=()=>enterMemGame(memGameType);
+  }
 }
 function renderMemRankUI(){
   // 게임 종류 탭

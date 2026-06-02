@@ -1126,7 +1126,7 @@ function renderWordRank(){
 let memGameType='element'; // 'element' | 'bio'
 let memCurLevel=null, memDeck=[], memFirst=null, memLock=false, memFound=0, memTotal=0;
 let memStartTime=0, memTimerId=null, memLastResult=null;
-let memRankGameType='element', memRankType='accum', memRankLv=1;
+let memRankGameType='element', memRankType='accum', memRankLv=0;
 const memBestKey=(game,lv)=>'memBest_'+game+'_lv'+lv;
 const getMemBest=(game,lv)=>{ try{ return parseInt(storeGet(memBestKey(game,lv))||'0',10); }catch(e){ return 0; } };
 const getMemLevels=()=> memGameType==='element' ? ELEM_LEVELS : BIO_LEVELS;
@@ -1167,7 +1167,7 @@ function startMemGame(L){
   } else {
     chosen.forEach(bp=>{ memDeck.push({bp,type:'cat'}); memDeck.push({bp,type:'ex'}); });
   }
-  shuffle(memDeck);
+  memDeck=shuffle(memDeck);
   document.getElementById('mem-total').textContent=L.pairs;
   document.getElementById('mem-found').textContent=0;
   document.getElementById('mem-timer').textContent='0.0';
@@ -1265,7 +1265,7 @@ function openMemRankingFromHub(){
 function openMemRanking(from){
   memRankGameType=memGameType;
   memRankType='accum';
-  memRankLv=1;
+  memRankLv=0;
   renderMemRankUI();
   showView('mem-ranking');
   loadMemRanking();
@@ -1283,15 +1283,21 @@ function renderMemRankUI(){
   [{k:'element',l:'⚛️ 원소기호'},{k:'bio',l:'🧬 생물 분류'}].forEach(({k,l})=>{
     const b=document.createElement('button'); b.textContent=l;
     b.className=k===memRankGameType?'on':'';
-    b.onclick=()=>{ memRankGameType=k; memRankLv=1; renderMemRankUI(); loadMemRanking(); };
+    b.onclick=()=>{ memRankGameType=k; memRankLv=0; renderMemRankUI(); loadMemRanking(); };
     gameTabs.appendChild(b);
   });
   // 순위 종류 탭
   const typeTabs=document.getElementById('mem-rank-type-tabs');
   typeTabs.querySelectorAll('button').forEach(b=>{ b.classList.toggle('on',b.dataset.t===memRankType); b.onclick=()=>{ memRankType=b.dataset.t; typeTabs.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.t===memRankType)); loadMemRanking(); }; });
-  // 난이도 탭
+  // 난이도 탭 (0=전체)
   const lvTabs=document.getElementById('mem-rank-lv-tabs'); lvTabs.innerHTML='';
   const levels=memRankGameType==='element'?ELEM_LEVELS:BIO_LEVELS;
+  // 전체 탭
+  const allBtn=document.createElement('button'); allBtn.textContent='전체';
+  allBtn.className=memRankLv===0?'on':'';
+  allBtn.onclick=()=>{ memRankLv=0; renderMemRankUI(); loadMemRanking(); };
+  lvTabs.appendChild(allBtn);
+  // 난이도별 탭
   levels.forEach(L=>{
     const b=document.createElement('button'); b.textContent='난이도 '+L.lv;
     b.className=L.lv===memRankLv?'on':'';
@@ -1303,23 +1309,60 @@ function renderMemRankUI(){
 function loadMemRanking(){
   const box=document.getElementById('mem-rank-list');
   box.innerHTML='<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i><h4>불러오는 중...</h4></div>';
-  // 서버에 game_type + level 전달 → 서버에서 1차 필터
-  const url=MEM_RANK_API+'?action=list&game_type='+memRankGameType+'&level='+memRankLv;
+
+  // 전체 탭(lv=0)이면 난이도 파라미터 없이 전체 조회
+  const url= memRankLv===0
+    ? MEM_RANK_API+'?action=list&game_type='+memRankGameType
+    : MEM_RANK_API+'?action=list&game_type='+memRankGameType+'&level='+memRankLv;
+
   jsonp(url)
     .then(res=>{
       let rows=(res&&res.rankings)||[];
-      // 이번 주 데이터만 (월요일 13:00 기준)
       rows=rows.filter(r=>withinThisWeek(r.ts||r.date));
 
-      // 누적 순위: 같은 닉네임 점수 합산, 시간 표시 없음
+      // 전체 탭: 전체 데이터를 점수순 정렬, 점수 옆에 난이도 표기
+      if(memRankLv===0){
+        if(memRankType==='accum'){
+          // 이름+난이도 조합으로 합산
+          const acc={};
+          rows.forEach(r=>{
+            const k=r.name+'__lv'+r.level;
+            if(!acc[k]) acc[k]={name:r.name,score:0,level:Number(r.level)};
+            acc[k].score+=Number(r.score);
+          });
+          rows=Object.values(acc).sort((a,b)=>b.score-a.score);
+        } else {
+          const best={};
+          rows.forEach(r=>{
+            const k=r.name+'__lv'+r.level;
+            if(!best[k]||Number(r.score)>Number(best[k].score)) best[k]={name:r.name,score:Number(r.score),level:Number(r.level),seconds:r.seconds};
+          });
+          rows=Object.values(best).sort((a,b)=>b.score-a.score);
+        }
+        if(!rows.length){
+          box.innerHTML='<div class="empty"><i class="fa-solid fa-trophy"></i><h4>이번 주 기록이 없습니다</h4></div>';
+          return;
+        }
+        const med=['🥇','🥈','🥉'];
+        let html='<div class="rank-table">';
+        rows.slice(0,20).forEach((r,i)=>{
+          const pos=i+1; let pc=''; if(pos===1)pc='top1'; else if(pos===2)pc='top2'; else if(pos===3)pc='top3';
+          const lvBadge=`<span style="font-size:11px;color:var(--accent);background:rgba(91,255,200,0.12);padding:2px 8px;border-radius:10px;margin-left:6px">Lv.${r.level}</span>`;
+          const timeStr=(memRankType==='best'&&r.seconds)?`<span style="font-size:12px;color:var(--sub);margin-left:6px">${Number(r.seconds).toFixed(1)}초</span>`:'';
+          html+=`<div class="rank-row"><div class="rank-pos ${pc}">${med[i]||(i+1)}</div><div class="rank-name">${escapeHtml(r.name)}</div><div class="rank-score">${Number(r.score).toLocaleString()}점${lvBadge}${timeStr}</div></div>`;
+        });
+        html+='</div>';
+        box.innerHTML=html;
+        return;
+      }
+
+      // 난이도별 탭: 상위 10명
       if(memRankType==='accum'){
         const acc={};
         rows.forEach(r=>{ const k=r.name; if(!acc[k]) acc[k]={name:k,score:0}; acc[k].score+=Number(r.score); });
         rows=Object.values(acc).sort((a,b)=>b.score-a.score);
         renderMemRankRows(box, rows, false);
-      }
-      // 최고 순위: 이름별 최고점 1개, 시간 표시
-      else {
+      } else {
         const best={};
         rows.forEach(r=>{ if(!best[r.name]||Number(r.score)>Number(best[r.name].score)) best[r.name]=r; });
         rows=Object.values(best).sort((a,b)=>b.score-a.score);
@@ -1334,7 +1377,7 @@ function renderMemRankRows(box, rows, showTime){
   }
   const med=['🥇','🥈','🥉'];
   let html='<div class="rank-table">';
-  rows.slice(0,20).forEach((r,i)=>{
+  rows.slice(0,10).forEach((r,i)=>{
     const pos=i+1; let pc=''; if(pos===1)pc='top1'; else if(pos===2)pc='top2'; else if(pos===3)pc='top3';
     const timeStr=showTime&&r.seconds ? '<span style="font-size:12px;color:var(--sub);margin-left:8px;">'+Number(r.seconds).toFixed(1)+'초</span>' : '';
     html+='<div class="rank-row">'+

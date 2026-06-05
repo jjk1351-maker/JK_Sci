@@ -1579,8 +1579,9 @@ document.addEventListener('keydown',e=>{
    🎯 과학 퀴즈 — 적응형 퀴즈 시스템
    ════════════════════════════════════════════════════════ */
 
-// 퀴즈 문항 DB 시트 ID
-const QUIZ_SHEET_ID = '13YPfrhn2t1LgktLMsAzpFPKD9MVjS7RfE65Xrn2GJoo';
+// 퀴즈 문항 DB — 웹에 게시된 스프레드시트
+const QUIZ_SHEET_ID     = '13YPfrhn2t1LgktLMsAzpFPKD9MVjS7RfE65Xrn2GJoo';  // 원본 ID (탭 목록용)
+const QUIZ_SHEET_PUB_ID = '2PACX-1vQVxmNilKXhKvY0MSt0d_rrpq7DKLYqvb3KGUlR4Ofmh5SD4oplN2HPqkEkVyc23pQG4icUdMH1tfXD'; // pub ID
 
 // 학년별 단원 순서 (시트에 없는 단원은 비활성화)
 const QUIZ_UNIT_ORDER = {
@@ -1674,32 +1675,24 @@ function renderQuizUnits(g){
 
 /* ── 구글 시트 탭 목록 로드 ── */
 function loadQuizSheetList(g){
-  // gviz로 각 단원을 순차 확인하는 대신,
-  // 시트 피드 API로 탭 목록을 한번에 가져옴
-  const url=`https://spreadsheets.google.com/feeds/worksheets/${QUIZ_SHEET_ID}/public/basic?alt=json`;
-  fetch(url)
-    .then(r=>r.json())
-    .then(data=>{
-      const entries=data.feed.entry||[];
-      qzAvailableUnits={'1':[],'2':[],'3':[]};
-      entries.forEach(e=>{
-        const title=e.title.$t; // 예) [2]빛과 파동
-        const m=title.match(/^\[(\d)\](.+)$/);
-        if(m){
-          const grade=m[1], unit=m[2].trim();
-          if(qzAvailableUnits[grade]) qzAvailableUnits[grade].push(unit);
-        }
-      });
-      qzSheetsLoaded=true;
-      // 현재 보고 있는 학년 화면 갱신
-      if(document.getElementById('view-quiz-units').classList.contains('active')){
-        renderQuizUnits(qzGrade);
-      }
-    })
-    .catch(()=>{
-      // CORS 실패 시 (로컬 테스트) 빈 상태 유지
-      qzSheetsLoaded=true;
-    });
+  // 각 단원을 순차 확인 — pub CSV로 존재 여부 체크
+  const units = QUIZ_UNIT_ORDER[g] || [];
+  qzAvailableUnits[g] = [];
+
+  const checks = units.map(unit => {
+    const sheetName = `[${g}]${unit}`;
+    const url = `https://docs.google.com/spreadsheets/d/e/${QUIZ_SHEET_PUB_ID}/pub?output=csv&sheet=${encodeURIComponent(sheetName)}`;
+    return fetch(url)
+      .then(r => { if(r.ok) qzAvailableUnits[g].push(unit); })
+      .catch(()=>{});
+  });
+
+  Promise.all(checks).then(()=>{
+    qzSheetsLoaded = true;
+    if(document.getElementById('view-quiz-units').classList.contains('active')){
+      renderQuizUnits(qzGrade);
+    }
+  });
 }
 
 /* ── 퀴즈 시작 ── */
@@ -1724,52 +1717,55 @@ function loadQuizData(g, unit){
   document.getElementById('qz-question').textContent='문항을 불러오는 중...';
   document.getElementById('qz-choices').innerHTML='';
 
-  const sheetName=`[${g}]${unit}`;
-  const url=`https://docs.google.com/spreadsheets/d/${QUIZ_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+  const sheetName = `[${g}]${unit}`;
+  const url = `https://docs.google.com/spreadsheets/d/e/${QUIZ_SHEET_PUB_ID}/pub?output=csv&sheet=${encodeURIComponent(sheetName)}`;
 
-  // JSONP 방식
-  const cbName='qzCb_'+Date.now();
-  const timer=setTimeout(()=>{
-    delete window[cbName];
-    document.getElementById('qz-question').textContent='불러오기 실패. 네트워크를 확인하세요.';
-  },10000);
-
-  window[cbName]=function(res){
-    clearTimeout(timer);
-    delete window[cbName];
-    s.remove();
-    try{
-      const rows=res.table.rows;
-      qzAll=rows.slice(1).map((row,i)=>{
-        const c=row.c;
-        return {
-          id:    c[0]?.v||i+1,
-          level: parseInt(c[1]?.v)||3,
-          pts:   parseInt(c[2]?.v)||30,
-          title: String(c[3]?.v||''),
-          ch:   [c[4]?.v,c[5]?.v,c[6]?.v,c[7]?.v,c[8]?.v].map(v=>String(v||'')),
-          ans:   parseInt(c[9]?.v)||1,
-          hint:  String(c[10]?.v||'교과서를 다시 확인해보세요.'),
-          expl:  String(c[11]?.v||'')
-        };
-      }).filter(q=>q.title);
+  fetch(url)
+    .then(r => {
+      if(!r.ok) throw new Error('시트 접근 실패 ('+r.status+')');
+      return r.text();
+    })
+    .then(csv => {
+      const rows = qzParseCSV(csv);
+      qzAll = rows.map((c, i) => ({
+        id:    parseInt(c[0])||i+1,
+        level: parseInt(c[1])||3,
+        pts:   parseInt(c[2])||30,
+        title: c[3]||'',
+        ch:    [c[4],c[5],c[6],c[7],c[8]].map(v=>v||''),
+        ans:   parseInt(c[9])||1,
+        hint:  c[10]||'교과서를 다시 확인해보세요.',
+        expl:  c[11]||''
+      })).filter(q=>q.title);
 
       if(!qzAll.length){
         document.getElementById('qz-question').textContent='문항이 없습니다. 단원명을 확인하세요.';
         return;
       }
-      qzSession=qzBuildSession(QZ_COUNT);
+      qzSession = qzBuildSession(QZ_COUNT);
       qzLoadQ();
-    }catch(err){
-      document.getElementById('qz-question').textContent='오류: '+err.message;
-    }
-  };
+    })
+    .catch(err => {
+      document.getElementById('qz-question').textContent='불러오기 실패: '+err.message;
+    });
+}
 
-  const s=document.createElement('script');
-  // gviz는 callback 파라미터 대신 tqx로 콜백 지정
-  s.src=`https://docs.google.com/spreadsheets/d/${QUIZ_SHEET_ID}/gviz/tq?tqx=out:json;handler:${cbName}&sheet=${encodeURIComponent(sheetName)}`;
-  s.onerror=()=>{ clearTimeout(timer); document.getElementById('qz-question').textContent='시트 접근 실패.'; };
-  document.head.appendChild(s);
+/* ── CSV 파서 (헤더 제외) ── */
+function qzParseCSV(text){
+  const rows=[]; let row=[], cur='', inQ=false;
+  for(let i=0;i<text.length;i++){
+    const ch=text[i], nx=text[i+1];
+    if(ch==='"'){ if(inQ&&nx==='"'){cur+='"';i++;} else inQ=!inQ; }
+    else if(ch===','&&!inQ){ row.push(cur.trim()); cur=''; }
+    else if((ch==='\n'||ch==='\r')&&!inQ){
+      if(ch==='\r'&&nx==='\n') i++;
+      row.push(cur.trim());
+      if(row.some(v=>v!=='')) rows.push(row);
+      row=[]; cur='';
+    } else cur+=ch;
+  }
+  if(cur!==''||row.length){ row.push(cur.trim()); rows.push(row); }
+  return rows.slice(1); // 헤더(1행) 제외
 }
 
 /* ── 세션 구성 ── */

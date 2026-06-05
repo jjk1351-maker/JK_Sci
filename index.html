@@ -62,9 +62,10 @@
     .sec-label { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; color:var(--accent); }
     .sec-div { flex:1; height:1px; background:var(--border); }
 
-    /* ══ 홈 2탭 메뉴 ══ */
-    .home-tab-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:22px; }
-    @media (max-width:620px){ .home-tab-grid{ grid-template-columns:1fr; } }
+    /* ══ 홈 탭 메뉴 ══ */
+    .home-tab-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+    @media (max-width:860px){ .home-tab-grid{ grid-template-columns:repeat(2,1fr); } }
+    @media (max-width:560px){ .home-tab-grid{ grid-template-columns:1fr; } }
     .home-tab-card {
       background:var(--card); border:1px solid var(--border); border-radius:22px; padding:44px 32px;
       cursor:pointer; transition:all 0.28s cubic-bezier(.25,.8,.25,1); position:relative; overflow:hidden;
@@ -336,6 +337,31 @@
 
     @keyframes fadeIn { from{opacity:0} to{opacity:1} }
     @keyframes pop { from{opacity:0;transform:scale(.92) translateY(10px)} to{opacity:1;transform:none} }
+
+    /* ══ 퀴즈 레벨바 ══ */
+    .qlbar { width:18px; height:6px; background:var(--border); border-radius:3px; transition:background 0.4s; }
+    .qlbar.on { background:var(--accent); }
+
+    /* ══ 퀴즈 선택지 버튼 ══ */
+    .qz-choice {
+      background:var(--surface); border:1px solid var(--border); border-radius:12px;
+      padding:13px 18px; font-size:14px; font-weight:600; color:var(--sub);
+      text-align:left; cursor:pointer; display:flex; align-items:center; gap:12px;
+      transition:all 0.15s; font-family:'Noto Sans KR',sans-serif; width:100%;
+    }
+    .qz-choice:hover { border-color:var(--border-h); background:var(--card-h); color:var(--text); transform:translateX(4px); }
+    .qz-choice.selected { border-color:var(--accent); background:rgba(91,255,200,0.07); color:var(--text); }
+    .qz-choice.correct  { border-color:var(--green);  background:rgba(116,216,131,0.1);  color:var(--green); }
+    .qz-choice.wrong    { border-color:var(--red);    background:rgba(255,123,123,0.1);   color:var(--red); }
+    .qz-choice-num {
+      width:26px; height:26px; border-radius:50%; background:var(--card);
+      color:var(--sub); display:grid; place-items:center; font-size:11px;
+      font-weight:700; flex-shrink:0; font-family:'DM Mono',monospace; transition:all 0.15s;
+    }
+    .qz-choice:hover .qz-choice-num,
+    .qz-choice.selected .qz-choice-num { background:var(--accent); color:var(--bg); }
+    .qz-choice.correct .qz-choice-num  { background:var(--green);  color:var(--bg); }
+    .qz-choice.wrong   .qz-choice-num  { background:var(--red);    color:#fff; }
   </style>
 </head>
 <body>
@@ -355,7 +381,7 @@
   <div class="view active" id="view-home">
     <div class="welcome">
       <h2>안녕하세요,&nbsp;<em>JK 과학 클래스</em>에 오신 것을 환영합니다!</h2>
-      <p><em>과학 단어장</em>으로 학년별 용어를 익히고, <em>기억력 게임</em>으로 재미있게 학습하세요!</p>
+      <p><em>과학 단어장</em>으로 학년별 용어를 익히고, <em>기억력 게임</em>으로 재미있게 암기하고, <em>과학 퀴즈</em>로 실력을 확인하세요!</p>
     </div>
     <div class="sec-head"><span class="sec-label">Select Mode</span><div class="sec-div"></div></div>
     <div class="home-tab-grid">
@@ -374,6 +400,14 @@
         <div class="htc-en">MEMORY GAME</div>
         <div class="htc-desc">과학 분류 카드를 짝지으며 과학 개념을 재미있게 암기!</div>
         <div class="htc-go">게임하러 가기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+      <div class="home-tab-card" style="--htc:var(--purple)" onclick="enterQuizSection()">
+        <div class="htc-glow"></div>
+        <div class="htc-icon"><i class="fa-solid fa-flask-vial"></i></div>
+        <div class="htc-title">과학 퀴즈</div>
+        <div class="htc-en">ADAPTIVE QUIZ</div>
+        <div class="htc-desc">정답·오답에 따라 난이도가 변하는 적응형 퀴즈로 실력을 확인!</div>
+        <div class="htc-go">퀴즈 풀러 가기 <i class="fa-solid fa-arrow-right"></i></div>
       </div>
     </div>
   </div>
@@ -638,6 +672,118 @@
     </div>
   </div>
 
+  <!-- ════ 과학 퀴즈 학년 선택 ════ -->
+  <div class="view" id="view-quiz-home">
+    <div class="sub-head">
+      <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb">ADAPTIVE QUIZ · 학년 선택</span><h2>과학 퀴즈</h2></div>
+    </div>
+    <div class="sec-head"><span class="sec-label">Select Grade</span><div class="sec-div"></div></div>
+    <div class="grade-grid" id="quiz-grade-grid"></div>
+  </div>
+
+  <!-- ════ 과학 퀴즈 단원 선택 ════ -->
+  <div class="view" id="view-quiz-units">
+    <div class="sub-head">
+      <button class="back-btn" onclick="showView('quiz-home')"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb" id="quiz-units-crumb"></span><h2 id="quiz-units-h2"></h2></div>
+    </div>
+    <div class="sec-head"><span class="sec-label">단원을 선택하세요</span><div class="sec-div"></div></div>
+    <div class="ch-grid" id="quiz-unit-grid"></div>
+  </div>
+
+  <!-- ════ 과학 퀴즈 진행 화면 ════ -->
+  <div class="view" id="view-quiz-play">
+    <div class="sub-head">
+      <button class="back-btn" id="quiz-play-back"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title">
+        <span class="crumb" id="quiz-play-crumb"></span>
+        <h2 id="quiz-play-h2"></h2>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:10px;align-items:center;">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:30px;padding:8px 16px;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--gold);">
+          ⏱ <span id="qz-timer">60</span>초
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:30px;padding:8px 16px;font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--accent);">
+          🏆 <span id="qz-score">0</span>점
+        </div>
+      </div>
+    </div>
+
+    <!-- 진행바 + 레벨 -->
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;">
+        <div id="qz-prog-bar" style="height:100%;background:var(--accent);border-radius:3px;transition:width 0.3s;width:0%"></div>
+      </div>
+      <div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--sub);white-space:nowrap;" id="qz-prog-txt">1 / 20</div>
+      <div style="display:flex;gap:3px;" id="qz-level-bars">
+        <div class="qlbar"></div><div class="qlbar"></div><div class="qlbar"></div><div class="qlbar"></div><div class="qlbar"></div>
+      </div>
+      <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--accent);min-width:32px;text-align:center;" id="qz-level-num">3</div>
+    </div>
+
+    <!-- 문제 카드 -->
+    <div style="background:linear-gradient(135deg,var(--card),#112038);border:1px solid var(--border-h);border-radius:20px;padding:32px 36px;position:relative;overflow:hidden;">
+      <div style="position:absolute;bottom:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--accent),var(--blue),transparent);"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
+        <span style="background:var(--accent);color:var(--bg);font-family:'DM Mono',monospace;font-size:11px;font-weight:700;padding:5px 12px;border-radius:7px;" id="qz-quest-badge">QUEST 01</span>
+        <span style="font-size:13px;font-weight:700;color:var(--green);" id="qz-pts-info">정답 +30점</span>
+      </div>
+      <div style="font-size:1.15rem;font-weight:700;line-height:1.8;color:var(--text);word-break:keep-all;" id="qz-question">문제 로딩 중...</div>
+    </div>
+
+    <!-- 선택지 -->
+    <div style="display:flex;flex-direction:column;gap:10px;" id="qz-choices"></div>
+
+    <!-- 피드백 -->
+    <div id="qz-feedback" style="display:none;padding:16px 20px;border-radius:12px;font-size:13.5px;line-height:1.7;border-left:4px solid var(--accent);"></div>
+
+    <!-- 하단 버튼 -->
+    <div style="display:flex;gap:12px;">
+      <button id="qz-hint-btn" onclick="qzShowHint()" style="display:none;flex:1;padding:13px;border-radius:11px;background:rgba(255,209,102,0.1);border:1px solid rgba(255,209,102,0.25);color:var(--gold);font-weight:700;font-size:14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+        <i class="fa-regular fa-lightbulb"></i> 힌트 보기
+      </button>
+      <button id="qz-submit-btn" onclick="qzSubmit()" style="flex:2;padding:13px;border-radius:11px;background:var(--accent);color:var(--bg);font-weight:900;font-size:14px;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;box-shadow:0 4px 20px rgba(91,255,200,0.2);">
+        <i class="fa-solid fa-paper-plane"></i> 정답 제출
+      </button>
+      <button id="qz-next-btn" onclick="qzNext()" style="display:none;flex:2;padding:13px;border-radius:11px;background:var(--green);color:var(--bg);font-weight:900;font-size:14px;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+        다음 문항 <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════ 과학 퀴즈 결과 화면 ════ -->
+  <div class="view" id="view-quiz-result">
+    <div style="background:linear-gradient(135deg,var(--card),#112038);border:1px solid var(--border-h);border-radius:20px;padding:52px 44px;text-align:center;position:relative;overflow:hidden;">
+      <div style="position:absolute;bottom:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--accent),var(--blue),transparent);"></div>
+      <div style="font-size:54px;margin-bottom:14px;">🏆</div>
+      <h2 style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;margin-bottom:8px;">퀴즈 완료!</h2>
+      <p style="font-size:14px;color:var(--sub);margin-bottom:32px;" id="qz-result-sub"></p>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 12px;">
+          <div style="font-family:'DM Mono',monospace;font-size:2rem;font-weight:700;color:var(--accent);" id="qz-res-score">0</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:4px;font-weight:600;">최종 점수</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 12px;">
+          <div style="font-family:'DM Mono',monospace;font-size:2rem;font-weight:700;color:var(--green);" id="qz-res-correct">0</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:4px;font-weight:600;">정답 수</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 12px;">
+          <div style="font-family:'DM Mono',monospace;font-size:2rem;font-weight:700;color:var(--gold);" id="qz-res-maxlv">0</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:4px;font-weight:600;">최고 레벨</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;">
+        <button onclick="enterQuizSection()" style="padding:13px 28px;border-radius:11px;background:transparent;border:1px solid var(--border);color:var(--sub);font-weight:700;font-size:14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+          <i class="fa-solid fa-list"></i> 단원 선택
+        </button>
+        <button onclick="qzRetry()" style="padding:13px 28px;border-radius:11px;background:var(--accent);color:var(--bg);font-weight:900;font-size:14px;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+          <i class="fa-solid fa-rotate-right"></i> 다시 풀기
+        </button>
+      </div>
+    </div>
+  </div>
+
   <footer>
     <span class="fbrand">JK SCIENCE LEARNING</span>
     <p>&copy; 2026 JK SCIENCE LEARNING Portal · Powered by JK &amp; SH</p>
@@ -759,7 +905,7 @@ const BIO_LEVELS = [
 function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function showView(id){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById('view-'+id).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
-function goHome(){ stopRaceTimer(); stopHuntTimer(); clearInterval(memTimerId); showView('home'); }
+function goHome(){ stopRaceTimer(); stopHuntTimer(); clearInterval(memTimerId); clearInterval(qzTimerInterval); showView('home'); }
 const memStore={};
 function storeGet(k){ try{ return localStorage.getItem(k); }catch(e){ return memStore[k]??null; } }
 function storeSet(k,v){ memStore[k]=v; try{ localStorage.setItem(k,v); }catch(e){} }
@@ -1428,6 +1574,394 @@ document.addEventListener('keydown',e=>{
     if(e.code==='ArrowLeft') prevCard(e);
   }
 });
+
+/* ════════════════════════════════════════════════════════
+   🎯 과학 퀴즈 — 적응형 퀴즈 시스템
+   ════════════════════════════════════════════════════════ */
+
+// 퀴즈 문항 DB 시트 ID
+const QUIZ_SHEET_ID = '13YPfrhn2t1LgktLMsAzpFPKD9MVjS7RfE65Xrn2GJoo';
+
+// 학년별 단원 순서 (시트에 없는 단원은 비활성화)
+const QUIZ_UNIT_ORDER = {
+  '1': ['과학과 인류의 지속가능한 삶','생물의 구성과 다양성','열','물질의 상태 변화','힘의 작용','기체의 성질','태양계'],
+  '2': ['물질의 특성','지권의 변화','빛과 파동','물질의 구성','식물과 에너지','동물과 에너지','전기와 자기','별과 우주'],
+  '3': ['화학 반응의 규칙과 에너지 변화','기권과 날씨','운동과 에너지','자극과 반응','생식과 유전','에너지 전환과 보존','별과 우주']
+};
+
+// 퀴즈 상태
+let qzGrade='', qzUnit='', qzAll=[], qzSession=[], qzIdx=0;
+let qzLevel=3, qzScore=0, qzCorrect=0, qzMaxLv=3;
+let qzSelected=0, qzAnswered=false;
+let qzTimerInterval=null, qzTimeLeft=60;
+const QZ_TIME=60, QZ_COUNT=20;
+
+// 구글 시트 탭 목록 캐시
+let qzAvailableUnits={};  // {'1':['빛과 파동',...], '2':[...], '3':[...]}
+let qzSheetsLoaded=false;
+
+/* ── 학년 선택 화면 ── */
+function enterQuizSection(){
+  renderQuizGrades();
+  showView('quiz-home');
+}
+
+function renderQuizGrades(){
+  const grid=document.getElementById('quiz-grade-grid');
+  grid.innerHTML='';
+  ['1','2','3'].forEach(g=>{
+    const info=GRADE_INFO[g];
+    const card=document.createElement('div');
+    card.className='grade-card';
+    card.style.setProperty('--gc', info.color);
+    card.innerHTML=`
+      <div class="gcard-glow"></div>
+      <div class="gc-icon"><i class="fa-solid ${info.icon}"></i></div>
+      <div class="gc-num">${g}</div>
+      <div class="gc-label">${info.name}</div>
+      <div class="gc-meta">단원 선택 후 퀴즈 시작</div>
+      <div class="gc-btn">단원 선택 <i class="fa-solid fa-arrow-right"></i></div>
+    `;
+    card.onclick=()=>openQuizUnits(g);
+    grid.appendChild(card);
+  });
+}
+
+/* ── 단원 선택 화면 ── */
+function openQuizUnits(g){
+  qzGrade=g;
+  const info=GRADE_INFO[g];
+  document.getElementById('quiz-units-crumb').textContent='QUIZ · '+info.name;
+  document.getElementById('quiz-units-h2').textContent=info.name+' 단원 선택';
+  renderQuizUnits(g);
+  showView('quiz-units');
+
+  // 시트 탭 목록 로드 (아직 안 됐으면)
+  if(!qzSheetsLoaded) loadQuizSheetList(g);
+}
+
+function renderQuizUnits(g){
+  const grid=document.getElementById('quiz-unit-grid');
+  grid.innerHTML='';
+  const units=QUIZ_UNIT_ORDER[g]||[];
+  const available=qzAvailableUnits[g]||[];
+
+  units.forEach((unit,i)=>{
+    const hasData=available.includes(unit);
+    const card=document.createElement('div');
+    card.className='ch-card'+(hasData?'':' disabled');
+    if(!hasData) card.style.opacity='0.45';
+    card.innerHTML=`
+      <div class="ch-top">
+        <div class="ch-ic"><i class="fa-solid ${hasData?'fa-circle-check':'fa-lock'}" style="color:${hasData?'var(--accent)':'var(--sub)'}"></i></div>
+        <div class="ch-cnt" style="font-size:11px;">${i+1}단원</div>
+      </div>
+      <div class="ch-title">${unit}</div>
+      <div class="ch-levels">
+        ${hasData
+          ? '<span class="lv lv1">레벨 1-5</span><span class="lv lv2">적응형</span>'
+          : '<span class="lv" style="color:var(--sub);background:rgba(154,171,200,0.1)">준비 중</span>'
+        }
+      </div>
+      <div class="ch-go" style="color:${hasData?'var(--accent)':'var(--sub)'}">
+        ${hasData?'퀴즈 시작 <i class="fa-solid fa-arrow-right"></i>':'곧 제공됩니다'}
+      </div>
+    `;
+    if(hasData) card.onclick=()=>startQuizPlay(g, unit);
+    grid.appendChild(card);
+  });
+}
+
+/* ── 구글 시트 탭 목록 로드 ── */
+function loadQuizSheetList(g){
+  // gviz로 각 단원을 순차 확인하는 대신,
+  // 시트 피드 API로 탭 목록을 한번에 가져옴
+  const url=`https://spreadsheets.google.com/feeds/worksheets/${QUIZ_SHEET_ID}/public/basic?alt=json`;
+  fetch(url)
+    .then(r=>r.json())
+    .then(data=>{
+      const entries=data.feed.entry||[];
+      qzAvailableUnits={'1':[],'2':[],'3':[]};
+      entries.forEach(e=>{
+        const title=e.title.$t; // 예) [2]빛과 파동
+        const m=title.match(/^\[(\d)\](.+)$/);
+        if(m){
+          const grade=m[1], unit=m[2].trim();
+          if(qzAvailableUnits[grade]) qzAvailableUnits[grade].push(unit);
+        }
+      });
+      qzSheetsLoaded=true;
+      // 현재 보고 있는 학년 화면 갱신
+      if(document.getElementById('view-quiz-units').classList.contains('active')){
+        renderQuizUnits(qzGrade);
+      }
+    })
+    .catch(()=>{
+      // CORS 실패 시 (로컬 테스트) 빈 상태 유지
+      qzSheetsLoaded=true;
+    });
+}
+
+/* ── 퀴즈 시작 ── */
+function startQuizPlay(g, unit){
+  qzGrade=g; qzUnit=unit;
+  qzAll=[]; qzSession=[]; qzIdx=0;
+  qzLevel=3; qzScore=0; qzCorrect=0; qzMaxLv=3;
+  qzSelected=0; qzAnswered=false;
+
+  document.getElementById('quiz-play-crumb').textContent='QUIZ · '+GRADE_INFO[g].name;
+  document.getElementById('quiz-play-h2').textContent=unit;
+  document.getElementById('quiz-play-back').onclick=()=>{
+    clearInterval(qzTimerInterval);
+    showView('quiz-units');
+  };
+
+  showView('quiz-play');
+  loadQuizData(g, unit);
+}
+
+function loadQuizData(g, unit){
+  document.getElementById('qz-question').textContent='문항을 불러오는 중...';
+  document.getElementById('qz-choices').innerHTML='';
+
+  const sheetName=`[${g}]${unit}`;
+  const url=`https://docs.google.com/spreadsheets/d/${QUIZ_SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(sheetName)}`;
+
+  // JSONP 방식
+  const cbName='qzCb_'+Date.now();
+  const timer=setTimeout(()=>{
+    delete window[cbName];
+    document.getElementById('qz-question').textContent='불러오기 실패. 네트워크를 확인하세요.';
+  },10000);
+
+  window[cbName]=function(res){
+    clearTimeout(timer);
+    delete window[cbName];
+    s.remove();
+    try{
+      const rows=res.table.rows;
+      qzAll=rows.slice(1).map((row,i)=>{
+        const c=row.c;
+        return {
+          id:    c[0]?.v||i+1,
+          level: parseInt(c[1]?.v)||3,
+          pts:   parseInt(c[2]?.v)||30,
+          title: String(c[3]?.v||''),
+          ch:   [c[4]?.v,c[5]?.v,c[6]?.v,c[7]?.v,c[8]?.v].map(v=>String(v||'')),
+          ans:   parseInt(c[9]?.v)||1,
+          hint:  String(c[10]?.v||'교과서를 다시 확인해보세요.'),
+          expl:  String(c[11]?.v||'')
+        };
+      }).filter(q=>q.title);
+
+      if(!qzAll.length){
+        document.getElementById('qz-question').textContent='문항이 없습니다. 단원명을 확인하세요.';
+        return;
+      }
+      qzSession=qzBuildSession(QZ_COUNT);
+      qzLoadQ();
+    }catch(err){
+      document.getElementById('qz-question').textContent='오류: '+err.message;
+    }
+  };
+
+  const s=document.createElement('script');
+  // gviz는 callback 파라미터 대신 tqx로 콜백 지정
+  s.src=`https://docs.google.com/spreadsheets/d/${QUIZ_SHEET_ID}/gviz/tq?tqx=out:json;handler:${cbName}&sheet=${encodeURIComponent(sheetName)}`;
+  s.onerror=()=>{ clearTimeout(timer); document.getElementById('qz-question').textContent='시트 접근 실패.'; };
+  document.head.appendChild(s);
+}
+
+/* ── 세션 구성 ── */
+function qzBuildSession(count){
+  const byLv={1:[],2:[],3:[],4:[],5:[]};
+  qzAll.forEach(q=>{ if(byLv[q.level]) byLv[q.level].push(q); });
+  let pool=[];
+  for(let lv=1;lv<=5;lv++){
+    const sh=qzShuffle([...byLv[lv]]);
+    pool=pool.concat(sh.slice(0,Math.ceil(count/5)));
+  }
+  return qzShuffle(pool).slice(0,count);
+}
+
+/* ── 문항 로드 ── */
+function qzLoadQ(){
+  if(qzIdx>=qzSession.length){ qzShowResult(); return; }
+
+  // 현재 레벨에 가장 가까운 문항 선택
+  const rem=qzSession.slice(qzIdx);
+  const sorted=[...rem].sort((a,b)=>Math.abs(a.level-qzLevel)-Math.abs(b.level-qzLevel));
+  const chosen=sorted[0];
+  const origIdx=qzSession.indexOf(chosen, qzIdx);
+  [qzSession[qzIdx], qzSession[origIdx]]=[qzSession[origIdx], qzSession[qzIdx]];
+  const q=qzSession[qzIdx];
+
+  qzSelected=0; qzAnswered=false;
+
+  // UI 업데이트
+  document.getElementById('qz-quest-badge').textContent='QUEST '+String(qzIdx+1).padStart(2,'0');
+  document.getElementById('qz-pts-info').textContent='정답 +'+q.pts+'점';
+  document.getElementById('qz-prog-txt').textContent=(qzIdx+1)+' / '+qzSession.length;
+  document.getElementById('qz-prog-bar').style.width=(qzIdx/qzSession.length*100)+'%';
+  document.getElementById('qz-question').textContent=q.title;
+  qzUpdateLevel();
+
+  // 선택지 렌더링
+  const wrap=document.getElementById('qz-choices');
+  wrap.innerHTML='';
+  q.ch.forEach((ch,i)=>{
+    const btn=document.createElement('button');
+    btn.className='qz-choice';
+    btn.innerHTML=`<span class="qz-choice-num">${i+1}</span>${ch}`;
+    btn.onclick=()=>qzSelect(i+1);
+    wrap.appendChild(btn);
+  });
+
+  // 피드백 숨김
+  const fb=document.getElementById('qz-feedback');
+  fb.style.display='none'; fb.className='';
+
+  // 버튼 상태
+  document.getElementById('qz-hint-btn').style.display='none';
+  const subBtn=document.getElementById('qz-submit-btn');
+  subBtn.style.display=''; subBtn.disabled=false;
+  document.getElementById('qz-next-btn').style.display='none';
+
+  // 타이머
+  qzStartTimer();
+  document.getElementById('quiz-play').scrollTop=0;
+}
+
+/* ── 선택 ── */
+function qzSelect(num){
+  if(qzAnswered) return;
+  qzSelected=num;
+  document.querySelectorAll('.qz-choice').forEach((b,i)=>b.classList.toggle('selected',i+1===num));
+}
+
+/* ── 제출 ── */
+function qzSubmit(){
+  if(qzAnswered||!qzSelected) return;
+  clearInterval(qzTimerInterval);
+  qzAnswered=true;
+
+  const q=qzSession[qzIdx];
+  const ok=(qzSelected===q.ans);
+
+  document.querySelectorAll('.qz-choice').forEach((b,i)=>{
+    if(i+1===q.ans)      b.classList.add('correct');
+    else if(i+1===qzSelected&&!ok) b.classList.add('wrong');
+    b.classList.remove('selected');
+    b.onclick=null;
+  });
+
+  const fb=document.getElementById('qz-feedback');
+  fb.style.display='block';
+
+  if(ok){
+    qzScore+=q.pts; qzCorrect++;
+    qzLevel=Math.min(5,qzLevel+1);
+    qzMaxLv=Math.max(qzMaxLv,qzLevel);
+    fb.style.cssText='display:block;padding:16px 20px;border-radius:12px;font-size:13.5px;line-height:1.7;background:rgba(116,216,131,0.08);border-left:4px solid var(--green);color:var(--green);';
+    fb.innerHTML=`<strong>✅ 정답!</strong> +${q.pts}점<br><span style="color:var(--sub);font-size:12px">${q.expl}</span>`;
+  } else {
+    qzScore=Math.max(0,qzScore-10);
+    qzLevel=Math.max(1,qzLevel-1);
+    fb.style.cssText='display:block;padding:16px 20px;border-radius:12px;font-size:13.5px;line-height:1.7;background:rgba(255,123,123,0.08);border-left:4px solid var(--red);color:var(--red);';
+    fb.innerHTML=`<strong>❌ 오답!</strong> -10점 &nbsp;|&nbsp; 정답: <strong>${q.ans}번</strong> — ${q.ch[q.ans-1]}<br><span style="color:var(--sub);font-size:12px">${q.expl}</span>`;
+  }
+
+  document.getElementById('qz-score').textContent=qzScore;
+  qzUpdateLevel();
+
+  // 버튼 전환
+  document.getElementById('qz-submit-btn').style.display='none';
+  document.getElementById('qz-hint-btn').style.display='';
+  document.getElementById('qz-next-btn').style.display='';
+
+  setTimeout(()=>{ const el=document.getElementById('qz-feedback'); if(el) el.scrollIntoView({behavior:'smooth',block:'nearest'}); },100);
+}
+
+/* ── 힌트 ── */
+function qzShowHint(){
+  if(!qzAnswered) return;
+  const q=qzSession[qzIdx];
+  const fb=document.getElementById('qz-feedback');
+  fb.style.cssText='display:block;padding:16px 20px;border-radius:12px;font-size:13.5px;line-height:1.7;background:rgba(255,209,102,0.08);border-left:4px solid var(--gold);color:var(--gold);margin-top:8px;';
+  fb.innerHTML=(fb.innerHTML||'')+`<br><i class="fa-regular fa-lightbulb"></i> <strong>힌트</strong> — ${q.hint}`;
+  document.getElementById('qz-hint-btn').style.display='none';
+}
+
+/* ── 다음 문항 ── */
+function qzNext(){
+  qzIdx++;
+  qzLoadQ();
+}
+
+/* ── 시간 초과 ── */
+function qzTimeOver(){
+  if(qzAnswered) return;
+  qzAnswered=true;
+  qzScore=Math.max(0,qzScore-10);
+  qzLevel=Math.max(1,qzLevel-1);
+  document.getElementById('qz-score').textContent=qzScore;
+  const q=qzSession[qzIdx];
+  document.querySelectorAll('.qz-choice').forEach((b,i)=>{ if(i+1===q.ans) b.classList.add('correct'); b.onclick=null; });
+  const fb=document.getElementById('qz-feedback');
+  fb.style.cssText='display:block;padding:16px 20px;border-radius:12px;font-size:13.5px;line-height:1.7;background:rgba(255,123,123,0.08);border-left:4px solid var(--red);color:var(--red);';
+  fb.innerHTML=`<strong>⏱ 시간 초과!</strong> -10점 &nbsp;|&nbsp; 정답: <strong>${q.ans}번</strong> — ${q.ch[q.ans-1]}`;
+  qzUpdateLevel();
+  document.getElementById('qz-submit-btn').style.display='none';
+  document.getElementById('qz-hint-btn').style.display='';
+  document.getElementById('qz-next-btn').style.display='';
+}
+
+/* ── 타이머 ── */
+function qzStartTimer(){
+  clearInterval(qzTimerInterval);
+  qzTimeLeft=QZ_TIME;
+  qzUpdateTimer();
+  qzTimerInterval=setInterval(()=>{
+    qzTimeLeft--;
+    qzUpdateTimer();
+    if(qzTimeLeft<=0){ clearInterval(qzTimerInterval); qzTimeOver(); }
+  },1000);
+}
+function qzUpdateTimer(){
+  const el=document.getElementById('qz-timer');
+  if(el) el.textContent=qzTimeLeft;
+  // 10초 이하 빨간색
+  const wrap=el?.parentElement;
+  if(wrap) wrap.style.color=qzTimeLeft<=10?'var(--red)':'var(--gold)';
+}
+
+/* ── 레벨 UI ── */
+function qzUpdateLevel(){
+  const el=document.getElementById('qz-level-num');
+  if(el) el.textContent=qzLevel;
+  document.querySelectorAll('#qz-level-bars .qlbar').forEach((b,i)=>b.classList.toggle('on',i<qzLevel));
+}
+
+/* ── 결과 ── */
+function qzShowResult(){
+  clearInterval(qzTimerInterval);
+  const total=qzSession.length;
+  const pct=Math.round(qzCorrect/total*100);
+  document.getElementById('qz-res-score').textContent=qzScore;
+  document.getElementById('qz-res-correct').textContent=qzCorrect;
+  document.getElementById('qz-res-maxlv').textContent=qzMaxLv;
+  document.getElementById('qz-result-sub').textContent=
+    `${total}문항 중 ${qzCorrect}문항 정답 · 정답률 ${pct}% · 최종 레벨 ${qzLevel}`;
+  showView('quiz-result');
+}
+
+/* ── 다시 풀기 ── */
+function qzRetry(){
+  startQuizPlay(qzGrade, qzUnit);
+}
+
+/* ── 셔플 ── */
+function qzShuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 
 /* ════════════════════════════════════════════════════════
    🚀 초기화

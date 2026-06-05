@@ -1681,7 +1681,7 @@ function loadQuizSheetList(g){
 
   const checks = units.map(unit => {
     const sheetName = `[${g}]${unit}`;
-    const url = `https://docs.google.com/spreadsheets/d/e/${QUIZ_SHEET_PUB_ID}/pub?output=csv&sheet=${encodeURIComponent(sheetName)}`;
+    const url = `https://docs.google.com/spreadsheets/d/${QUIZ_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
     return fetch(url)
       .then(r => { if(r.ok) qzAvailableUnits[g].push(unit); })
       .catch(()=>{});
@@ -1718,7 +1718,7 @@ function loadQuizData(g, unit){
   document.getElementById('qz-choices').innerHTML='';
 
   const sheetName = `[${g}]${unit}`;
-  const url = `https://docs.google.com/spreadsheets/d/e/${QUIZ_SHEET_PUB_ID}/pub?output=csv&sheet=${encodeURIComponent(sheetName)}`;
+  const url = `https://docs.google.com/spreadsheets/d/${QUIZ_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
 
   fetch(url)
     .then(r => {

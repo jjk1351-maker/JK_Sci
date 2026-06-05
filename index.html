@@ -1599,7 +1599,7 @@ const QZ_TIME=60, QZ_COUNT=20;
 
 // 구글 시트 탭 목록 캐시
 let qzAvailableUnits={};  // {'1':['빛과 파동',...], '2':[...], '3':[...]}
-let qzSheetsLoaded=false;
+let qzSheetsLoaded = {'1':false, '2':false, '3':false};
 
 /* ── 학년 선택 화면 ── */
 function enterQuizSection(){
@@ -1638,7 +1638,7 @@ function openQuizUnits(g){
   showView('quiz-units');
 
   // 시트 탭 목록 로드 (아직 안 됐으면)
-  if(!qzSheetsLoaded) loadQuizSheetList(g);
+  if(!qzSheetsLoaded[g]) loadQuizSheetList(g);
 }
 
 function renderQuizUnits(g){
@@ -1688,7 +1688,7 @@ function loadQuizSheetList(g){
   });
 
   Promise.all(checks).then(()=>{
-    qzSheetsLoaded = true;
+    qzSheetsLoaded[g] = true;
     if(document.getElementById('view-quiz-units').classList.contains('active')){
       renderQuizUnits(qzGrade);
     }
@@ -1825,7 +1825,7 @@ function qzLoadQ(){
 
   // 타이머
   qzStartTimer();
-  document.getElementById('quiz-play').scrollTop=0;
+  document.getElementById('view-quiz-play').scrollTop=0;
 }
 
 /* ── 선택 ── */

@@ -1683,7 +1683,11 @@ function loadQuizSheetList(g){
     const sheetName = `[${g}]${unit}`;
     const url = `https://docs.google.com/spreadsheets/d/${QUIZ_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
     return fetch(url)
-      .then(r => { if(r.ok) qzAvailableUnits[g].push(unit); })
+      .then(r => r.text())
+      .then(csv => {
+        const rows = qzParseCSV(csv);
+        if(rows.length > 0 && rows[0][3]) qzAvailableUnits[g].push(unit);
+      })
       .catch(()=>{});
   });
 

@@ -1705,6 +1705,7 @@ function startQuizPlay(g, unit){
   qzAll=[]; qzSession=[]; qzIdx=0;
   qzLevel=3; qzScore=0; qzCorrect=0; qzMaxLv=3;
   qzSelected=0; qzAnswered=false;
+  qzConsecutive=0;  // 연속 정답 카운터
 
   document.getElementById('quiz-play-crumb').textContent='QUIZ · '+GRADE_INFO[g].name;
   document.getElementById('quiz-play-h2').textContent=unit;
@@ -1858,15 +1859,27 @@ function qzSubmit(){
   const fb=document.getElementById('qz-feedback');
   fb.style.display='block';
 
+  // 레벨별 차등 연속 정답 기준: lv1~2=2연속, lv3=3연속, lv4~5=4연속
+  const STREAK_NEEDED = qzLevel <= 2 ? 2 : qzLevel === 3 ? 3 : 4;
+
   if(ok){
     qzScore+=q.pts; qzCorrect++;
-    qzLevel=Math.min(5,qzLevel+1);
-    qzMaxLv=Math.max(qzMaxLv,qzLevel);
-    fb.style.cssText='display:block;padding:16px 20px;border-radius:12px;font-size:13.5px;line-height:1.7;background:rgba(116,216,131,0.08);border-left:4px solid var(--green);color:var(--green);';
-    fb.innerHTML=`<strong>✅ 정답!</strong> +${q.pts}점<br><span style="color:var(--sub);font-size:12px">${q.expl}</span>`;
+    qzConsecutive++;
+    const streakLeft = STREAK_NEEDED - qzConsecutive;
+    if(qzConsecutive >= STREAK_NEEDED){
+      qzLevel=Math.min(5,qzLevel+1);
+      qzMaxLv=Math.max(qzMaxLv,qzLevel);
+      qzConsecutive=0;
+      fb.style.cssText='display:block;padding:16px 20px;border-radius:12px;font-size:13.5px;line-height:1.7;background:rgba(116,216,131,0.08);border-left:4px solid var(--green);color:var(--green);';
+      fb.innerHTML=`<strong>✅ 정답!</strong> +${q.pts}점 &nbsp;|&nbsp; <strong>🔺 레벨 UP! → Lv.${qzLevel}</strong><br><span style="color:var(--sub);font-size:12px">${q.expl}</span>`;
+    } else {
+      fb.style.cssText='display:block;padding:16px 20px;border-radius:12px;font-size:13.5px;line-height:1.7;background:rgba(116,216,131,0.08);border-left:4px solid var(--green);color:var(--green);';
+      fb.innerHTML=`<strong>✅ 정답!</strong> +${q.pts}점 &nbsp;|&nbsp; <span style="color:var(--gold)">연속 ${qzConsecutive}회 (${streakLeft}회 더 맞추면 레벨 UP)</span><br><span style="color:var(--sub);font-size:12px">${q.expl}</span>`;
+    }
   } else {
     qzScore=Math.max(0,qzScore-10);
     qzLevel=Math.max(1,qzLevel-1);
+    qzConsecutive=0;  // 연속 카운터 초기화
     fb.style.cssText='display:block;padding:16px 20px;border-radius:12px;font-size:13.5px;line-height:1.7;background:rgba(255,123,123,0.08);border-left:4px solid var(--red);color:var(--red);';
     fb.innerHTML=`<strong>❌ 오답!</strong> -10점 &nbsp;|&nbsp; 정답: <strong>${q.ans}번</strong> — ${q.ch[q.ans-1]}<br><span style="color:var(--sub);font-size:12px">${q.expl}</span>`;
   }
@@ -1904,6 +1917,7 @@ function qzTimeOver(){
   qzAnswered=true;
   qzScore=Math.max(0,qzScore-10);
   qzLevel=Math.max(1,qzLevel-1);
+  qzConsecutive=0;  // 시간초과 시 연속 카운터 초기화
   document.getElementById('qz-score').textContent=qzScore;
   const q=qzSession[qzIdx];
   document.querySelectorAll('.qz-choice').forEach((b,i)=>{ if(i+1===q.ans) b.classList.add('correct'); b.onclick=null; });

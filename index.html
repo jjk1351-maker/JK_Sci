@@ -436,6 +436,14 @@
         <div class="htc-desc">원소기호·생물 분류 게임의 난이도별 순위를 확인하세요.</div>
         <div class="htc-go">랭킹 보기 <i class="fa-solid fa-arrow-right"></i></div>
       </div>
+      <div class="home-tab-card" style="--htc:var(--purple)" onclick="openQuizRanking()">
+        <div class="htc-glow"></div>
+        <div class="htc-icon"><i class="fa-solid fa-flask-vial"></i></div>
+        <div class="htc-title">과학 퀴즈</div>
+        <div class="htc-en">QUIZ RANKING</div>
+        <div class="htc-desc">적응형 퀴즈의 학년·단원별 누적 순위와 최고 순위를 확인하세요.</div>
+        <div class="htc-go">랭킹 보기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
     </div>
   </div>
 
@@ -627,10 +635,6 @@
         </button>
       </div>
     </div>
-    <div class="mem-name-box">
-      <label><i class="fa-solid fa-user"></i>&nbsp; 이름</label>
-      <input type="text" id="memPlayerName" maxlength="12" placeholder="이름을 입력하세요"/>
-    </div>
     <div class="sec-head"><span class="sec-label">Select Level</span><div class="sec-div"></div></div>
     <div class="levels-grid" id="levels-grid"></div>
   </div>
@@ -780,7 +784,35 @@
         <button onclick="qzRetry()" style="padding:13px 28px;border-radius:11px;background:var(--accent);color:var(--bg);font-weight:900;font-size:14px;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
           <i class="fa-solid fa-rotate-right"></i> 다시 풀기
         </button>
+        <button onclick="openQuizRanking()" style="padding:13px 28px;border-radius:11px;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.35);color:var(--purple);font-weight:700;font-size:14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+          <i class="fa-solid fa-trophy"></i> 랭킹 보기
+        </button>
       </div>
+    </div>
+  </div>
+
+  <!-- ════ 과학 퀴즈 랭킹 ════ -->
+  <div class="view" id="view-quiz-ranking">
+    <div class="sub-head">
+      <button class="back-btn" id="quiz-rank-back"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb">Leaderboard · 과학 퀴즈</span><h2>퀴즈 명예의 전당</h2></div>
+    </div>
+    <div class="mem-rank-section">
+      <!-- 순위 종류 탭 -->
+      <div class="mem-rank-tabs" id="qz-rank-type-tabs">
+        <button class="on" data-t="accum">누적 순위</button>
+        <button data-t="best">최고 순위</button>
+      </div>
+      <!-- 학년 탭 -->
+      <div class="mem-rank-tabs" id="qz-rank-grade-tabs">
+        <button class="on" data-g="all">전체 학년</button>
+        <button data-g="1">중1</button>
+        <button data-g="2">중2</button>
+        <button data-g="3">중3</button>
+      </div>
+      <!-- 단원 탭 (학년 선택 시 표시) -->
+      <div class="mem-rank-tabs" id="qz-rank-unit-tabs" style="display:none;flex-wrap:wrap;"></div>
+      <div id="qz-rank-list"><div class="empty"><i class="fa-solid fa-spinner fa-spin"></i><h4>불러오는 중...</h4></div></div>
     </div>
   </div>
 
@@ -790,16 +822,38 @@
   </footer>
 </div>
 
-<!-- 단어 게임 이름 입력 모달 -->
-<div class="overlay" id="nameModal">
-  <div class="modal">
-    <div class="trophy"><i class="fa-solid fa-medal"></i></div>
-    <h3>랭킹 등록</h3>
-    <p id="nameModalDesc">점수를 랭킹에 등록합니다.</p>
-    <input type="text" id="nameInput" maxlength="10" placeholder="이름 (최대 10자)" onkeydown="if(event.key==='Enter')submitWordScore()"/>
-    <div class="btn-row">
-      <button class="btn btn-ghost" onclick="closeOverlay('nameModal')">건너뛰기</button>
-      <button class="btn btn-primary" onclick="submitWordScore()">등록</button>
+<!-- ════ 닉네임 입력 모달 (공통) ════ -->
+<div class="overlay" id="nicknameModal">
+  <div class="modal" style="max-width:460px;padding:44px 40px 36px;border-radius:28px;text-align:left;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--accent),var(--blue),transparent);"></div>
+    <div style="position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(91,255,200,0.1),transparent 65%);pointer-events:none;"></div>
+    <div style="width:72px;height:72px;border-radius:20px;margin:0 auto 22px;display:flex;align-items:center;justify-content:center;font-size:30px;background:linear-gradient(135deg,rgba(91,255,200,0.15),rgba(90,160,255,0.1));border:1px solid rgba(91,255,200,0.25);color:var(--accent);box-shadow:0 8px 24px rgba(91,255,200,0.12);">
+      <i class="fa-solid fa-user-astronaut"></i>
+    </div>
+    <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;text-align:center;margin-bottom:6px;">닉네임을 입력해주세요</div>
+    <div style="font-family:'DM Mono',monospace;font-size:10.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);text-align:center;margin-bottom:22px;">JK Science Learning</div>
+    <div style="background:rgba(91,255,200,0.05);border:1px solid rgba(91,255,200,0.18);border-radius:12px;padding:13px 16px;margin-bottom:22px;display:flex;gap:10px;align-items:flex-start;">
+      <i class="fa-solid fa-shield-halved" style="color:var(--accent);font-size:14px;margin-top:2px;flex-shrink:0;"></i>
+      <p style="font-size:12.5px;color:var(--sub);line-height:1.65;margin:0;">
+        <strong style="color:var(--text);font-weight:700;">실명은 입력하지 않습니다.</strong><br>
+        닉네임만 입력 가능합니다. 입력한 닉네임은 학습 기록과 랭킹에 사용되며, 브라우저를 닫으면 자동으로 삭제됩니다.
+      </p>
+    </div>
+    <div style="position:relative;margin-bottom:8px;">
+      <i class="fa-solid fa-pen" style="position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--sub);font-size:14px;pointer-events:none;"></i>
+      <input type="text" id="nicknameInput" maxlength="10" placeholder="닉네임 입력 (최대 10자)" autocomplete="off"
+        style="width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:13px;padding:14px 16px 14px 42px;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:16px;font-weight:700;outline:none;transition:border-color 0.2s,box-shadow 0.2s;"
+        onfocus="this.style.borderColor='var(--accent)';this.style.boxShadow='0 0 0 3px rgba(91,255,200,0.1)'"
+        onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'"
+        onkeydown="if(event.key==='Enter')confirmNickname()"/>
+    </div>
+    <div style="font-size:11.5px;color:var(--sub);text-align:right;margin-bottom:22px;padding-right:4px;">최대 10자 · 영문, 한글, 숫자 가능</div>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-ghost" style="flex:1;" onclick="confirmNickname(true)"><i class="fa-solid fa-user-secret"></i> 익명으로 시작</button>
+      <button class="btn btn-primary" style="flex:1;" onclick="confirmNickname(false)"><i class="fa-solid fa-arrow-right"></i> 시작하기</button>
+    </div>
+    <div style="text-align:center;margin-top:14px;font-size:11.5px;color:var(--sub);">
+      닉네임을 입력하지 않으면 <strong style="color:var(--text);">익명</strong>으로 모든 활동이 기록됩니다.
     </div>
   </div>
 </div>
@@ -831,6 +885,8 @@
 const WORD_RANK_API = "https://script.google.com/macros/s/AKfycbxihxqvQcM7dfajMocuegGMhQDDtL-xaJYd3vd0G0k4VTeTDJnyHi_SpVWkgP_7GC_y3g/exec";
 // 기억력 게임 랭킹 서버 (Element Game Apps Script)
 const MEM_RANK_API  = "https://script.google.com/macros/s/AKfycbyg52xYVV15ZuSGueL5VZ9Odx1ukMXGRTnfxSHTBWrCLwzJ4JxpzcxqYjAj9MSKTCd5/exec";
+// 과학 퀴즈 랭킹 서버 (Code C Apps Script)
+const QUIZ_RANK_API = "https://script.google.com/macros/s/AKfycbwAugkgFWcybMDz06r7O9y8RGgw4fzemitMqKL8hlL6pdsZZRKM2al4orqXAzfGHdRI3A/exec";
 
 /* 단어장 시트 */
 const GRADE_SHEETS = {
@@ -907,8 +963,38 @@ function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<'
 function showView(id){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById('view-'+id).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
 function goHome(){ stopRaceTimer(); stopHuntTimer(); clearInterval(memTimerId); clearInterval(qzTimerInterval); showView('home'); }
 const memStore={};
-function storeGet(k){ try{ return localStorage.getItem(k); }catch(e){ return memStore[k]??null; } }
-function storeSet(k,v){ memStore[k]=v; try{ localStorage.setItem(k,v); }catch(e){} }
+function storeGet(k){ try{ return sessionStorage.getItem(k); }catch(e){ return memStore[k]??null; } }
+function storeSet(k,v){ memStore[k]=v; try{ sessionStorage.setItem(k,v); }catch(e){} }
+
+/* ════════════════════════════════════════════════════════
+   👤 닉네임 시스템
+   ════════════════════════════════════════════════════════ */
+const NICKNAME_KEY = 'jk_nickname';
+function getNickname(){ return sessionStorage.getItem(NICKNAME_KEY) || '익명'; }
+function hasNickname(){ return !!sessionStorage.getItem(NICKNAME_KEY); }
+function confirmNickname(forceAnon=false){
+  const val = forceAnon ? '' : (document.getElementById('nicknameInput').value||'').trim();
+  const name = val || '익명';
+  sessionStorage.setItem(NICKNAME_KEY, name);
+  closeOverlay('nicknameModal');
+  if(pendingNicknameCallback){ pendingNicknameCallback(); pendingNicknameCallback=null; }
+}
+let pendingNicknameCallback = null;
+function requireNickname(callback){
+  if(hasNickname()){ callback(); return; }
+  pendingNicknameCallback = callback;
+  document.getElementById('nicknameInput').value='';
+  openOverlay('nicknameModal');
+  setTimeout(()=>document.getElementById('nicknameInput').focus(),200);
+}
+// 첫 접속 시 자동 표시
+window.addEventListener('DOMContentLoaded', ()=>{
+  if(!hasNickname()){
+    pendingNicknameCallback = null;
+    openOverlay('nicknameModal');
+    setTimeout(()=>document.getElementById('nicknameInput').focus(),300);
+  }
+});
 
 /* ════════════════════════════════════════════════════════
    📡 JSONP
@@ -1144,30 +1230,21 @@ function showWordResult(title,score,detail){
   document.getElementById('result-retry').onclick=()=>{ if(wordPendingResult.mode==='race') startRace(); else startHunt(); };
   document.getElementById('result-rank').onclick=()=>openWordRanking(wordPendingResult.mode);
   showView('result');
-  document.getElementById('nameModalDesc').textContent=score+'점을 랭킹에 등록합니다. 이름을 입력하세요.';
-  document.getElementById('nameInput').value='';
-  openOverlay('nameModal');
-  setTimeout(()=>document.getElementById('nameInput').focus(),200);
+  requireNickname(()=>submitWordScore());
 }
 
 /* 단어 게임 랭킹 */
 let wordAllRows=[], wRankTab='race', wRankPeriod='accum', wRankGrade='all', wRankChapter='all', wRankHighlight=null;
-function loadLocalRank(){ try{ return JSON.parse(storeGet('jk_rank_all'))||[]; }catch(e){ return []; } }
-function saveLocalRank(list){ storeSet('jk_rank_all', JSON.stringify(list)); }
 async function submitWordScore(){
-  const name=(document.getElementById('nameInput').value||'익명').trim().slice(0,12)||'익명';
-  if(!wordPendingResult){ closeOverlay('nameModal'); return; }
+  const name = getNickname();
+  if(!wordPendingResult) return;
   const rec={ name, mode:wordPendingResult.mode, grade:wordPendingResult.grade, chapter:wordPendingResult.chapter, score:wordPendingResult.score, ts:new Date().toISOString() };
-  closeOverlay('nameModal');
   if(WORD_RANK_API){
     showToast('랭킹에 등록 중...');
     try{
       const u=WORD_RANK_API+'?action=add&name='+encodeURIComponent(name)+'&mode='+rec.mode+'&grade='+encodeURIComponent(rec.grade)+'&chapter='+encodeURIComponent(rec.chapter)+'&score='+rec.score;
-      await jsonp(u); showToast('통합 랭킹에 등록되었습니다!');
+      await jsonp(u); showToast('✅ '+name+'님 랭킹 등록 완료!');
     }catch(e){ showToast('등록 실패 — 인터넷을 확인하세요'); }
-  } else {
-    const list=loadLocalRank(); list.push(rec); saveLocalRank(list.slice(-500));
-    showToast('랭킹에 등록되었습니다 (이 기기)');
   }
   openWordRanking(wordPendingResult.mode, name);
 }
@@ -1188,7 +1265,7 @@ async function fetchWordRows(){
   if(WORD_RANK_API){
     try{ const d=await jsonp(WORD_RANK_API+'?action=list'); wordAllRows=(d&&d.rows)?d.rows:[]; }
     catch(e){ wordAllRows=[]; box.innerHTML='<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i><h4>랭킹 서버 연결 실패</h4><p>로컬 테스트 중에는 서버에 연결되지 않습니다.</p></div>'; return; }
-  } else { wordAllRows=loadLocalRank(); }
+  } else { wordAllRows=[]; }
 }
 function switchRankTab(mode){ wRankTab=mode; wRankHighlight=null;
   document.getElementById('rtab-race').classList.toggle('active',mode==='race');
@@ -1284,9 +1361,6 @@ function enterMemGame(type){
   const isElem=type==='element';
   document.getElementById('mem-level-crumb').textContent=(isElem?'원소기호':'생물 분류')+' · 난이도 선택';
   document.getElementById('mem-level-title').textContent=isElem?'⚛️ 원소기호 메모리':'🧬 생물 분류 짝맞추기';
-  // 이름 불러오기
-  const savedName=storeGet('memPlayerName')||'';
-  document.getElementById('memPlayerName').value=savedName;
   renderMemLevels();
   showView('mem-level');
 }
@@ -1392,12 +1466,12 @@ function finishMem(){
   setTimeout(()=>{ openOverlay('memModal'); sWin(); launchConfetti(); submitMemScore(); },450);
 }
 function submitMemScore(){
-  const name=(storeGet('memPlayerName')||'익명').trim()||'익명';
+  const name = getNickname();
   document.getElementById('mem-submit-msg').textContent='랭킹 등록 중…';
   const params={action:'add', name, game_type:memLastResult.game, level:memLastResult.lv, score:memLastResult.score, seconds:memLastResult.seconds.toFixed(1)};
   const qs=Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
   jsonp(MEM_RANK_API+'?'+qs)
-    .then(()=>{ document.getElementById('mem-submit-msg').textContent='✅ 랭킹에 등록되었습니다!'; renderMemLevels(); })
+    .then(()=>{ document.getElementById('mem-submit-msg').textContent='✅ '+name+'님 랭킹 등록 완료!'; renderMemLevels(); })
     .catch(()=>{ document.getElementById('mem-submit-msg').textContent='⚠️ 등록 실패 (로컬 테스트 중)'; });
 }
 
@@ -1540,7 +1614,6 @@ document.getElementById('mem-rank-btn').onclick=()=>{ closeOverlay('memModal'); 
 document.getElementById('mem-home-btn').onclick=()=>{ closeOverlay('memModal'); enterMemGame(memGameType); };
 document.getElementById('mem-sound-btn').onclick=function(){ memSoundOn=!memSoundOn; this.textContent=memSoundOn?'🔊':'🔇'; };
 document.getElementById('mem-exit-btn').onclick=()=>{ clearInterval(memTimerId); enterMemGame(memGameType); };
-document.getElementById('memPlayerName').addEventListener('input',e=>storeSet('memPlayerName',e.target.value));
 
 /* ════════════════════════════════════════════════════════
    🎉 색종이 효과
@@ -1967,6 +2040,111 @@ function qzShowResult(){
   document.getElementById('qz-result-sub').textContent=
     `${total}문항 중 ${qzCorrect}문항 정답 · 정답률 ${pct}% · 최종 레벨 ${qzLevel}`;
   showView('quiz-result');
+  requireNickname(()=>submitQuizScore());
+}
+
+/* ── 퀴즈 점수 서버 전송 ── */
+async function submitQuizScore(){
+  if(!QUIZ_RANK_API || qzScore <= 0) return;
+  const name = getNickname();
+  showToast('퀴즈 랭킹 등록 중...');
+  try{
+    const u = QUIZ_RANK_API+'?action=save'
+      +'&name='+encodeURIComponent(name)
+      +'&grade='+encodeURIComponent(qzGrade)
+      +'&unit='+encodeURIComponent(qzUnit)
+      +'&score='+qzScore;
+    await jsonp(u);
+    showToast('✅ '+name+'님 퀴즈 랭킹 등록 완료!');
+  }catch(e){ showToast('퀴즈 랭킹 등록 실패'); }
+}
+
+/* ════════════════════════════════════════════════════════
+   🏆 과학 퀴즈 랭킹
+   ════════════════════════════════════════════════════════ */
+let qzRankType='accum', qzRankGrade='all', qzRankUnit='all';
+let qzRankAllRows=[];
+
+function openQuizRanking(from){
+  qzRankType='accum'; qzRankGrade='all'; qzRankUnit='all';
+  renderQuizRankUI();
+  showView('quiz-ranking');
+  loadQuizRankData();
+  const backTarget = from==='result' ? 'quiz-result' : 'rank-hub';
+  document.getElementById('quiz-rank-back').onclick=()=>showView(backTarget);
+}
+
+function renderQuizRankUI(){
+  // 순위 종류 탭
+  document.querySelectorAll('#qz-rank-type-tabs button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.t===qzRankType);
+    b.onclick=()=>{ qzRankType=b.dataset.t; renderQuizRankUI(); loadQuizRankData(); };
+  });
+  // 학년 탭
+  document.querySelectorAll('#qz-rank-grade-tabs button').forEach(b=>{
+    b.classList.toggle('on', b.dataset.g===qzRankGrade);
+    b.onclick=()=>{ qzRankGrade=b.dataset.g; qzRankUnit='all'; renderQuizRankUI(); loadQuizRankData(); };
+  });
+  // 단원 탭 (학년 선택 시)
+  const unitTab=document.getElementById('qz-rank-unit-tabs');
+  if(qzRankGrade==='all'){
+    unitTab.style.display='none'; unitTab.innerHTML='';
+  } else {
+    const units=QUIZ_UNIT_ORDER[qzRankGrade]||[];
+    unitTab.style.display='flex';
+    unitTab.innerHTML='<button class="'+(qzRankUnit==='all'?'on':'')+'" onclick="qzRankSetUnit(\'all\')">전체 단원</button>'
+      +units.map(u=>`<button class="${qzRankUnit===u?'on':''}" onclick="qzRankSetUnit('${u.replace(/'/g,"\\'")}') "
+        style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${u}</button>`).join('');
+  }
+}
+function qzRankSetUnit(u){ qzRankUnit=u; renderQuizRankUI(); loadQuizRankData(); }
+
+async function loadQuizRankData(){
+  const box=document.getElementById('qz-rank-list');
+  box.innerHTML='<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i><h4>불러오는 중...</h4></div>';
+  if(!QUIZ_RANK_API){ box.innerHTML='<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i><h4>API 미설정</h4></div>'; return; }
+  try{
+    const url = QUIZ_RANK_API+'?action=load'+(qzRankGrade!=='all'?'&grade='+encodeURIComponent(qzRankGrade):'');
+    const res = await jsonp(url);
+    let rows = (res&&res.data)||[];
+    // 주간 필터
+    rows = rows.filter(r=>withinThisWeek(r.time));
+    // 단원 필터
+    if(qzRankUnit!=='all') rows=rows.filter(r=>r.unit===qzRankUnit);
+    // 누적 / 최고
+    let list;
+    if(qzRankType==='accum'){
+      const acc={};
+      rows.forEach(r=>{ if(!acc[r.name]) acc[r.name]={name:r.name,score:0,grade:r.grade,unit:r.unit}; acc[r.name].score+=Number(r.score); });
+      list=Object.values(acc).sort((a,b)=>b.score-a.score);
+    } else {
+      const best={};
+      rows.forEach(r=>{ if(!best[r.name]||Number(r.score)>Number(best[r.name].score)) best[r.name]=r; });
+      list=Object.values(best).sort((a,b)=>b.score-a.score);
+    }
+    renderQuizRankRows(box, list);
+  }catch(e){
+    box.innerHTML='<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i><h4>서버 연결 실패</h4><p>GitHub Pages에서 실행하면 정상 표시됩니다.</p></div>';
+  }
+}
+
+function renderQuizRankRows(box, list){
+  if(!list.length){
+    box.innerHTML='<div class="empty"><i class="fa-solid fa-trophy"></i><h4>이번 주 기록이 없습니다</h4><p>첫 번째 도전자가 되어보세요!</p></div>'; return;
+  }
+  const med=['🥇','🥈','🥉'];
+  const me=getNickname();
+  let html='<div class="rank-table">';
+  list.slice(0,20).forEach((r,i)=>{
+    const pos=i+1; let pc=''; if(pos===1)pc='top1'; else if(pos===2)pc='top2'; else if(pos===3)pc='top3';
+    const isMe=(r.name===me);
+    html+=`<div class="rank-row${isMe?' me':''}">
+      <div class="rank-pos ${pc}">${med[i]||(i+1)}</div>
+      <div class="rank-name">${escapeHtml(r.name)}<div class="rank-meta">중${r.grade} · ${escapeHtml(r.unit||'-')}</div></div>
+      <div class="rank-score">${Number(r.score).toLocaleString()}점</div>
+    </div>`;
+  });
+  html+='</div>'; box.innerHTML=html;
 }
 
 /* ── 다시 풀기 ── */

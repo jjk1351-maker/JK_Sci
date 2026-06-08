@@ -756,6 +756,35 @@
     </div>
   </div>
 
+  <!-- ════ 과학 퀴즈 세트 완료 화면 ════ -->
+  <div class="view" id="view-quiz-set-complete">
+    <div style="background:linear-gradient(135deg,var(--card),#112038);border:1px solid var(--border-h);border-radius:20px;padding:52px 44px;text-align:center;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--gold),var(--accent),transparent);"></div>
+      <div style="font-size:54px;margin-bottom:14px;" id="qz-set-emoji">🎉</div>
+      <h2 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:8px;" id="qz-set-title"></h2>
+      <p style="font-size:15px;color:var(--sub);margin-bottom:8px;" id="qz-set-sub"></p>
+      <p style="font-size:13px;color:var(--accent);font-weight:700;margin-bottom:32px;" id="qz-set-challenge"></p>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:32px;max-width:320px;margin-left:auto;margin-right:auto;">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 12px;">
+          <div style="font-family:'DM Mono',monospace;font-size:2rem;font-weight:700;color:var(--gold);" id="qz-set-score">0</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:4px;font-weight:600;">이번 세트 점수</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 12px;">
+          <div style="font-family:'DM Mono',monospace;font-size:2rem;font-weight:700;color:var(--accent);" id="qz-set-total">0</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:4px;font-weight:600;">누적 점수</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button onclick="qzFinishHere()" style="padding:13px 28px;border-radius:11px;background:transparent;border:1px solid var(--border);color:var(--sub);font-weight:700;font-size:14px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+          <i class="fa-solid fa-flag-checkered"></i> 여기서 마치기
+        </button>
+        <button onclick="qzNextSet()" id="qz-next-set-btn" style="padding:13px 28px;border-radius:11px;background:var(--accent);color:var(--bg);font-weight:900;font-size:15px;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;">
+          <i class="fa-solid fa-arrow-right"></i> 이어서 도전!
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ════ 과학 퀴즈 결과 화면 ════ -->
   <div class="view" id="view-quiz-result">
     <div style="background:linear-gradient(135deg,var(--card),#112038);border:1px solid var(--border-h);border-radius:20px;padding:52px 44px;text-align:center;position:relative;overflow:hidden;">
@@ -1665,10 +1694,11 @@ const QUIZ_UNIT_ORDER = {
 
 // 퀴즈 상태
 let qzGrade='', qzUnit='', qzAll=[], qzSession=[], qzIdx=0;
-let qzLevel=3, qzScore=0, qzCorrect=0, qzMaxLv=3;
+let qzLevel=1, qzScore=0, qzCorrect=0, qzMaxLv=1;
 let qzSelected=0, qzAnswered=false;
 let qzTimerInterval=null, qzTimeLeft=60;
-const QZ_TIME=60, QZ_COUNT=20;
+const QZ_TIME=60, QZ_SET=5, QZ_MAX_SETS=4; // 세트당 5문항, 최대 4세트(20문항)
+let qzSetNum=1, qzSetScore=0; // 현재 세트 번호, 이번 세트 점수
 
 // 구글 시트 탭 목록 캐시
 let qzAvailableUnits={};  // {'1':['빛과 파동',...], '2':[...], '3':[...]}
@@ -1776,9 +1806,10 @@ function loadQuizSheetList(g){
 function startQuizPlay(g, unit){
   qzGrade=g; qzUnit=unit;
   qzAll=[]; qzSession=[]; qzIdx=0;
-  qzLevel=3; qzScore=0; qzCorrect=0; qzMaxLv=3;
+  qzLevel=1; qzScore=0; qzCorrect=0; qzMaxLv=1;
   qzSelected=0; qzAnswered=false;
-  qzConsecutive=0;  // 연속 정답 카운터
+  qzConsecutive=0;
+  qzSetNum=1; qzSetScore=0;
 
   document.getElementById('quiz-play-crumb').textContent='QUIZ · '+GRADE_INFO[g].name;
   document.getElementById('quiz-play-h2').textContent=unit;
@@ -1846,8 +1877,8 @@ function qzParseCSV(text){
   return rows.slice(1); // 헤더(1행) 제외
 }
 
-/* ── 세션 구성 ── */
 function qzBuildSession(count){
+  count = count || (QZ_SET * QZ_MAX_SETS);
   const byLv={1:[],2:[],3:[],4:[],5:[]};
   qzAll.forEach(q=>{ if(byLv[q.level]) byLv[q.level].push(q); });
   let pool=[];
@@ -1858,9 +1889,16 @@ function qzBuildSession(count){
   return qzShuffle(pool).slice(0,count);
 }
 
+/* ── 세션 구성 ── */
 /* ── 문항 로드 ── */
 function qzLoadQ(){
-  if(qzIdx>=qzSession.length){ qzShowResult(); return; }
+  // 전체 종료
+  if(qzIdx >= qzSession.length){ qzShowResult(); return; }
+
+  // 세트 종료 체크 (5문항마다)
+  if(qzIdx > 0 && qzIdx % QZ_SET === 0){
+    qzShowSetComplete(); return;
+  }
 
   // 현재 레벨에 가장 가까운 문항 선택
   const rem=qzSession.slice(qzIdx);
@@ -1936,7 +1974,7 @@ function qzSubmit(){
   const STREAK_NEEDED = qzLevel <= 2 ? 2 : qzLevel === 3 ? 3 : 4;
 
   if(ok){
-    qzScore+=q.pts; qzCorrect++;
+    qzScore+=q.pts; qzCorrect++; qzSetScore+=q.pts;
     qzConsecutive++;
     const streakLeft = STREAK_NEEDED - qzConsecutive;
     if(qzConsecutive >= STREAK_NEEDED){
@@ -2027,6 +2065,41 @@ function qzUpdateLevel(){
   const el=document.getElementById('qz-level-num');
   if(el) el.textContent=qzLevel;
   document.querySelectorAll('#qz-level-bars .qlbar').forEach((b,i)=>b.classList.toggle('on',i<qzLevel));
+}
+
+/* ── 세트 완료 ── */
+const QZ_SET_DATA = [
+  { emoji:'🎉', title:'첫 번째 도전 완료!',  sub:'잘 했어요!',          challenge:'조금 더 해볼까요? 다음 단계가 기다리고 있어요!' },
+  { emoji:'💪', title:'절반 왔어요!',         sub:'실력이 늘고 있어요!', challenge:'계속 가볼까요? 이제 진짜 실력을 보여줄 차례예요!' },
+  { emoji:'⭐', title:'거의 다 왔어요!',      sub:'대단해요!',           challenge:'마지막 5문제! 끝까지 해봐요!' },
+  { emoji:'🏆', title:'완주! 최고예요!',      sub:'20문제를 모두 풀었어요!', challenge:'' },
+];
+function qzShowSetComplete(){
+  clearInterval(qzTimerInterval);
+  const setIdx = qzSetNum - 1;
+  const d = QZ_SET_DATA[setIdx] || QZ_SET_DATA[0];
+  document.getElementById('qz-set-emoji').textContent     = d.emoji;
+  document.getElementById('qz-set-title').textContent     = d.title;
+  document.getElementById('qz-set-sub').textContent       = d.sub;
+  document.getElementById('qz-set-challenge').textContent = d.challenge;
+  document.getElementById('qz-set-score').textContent     = qzSetScore;
+  document.getElementById('qz-set-total').textContent     = qzScore;
+
+  // 마지막 세트면 "이어서 도전" 버튼 숨김
+  const nextBtn = document.getElementById('qz-next-set-btn');
+  nextBtn.style.display = (qzSetNum >= QZ_MAX_SETS) ? 'none' : '';
+
+  qzSetScore = 0; // 이번 세트 점수 초기화
+  showView('quiz-set-complete');
+  launchConfetti();
+}
+function qzNextSet(){
+  qzSetNum++;
+  showView('quiz-play');
+  qzLoadQ();
+}
+function qzFinishHere(){
+  qzShowResult();
 }
 
 /* ── 결과 ── */

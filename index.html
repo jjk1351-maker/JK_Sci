@@ -1851,7 +1851,7 @@ function loadQuizData(g, unit){
         document.getElementById('qz-question').textContent='문항이 없습니다. 단원명을 확인하세요.';
         return;
       }
-      qzSession = qzBuildSession(QZ_COUNT);
+      qzSession = qzBuildSession(QZ_SET * QZ_MAX_SETS);
       qzLoadQ();
     })
     .catch(err => {

@@ -1890,15 +1890,10 @@ function qzBuildSession(count){
 }
 
 /* ── 세션 구성 ── */
-/* ── 문항 로드 ── */
+/* ── 문항 로드 (세트 경계 체크는 qzNext에서만 수행) ── */
 function qzLoadQ(){
   // 전체 종료
   if(qzIdx >= qzSession.length){ qzShowResult(); return; }
-
-  // 세트 종료 체크 (5문항마다)
-  if(qzIdx > 0 && qzIdx % QZ_SET === 0){
-    qzShowSetComplete(); return;
-  }
 
   // 현재 레벨에 가장 가까운 문항 선택
   const rem=qzSession.slice(qzIdx);
@@ -2016,9 +2011,11 @@ function qzShowHint(){
   document.getElementById('qz-hint-btn').style.display='none';
 }
 
-/* ── 다음 문항 ── */
+/* ── 다음 문항 (세트/전체 종료 경계는 여기서만 판단) ── */
 function qzNext(){
   qzIdx++;
+  if(qzIdx >= qzSession.length){ qzShowResult(); return; }
+  if(qzIdx % QZ_SET === 0){ qzShowSetComplete(); return; }
   qzLoadQ();
 }
 

@@ -50,7 +50,7 @@
     .view.active { display:flex; animation:fadeIn 0.4s ease; }
 
     /* WELCOME */
-    .welcome { background:linear-gradient(135deg,var(--card) 0%,#112038 100%); border:1px solid var(--border); border-radius:20px; padding:38px 42px; position:relative; overflow:hidden; }
+    .welcome { background:linear-gradient(135deg,var(--card) 0%,#eef2fb 100%); border:1px solid var(--border); border-radius:20px; padding:38px 42px; position:relative; overflow:hidden; }
     .welcome::before { content:''; position:absolute; top:-70px; right:-70px; width:240px; height:240px; background:radial-gradient(circle,rgba(91,255,200,0.14),transparent 65%); }
     .welcome::after { content:''; position:absolute; bottom:0; left:0; width:100%; height:3px; background:linear-gradient(90deg,var(--accent),var(--blue),transparent); }
     .welcome h2 { font-size:25px; font-weight:900; line-height:1.35; margin-bottom:10px; }
@@ -219,7 +219,7 @@
     .rank-score { font-family:'DM Mono',monospace; font-size:18px; font-weight:700; color:var(--accent); }
 
     /* ══ 과학 게임 — 게임 선택 카드 ══ */
-    .mem-game-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:22px; }
+    .mem-game-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:22px; }
     @media (max-width:620px){ .mem-game-grid{ grid-template-columns:1fr; } }
     .mem-game-card {
       background:var(--card); border:1px solid var(--border); border-radius:22px; padding:40px 30px;
@@ -731,7 +731,7 @@
   <div class="view" id="view-mem-home">
     <div class="sub-head">
       <button class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i></button>
-      <div class="sub-title"><span class="crumb">MEMORY GAME · 게임 선택</span><h2>과학 게임</h2></div>
+      <div class="sub-title"><span class="crumb">SCIENCE GAME · 게임 선택</span><h2>과학 게임</h2></div>
     </div>
     <div class="sec-head"><span class="sec-label">Select Game</span><div class="sec-div"></div></div>
     <div class="mem-game-grid">
@@ -751,7 +751,35 @@
         <div class="mgc-desc">생물 분류 카드를 짝지으며 동물계·식물계 분류 체계를 재미있게 익혀요!</div>
         <div class="mgc-go">게임하기 <i class="fa-solid fa-arrow-right"></i></div>
       </div>
+      <div class="mem-game-card" style="--mgc:var(--purple)" onclick="enterHalliSection()">
+        <div class="mgc-glow"></div>
+        <div class="mgc-icon"><i class="fa-solid fa-bell"></i></div>
+        <div class="mgc-title">할리갈리 OX</div>
+        <div class="mgc-en">OX HALLI GALLI</div>
+        <div class="mgc-desc">단원별 OX 문장을 보고 종을 치는 반응속도 게임! 모둠·전체 학급으로 함께 즐겨요.</div>
+        <div class="mgc-go">게임하기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
     </div>
+  </div>
+
+  <!-- ════ 할리갈리 학년 선택 ════ -->
+  <div class="view" id="view-halli-grade">
+    <div class="sub-head">
+      <button class="back-btn" onclick="showView('mem-home')"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb">OX HALLI GALLI · 학년 선택</span><h2>할리갈리 OX</h2></div>
+    </div>
+    <div class="sec-head"><span class="sec-label">Select Grade</span><div class="sec-div"></div></div>
+    <div class="grade-grid" id="halli-grade-grid"></div>
+  </div>
+
+  <!-- ════ 할리갈리 단원 선택 ════ -->
+  <div class="view" id="view-halli-units">
+    <div class="sub-head">
+      <button class="back-btn" onclick="showView('halli-grade')"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb" id="halli-units-crumb"></span><h2 id="halli-units-h2"></h2></div>
+    </div>
+    <div class="sec-head"><span class="sec-label">단원을 선택하세요</span><div class="sec-div"></div></div>
+    <div class="ch-grid" id="halli-unit-grid"></div>
   </div>
 
   <!-- ════ 과학 게임 난이도 선택 ════ -->
@@ -857,7 +885,7 @@
     </div>
 
     <!-- 문제 카드 -->
-    <div style="background:linear-gradient(135deg,var(--card),#112038);border:1px solid var(--border-h);border-radius:20px;padding:32px 36px;position:relative;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,var(--card),#eef2fb);border:1px solid var(--border-h);border-radius:20px;padding:32px 36px;position:relative;overflow:hidden;">
       <div style="position:absolute;bottom:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--accent),var(--blue),transparent);"></div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
         <span style="background:var(--accent);color:var(--bg);font-family:'DM Mono',monospace;font-size:11px;font-weight:700;padding:5px 12px;border-radius:7px;" id="qz-quest-badge">QUEST 01</span>
@@ -888,7 +916,7 @@
 
   <!-- ════ 과학 퀴즈 세트 완료 화면 ════ -->
   <div class="view" id="view-quiz-set-complete">
-    <div style="background:linear-gradient(135deg,var(--card),#112038);border:1px solid var(--border-h);border-radius:20px;padding:52px 44px;text-align:center;position:relative;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,var(--card),#eef2fb);border:1px solid var(--border-h);border-radius:20px;padding:52px 44px;text-align:center;position:relative;overflow:hidden;">
       <div style="position:absolute;top:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--gold),var(--accent),transparent);"></div>
       <div style="font-size:54px;margin-bottom:14px;" id="qz-set-emoji">🎉</div>
       <h2 style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:8px;" id="qz-set-title"></h2>
@@ -917,7 +945,7 @@
 
   <!-- ════ 과학 퀴즈 결과 화면 ════ -->
   <div class="view" id="view-quiz-result">
-    <div style="background:linear-gradient(135deg,var(--card),#112038);border:1px solid var(--border-h);border-radius:20px;padding:52px 44px;text-align:center;position:relative;overflow:hidden;">
+    <div style="background:linear-gradient(135deg,var(--card),#eef2fb);border:1px solid var(--border-h);border-radius:20px;padding:52px 44px;text-align:center;position:relative;overflow:hidden;">
       <div style="position:absolute;bottom:0;left:0;width:100%;height:3px;background:linear-gradient(90deg,var(--accent),var(--blue),transparent);"></div>
       <div style="font-size:54px;margin-bottom:14px;">🏆</div>
       <h2 style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;margin-bottom:8px;">퀴즈 완료!</h2>
@@ -1833,6 +1861,105 @@ const QUIZ_UNIT_ORDER = {
   '2': ['물질의 특성','지권의 변화','빛과 파동','물질의 구성','식물과 에너지','동물과 에너지','전기와 자기','별과 우주'],
   '3': ['화학 반응의 규칙과 에너지 변화','기권과 날씨','운동과 에너지','자극과 반응','생식과 유전','에너지 전환과 보존','별과 우주']
 };
+
+/* ══ 할리갈리 OX — 학년/단원 선택 (구글 시트 탭 자동 확인) ══ */
+const HALLI_SHEET_ID = '1J7ZuGQkYECtU12BQP64vTAniiVbQes8XX0ZiFBIcXAw';
+let hgAvailableUnits = {};
+let hgSheetsLoaded = {'1':false, '2':false, '3':false};
+
+function enterHalliSection(){
+  renderHalliGrades();
+  showView('halli-grade');
+}
+
+function renderHalliGrades(){
+  const grid = document.getElementById('halli-grade-grid');
+  grid.innerHTML = '';
+  ['1','2','3'].forEach(g=>{
+    const info = GRADE_INFO[g];
+    const card = document.createElement('div');
+    card.className = 'grade-card';
+    card.style.setProperty('--gc', info.color);
+    card.innerHTML = `
+      <div class="gcard-glow"></div>
+      <div class="gc-icon"><i class="fa-solid ${info.icon}"></i></div>
+      <div class="gc-num">${g}</div>
+      <div class="gc-label">${info.name}</div>
+      <div class="gc-meta">단원 선택 후 할리갈리 시작</div>
+      <div class="gc-btn">단원 선택 <i class="fa-solid fa-arrow-right"></i></div>
+    `;
+    card.onclick = () => openHalliUnits(g);
+    grid.appendChild(card);
+  });
+}
+
+function openHalliUnits(g){
+  document.getElementById('halli-units-crumb').textContent = 'OX HALLI GALLI · ' + GRADE_INFO[g].name;
+  document.getElementById('halli-units-h2').textContent = GRADE_INFO[g].name + ' 단원 선택';
+  showView('halli-units');
+  renderHalliUnits(g);
+  if(!hgSheetsLoaded[g]) loadHalliSheetList(g);
+}
+
+function renderHalliUnits(g){
+  const grid = document.getElementById('halli-unit-grid');
+  grid.innerHTML = '';
+  const units = QUIZ_UNIT_ORDER[g] || [];
+  const available = hgAvailableUnits[g] || [];
+
+  units.forEach((unit,i)=>{
+    const hasData = available.includes(unit);
+    const card = document.createElement('div');
+    card.className = 'ch-card' + (hasData ? '' : ' disabled');
+    if(!hasData) card.style.opacity = '0.45';
+    card.innerHTML = `
+      <div class="ch-top">
+        <div class="ch-ic"><i class="fa-solid ${hasData?'fa-circle-check':'fa-lock'}" style="color:${hasData?'var(--accent)':'var(--sub)'}"></i></div>
+        <div class="ch-cnt" style="font-size:11px;">${i+1}단원</div>
+      </div>
+      <div class="ch-title">${unit}</div>
+      <div class="ch-levels">
+        ${hasData
+          ? '<span class="lv lv1">할리갈리</span>'
+          : '<span class="lv" style="color:var(--sub);background:rgba(154,171,200,0.1)">준비 중</span>'}
+      </div>
+      <div class="ch-go">${hasData?'게임 시작':'-'} <i class="fa-solid fa-arrow-right"></i></div>
+    `;
+    if(hasData) card.onclick = () => startHalli(g, unit);
+    grid.appendChild(card);
+  });
+}
+
+function loadHalliSheetList(g){
+  const units = QUIZ_UNIT_ORDER[g] || [];
+  hgAvailableUnits[g] = [];
+
+  const checks = units.map(unit => {
+    const sheetName = `[${g}]${unit}`;
+    const url = `https://docs.google.com/spreadsheets/d/${HALLI_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+    return fetch(url)
+      .then(r => r.text())
+      .then(csv => {
+        if(csv && !csv.trim().startsWith('<') && csv.trim().length > 20) hgAvailableUnits[g].push(unit);
+      })
+      .catch(()=>{});
+  });
+
+  Promise.all(checks).then(()=>{
+    hgSheetsLoaded[g] = true;
+    if(document.getElementById('view-halli-units').classList.contains('active')){
+      renderHalliUnits(g);
+    }
+  });
+}
+
+function startHalli(g, unit){
+  const tab = `[${g}]${unit}`;
+  const url = 'halligalli.html?tab=' + encodeURIComponent(tab)
+            + '&sheetId=' + encodeURIComponent(HALLI_SHEET_ID)
+            + '&title=' + encodeURIComponent(unit + ' · 할리갈리');
+  location.href = url;
+}
 
 // 퀴즈 상태
 let qzGrade='', qzUnit='', qzAll=[], qzSession=[], qzIdx=0;

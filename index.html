@@ -2915,7 +2915,7 @@ function shuffle(arr){
 function newGame(playerCount){
   const deck = shuffle(STATEMENTS);
   const players = [];
-  for(let i=0;i<playerCount;i++){ players.push({name:`${i+1}번 학생`, hand:[], won:0, floor:null}); }
+  for(let i=0;i<playerCount;i++){ players.push({name:`${i+1}번 학생`, hand:[], won:0, floor:[]}); }
   deck.forEach((card,idx)=>{ players[idx % playerCount].hand.push(card); });
   state = { playerCount, players, turn:0, over:false, lastFlippedIdx:null, penaltyPile:[] };
   pendingLossIdx = null;
@@ -2941,7 +2941,7 @@ function log(msg,cls){
 function logClear(){ document.getElementById('logPanel').innerHTML=''; }
 function floorTotalCount(){
   let n = state.penaltyPile.length;
-  state.players.forEach(p=>{ if(p.floor) n++; });
+  state.players.forEach(p=>{ n += p.floor.length; });
   return n;
 }
 function requestFlip(idx){
@@ -2954,7 +2954,7 @@ function requestFlip(idx){
   }
   const player = state.players[currentIdx];
   const card = player.hand.pop();
-  player.floor = card;
+  player.floor.push(card);
   state.lastFlippedIdx = currentIdx;
   state.turn = (currentIdx+1)%state.playerCount;
   log(`<b>${player.name}</b>이(가) 카드를 뒤집었습니다.`);
@@ -2972,9 +2972,12 @@ function renderPlayers(){
   const row = document.getElementById('playersRow');
   row.innerHTML = state.players.map((p,i)=>{
     const isTurn = activePlayerIdx(state.turn)===i && !state.over;
-    const isTrigger = state.lastFlippedIdx===i && p.floor;
-    const isDim = state.lastFlippedIdx!==null && state.lastFlippedIdx!==i && p.floor;
+    const hasFloor = p.floor.length>0;
+    const topCard = hasFloor ? p.floor[p.floor.length-1] : null;
+    const isTrigger = state.lastFlippedIdx===i && hasFloor;
+    const isDim = state.lastFlippedIdx!==null && state.lastFlippedIdx!==i && hasFloor;
     const emptyHint = p.hand.length===0 ? '낼 카드 없음' : (isTurn ? '👆 눌러서 카드 뒤집기' : '카드를 기다리는 중');
+    const stackNote = p.floor.length>1 ? `<div style="font-size:10.5px;color:var(--text-dim);font-weight:500;margin-top:4px;">+${p.floor.length-1}장 더 쌓여있음</div>` : '';
     return `
       <div class="pcard ${isTurn?'turn':'idle'}" data-idx="${i}">
         <div class="prow">
@@ -2985,8 +2988,8 @@ function renderPlayers(){
           <div class="pstat"><div class="n">${p.hand.length}</div><div class="l">남은 카드</div></div>
           <div class="pstat won"><div class="n">${p.won}</div><div class="l">누적 획득</div></div>
         </div>
-        <div class="floor-slot ${p.floor?'filled':''} ${isTrigger?'trigger':''} ${isDim?'dim':''}">
-          ${p.floor ? p.floor.text : emptyHint}
+        <div class="floor-slot ${hasFloor?'filled':''} ${isTrigger?'trigger':''} ${isDim?'dim':''}">
+          ${hasFloor ? topCard.text + stackNote : emptyHint}
         </div>
       </div>`;
   }).join('');
@@ -3001,7 +3004,7 @@ function openWho(){
 }
 function collectAllFloorCards(winnerIdx){
   const collected = [];
-  state.players.forEach(p=>{ if(p.floor){ collected.push(p.floor); p.floor=null; } });
+  state.players.forEach(p=>{ collected.push(...p.floor); p.floor=[]; });
   collected.push(...state.penaltyPile);
   state.penaltyPile = [];
   state.players[winnerIdx].hand.unshift(...collected);
@@ -3012,7 +3015,7 @@ function resolveBell(playerIdx){
   hideOverlay('ovWho');
   const triggerIdx = state.lastFlippedIdx;
   const triggerPlayer = state.players[triggerIdx];
-  const card = triggerPlayer.floor;
+  const card = triggerPlayer.floor[triggerPlayer.floor.length-1];
   const ringer = state.players[playerIdx];
   const modal = document.getElementById('resultModal');
   if(!card) return;

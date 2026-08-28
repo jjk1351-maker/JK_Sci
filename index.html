@@ -562,17 +562,43 @@
   #halli-app .pstat .l{font-size:9.5px;color:var(--text-dim);}
   #halli-app .pstat.won .n{color:var(--green-2);}
   #halli-app .floor-slot{
+    position:relative;
     min-height:96px;border-radius:12px;border:1.5px dashed #DCE3EF;
     display:flex;align-items:center;justify-content:center;text-align:center;
     padding:14px 12px;font-size:13.5px;color:#B7C1D1;background:#FAFBFE;
+    transition:opacity .25s;
   }
   #halli-app .floor-slot.filled{
     border-style:solid;border-color:#cfe0da;background:#fff;color:var(--text);
     font-weight:600;font-size:15px;line-height:1.5;box-shadow:0 2px 8px rgba(0,0,0,.05);
     animation:hgPop .25s ease;
   }
-  #halli-app .floor-slot.trigger{border-color:var(--green-1);box-shadow:0 0 0 2px rgba(18,184,134,.2);}
+  #halli-app .floor-slot.dim{ opacity:.4; }
+  #halli-app .floor-slot.trigger{
+    border:3px solid var(--green-1);
+    background:var(--green-soft);
+    box-shadow:0 0 0 5px rgba(18,184,134,.22), 0 6px 18px rgba(18,184,134,.35);
+    animation:hgPop .25s ease, hgTriggerGlow 1.4s ease-in-out infinite;
+  }
+  #halli-app .floor-slot.trigger::before{
+    content:"👀 이 카드를 판단하세요";
+    position:absolute; top:-13px; left:50%; transform:translateX(-50%);
+    background:var(--green-1); color:#fff; font-size:10.5px; font-weight:800;
+    padding:3px 10px; border-radius:999px; white-space:nowrap;
+    box-shadow:0 3px 8px rgba(18,184,134,.4);
+  }
+  @keyframes hgTriggerGlow{
+    0%,100%{ box-shadow:0 0 0 5px rgba(18,184,134,.22), 0 6px 18px rgba(18,184,134,.35); }
+    50%{ box-shadow:0 0 0 9px rgba(18,184,134,.10), 0 6px 22px rgba(18,184,134,.45); }
+  }
   @keyframes hgPop{from{transform:scale(.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+  #halli-app .hg-timer{ display:none; align-items:center; justify-content:center; gap:10px; margin-bottom:14px; }
+  #halli-app .hg-timer.show{ display:flex; }
+  #halli-app .hg-timer-label{ font-size:12px; font-weight:700; color:var(--text-dim); white-space:nowrap; }
+  #halli-app .hg-timer-track{ width:180px; height:9px; border-radius:6px; background:#E7ECF5; overflow:hidden; }
+  #halli-app .hg-timer-fill{ height:100%; border-radius:6px; background:linear-gradient(90deg,var(--green-1),var(--green-2)); transition:width 1s linear, background .3s; }
+  #halli-app .hg-timer-num{ font-weight:800; font-size:14.5px; min-width:34px; text-align:center; }
 
   #halli-app .stage{
     background:var(--card);border-radius:20px;box-shadow:var(--shadow);
@@ -1002,6 +1028,11 @@
 
     <div class="stage">
       <div class="stage-note">지금까지 바닥에 깔린 카드 <b id="floorCount">0</b>장 <span id="penaltyNote" class="penalty-note"></span></div>
+      <div class="hg-timer" id="hgTimerWrap">
+        <span class="hg-timer-label">⏱ 판단 시간</span>
+        <div class="hg-timer-track"><div class="hg-timer-fill" id="hgTimerFill"></div></div>
+        <span class="hg-timer-num" id="hgTimerNum">10초</span>
+      </div>
       <div class="actions">
         <div class="ringwrap" id="ringWrap">
           <button class="btn btn-bell" id="btnBell" disabled>🔔 종 치기!</button>
@@ -2899,8 +2930,66 @@ function newGame(playerCount){
   for(let i=0;i<playerCount;i++){ players.push({name:`${i+1}번 학생`, hand:[], won:0, floor:null}); }
   deck.forEach((card,idx)=>{ players[idx % playerCount].hand.push(card); });
   state = { playerCount, players, turn:0, over:false, lastFlippedIdx:null, penaltyPile:[] };
+  clearJudgeTimer();
   logClear();
   log(`새 게임 시작 · ${playerCount}명 · 각자 ${players[0].hand.length}장 안팎으로 나눠 가졌습니다.`);
+  render();
+}
+
+/* ---------- 판단 시간 카운트다운 (아무도 종을 안 칠 때) ---------- */
+const HG_JUDGE_TIME = 10;
+let hgJudgeInterval = null;
+let hgJudgeLeft = 0;
+
+function startJudgeTimer(){
+  clearJudgeTimer();
+  hgJudgeLeft = HG_JUDGE_TIME;
+  document.getElementById('hgTimerWrap').classList.add('show');
+  updateJudgeTimerUI();
+  hgJudgeInterval = setInterval(()=>{
+    hgJudgeLeft--;
+    updateJudgeTimerUI();
+    if(hgJudgeLeft<=0){
+      clearJudgeTimer();
+      expireJudge();
+    }
+  }, 1000);
+}
+function clearJudgeTimer(){
+  if(hgJudgeInterval){ clearInterval(hgJudgeInterval); hgJudgeInterval=null; }
+  const wrap = document.getElementById('hgTimerWrap');
+  if(wrap) wrap.classList.remove('show');
+}
+function updateJudgeTimerUI(){
+  const fill = document.getElementById('hgTimerFill');
+  const num = document.getElementById('hgTimerNum');
+  if(!fill || !num) return;
+  const pct = Math.max(0, hgJudgeLeft / HG_JUDGE_TIME * 100);
+  fill.style.width = pct + '%';
+  num.textContent = hgJudgeLeft + '초';
+  fill.style.background = hgJudgeLeft<=3 ? 'linear-gradient(90deg,#ef4444,#dc2626)'
+                         : hgJudgeLeft<=6 ? 'linear-gradient(90deg,#f59e0b,#d97706)'
+                         : 'linear-gradient(90deg,var(--green-1),var(--green-2))';
+}
+function expireJudge(){
+  clearJudgeTimer();
+  if(state.lastFlippedIdx===null) return;
+  const player = state.players[state.lastFlippedIdx];
+  const card = player.floor;
+  state.lastFlippedIdx = null;
+  if(!card){ render(); return; }
+  log(`⏰ 시간 종료 — "${card.text}" 는 <b>${card.correct?'맞는(O)':'틀린(X)'}</b> 설명입니다. 아무도 정답을 맞히지 못해 카드는 그대로 남습니다.`, card.correct?'ok':'bad');
+  const modal = document.getElementById('resultModal');
+  modal.innerHTML = `
+    <div class="result-icon">⏰</div>
+    <div class="result-title ${card.correct?'ok':'bad'}">시간 종료 · 정답 공개</div>
+    <div class="result-detail ${card.correct?'ok-box':'bad-box'}">
+      <b>"${card.text}"</b><br>← 이 설명은 <b>${card.correct?'맞는(O)':'틀린(X)'}</b> 설명입니다.<br><br>
+      <b>해설</b> · ${card.why||''}<br><br>
+      아무도 종을 치지 못해 이 카드는 그대로 바닥에 남습니다.
+    </div>
+    <button class="navbtn primary" style="width:100%;" data-close="ovResult">계속하기</button>`;
+  showOverlay('ovResult');
   render();
 }
 
@@ -2931,6 +3020,10 @@ function requestFlip(idx){
     if(el){ el.classList.add('shake'); setTimeout(()=>el.classList.remove('shake'),350); }
     return;
   }
+  // 이전에 뒤집힌 채로 판정을 기다리던 카드가 있으면, 새 카드를 뒤집기 전에 먼저 정답을 공개
+  if(state.lastFlippedIdx !== null){
+    expireJudge();
+  }
   const player = state.players[currentIdx];
   const card = player.hand.pop();
   player.floor = card;
@@ -2938,6 +3031,7 @@ function requestFlip(idx){
   state.turn = (currentIdx+1)%state.playerCount;
   log(`<b>${player.name}</b>이(가) 카드를 뒤집었습니다.`);
   render();
+  startJudgeTimer();
   checkGameOver();
 }
 function render(){
@@ -2952,6 +3046,7 @@ function renderPlayers(){
   row.innerHTML = state.players.map((p,i)=>{
     const isTurn = activePlayerIdx(state.turn)===i && !state.over;
     const isTrigger = state.lastFlippedIdx===i && p.floor;
+    const isDim = state.lastFlippedIdx!==null && state.lastFlippedIdx!==i && p.floor;
     const emptyHint = p.hand.length===0 ? '낼 카드 없음' : (isTurn ? '👆 눌러서 카드 뒤집기' : '카드를 기다리는 중');
     return `
       <div class="pcard ${isTurn?'turn':'idle'}" data-idx="${i}">
@@ -2963,7 +3058,7 @@ function renderPlayers(){
           <div class="pstat"><div class="n">${p.hand.length}</div><div class="l">남은 카드</div></div>
           <div class="pstat won"><div class="n">${p.won}</div><div class="l">획득</div></div>
         </div>
-        <div class="floor-slot ${p.floor?'filled':''} ${isTrigger?'trigger':''}">
+        <div class="floor-slot ${p.floor?'filled':''} ${isTrigger?'trigger':''} ${isDim?'dim':''}">
           ${p.floor ? p.floor.text : emptyHint}
         </div>
       </div>`;
@@ -2997,6 +3092,7 @@ function resolveBell(playerIdx){
   if(card.correct){
     const totalCollected = collectAllFloorCards(playerIdx);
     state.turn = playerIdx; state.lastFlippedIdx = null;
+    clearJudgeTimer();
     log(`✅ <b>${ringer.name}</b> 정답! "${card.text}" → 카드 ${totalCollected}장 획득`, 'ok');
     modal.innerHTML = `
       <div class="result-icon">✅</div>

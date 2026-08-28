@@ -463,6 +463,168 @@
     .login-mini-key:hover{ color:var(--gold); border-color:var(--gold); }
     .login-mini-key.logged-in{ color:var(--accent); border-color:var(--accent); }
 
+
+  /* ===== 할리갈리 OX (임베드, #halli-app 범위로 스코프됨) ===== */
+#halli-app{
+    --bg:#EEF2F9; --grid-line:rgba(99,120,160,0.09);
+    --card:#FFFFFF; --border:#E7ECF5; --text:#1F2937; --text-dim:#7A8699;
+    --green-1:#12b886; --green-2:#0d8f6a; --green-soft:#E7F8F2;
+    --red:#ef4444; --red-soft:#FDECEC; --amber:#f59e0b;
+    --shadow:0 4px 18px rgba(30,50,90,0.07); --shadow-lg:0 10px 30px rgba(30,50,90,0.12);
+    font-family:'Noto Sans KR',sans-serif; color:var(--text);
+  }
+  #halli-app .wrap{max-width:960px;margin:0 auto;}
+
+  #halli-app .header{
+    background:var(--card);border-radius:20px;box-shadow:var(--shadow);
+    padding:14px 18px;display:flex;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;gap:10px;margin-bottom:16px;
+  }
+  #halli-app .htitle{display:flex;align-items:center;gap:12px;}
+  #halli-app .hicon{
+    width:42px;height:42px;border-radius:12px;
+    background:linear-gradient(135deg, var(--green-1), var(--green-2));
+    display:flex;align-items:center;justify-content:center;font-size:20px;
+    box-shadow:0 4px 10px rgba(18,184,134,.35);
+  }
+  #halli-app .htitle h1{font-size:16.5px;margin:0;font-weight:800;}
+  #halli-app .htitle p{margin:1px 0 0;font-size:11.5px;color:var(--text-dim);}
+  #halli-app .hbtns{display:flex;gap:7px;flex-wrap:wrap;}
+  #halli-app .navbtn{
+    background:#F3F5F9;border:1px solid var(--border);color:var(--text);
+    font-size:12.5px;font-weight:600;padding:9px 13px;border-radius:12px;
+    cursor:pointer;transition:.15s;
+  }
+  #halli-app .navbtn:hover{background:#E9EDF5;}
+  #halli-app .navbtn.primary{
+    background:linear-gradient(135deg, var(--green-1), var(--green-2));color:#fff;border:none;
+    box-shadow:0 3px 10px rgba(18,184,134,.3);
+  }
+
+  /* ===== 시트 불러오기 화면 ===== */
+  #halli-app .setup-card{
+    background:var(--card);border-radius:20px;box-shadow:var(--shadow);
+    padding:26px 22px;max-width:560px;margin:20px auto;
+  }
+  #halli-app .setup-card h2{font-size:17px;margin:0 0 4px;font-weight:800;}
+  #halli-app .setup-card p.sub{font-size:12.5px;color:var(--text-dim);margin:0 0 18px;line-height:1.6;}
+  #halli-app .field{margin-bottom:14px;}
+  #halli-app .field label{display:block;font-size:12.5px;font-weight:700;margin-bottom:6px;}
+  #halli-app .field input{
+    width:100%;padding:11px 13px;border-radius:10px;border:1.5px solid var(--border);
+    font-size:13px;font-family:'Noto Sans KR';outline:none;transition:.15s;
+  }
+  #halli-app .field input:focus{border-color:var(--green-1);}
+  #halli-app .field .hint{font-size:11px;color:var(--text-dim);margin-top:4px;}
+  #halli-app .load-btn{
+    width:100%;padding:13px;border:none;border-radius:12px;font-weight:800;font-size:14.5px;
+    background:linear-gradient(135deg, var(--green-1), var(--green-2));color:#fff;cursor:pointer;
+    box-shadow:0 6px 16px rgba(18,184,134,.3);
+  }
+  #halli-app .load-btn:disabled{opacity:.5;cursor:not-allowed;}
+  #halli-app .status-box{
+    margin-top:14px;padding:12px 14px;border-radius:12px;font-size:12.5px;line-height:1.6;display:none;
+  }
+  #halli-app .status-box.show{display:block;}
+  #halli-app .status-box.error{background:var(--red-soft);color:#b91c1c;}
+  #halli-app .status-box.loading{background:#F3F5F9;color:var(--text-dim);}
+  #halli-app .status-box.ok{background:var(--green-soft);color:#0b6b53;}
+  #halli-app .req-box{
+    background:#F7F9FC;border-radius:12px;padding:12px 14px;font-size:11.5px;color:var(--text-dim);
+    line-height:1.7;margin-top:16px;
+  }
+  #halli-app .req-box b{color:var(--text);}
+
+  #halli-app .rules{
+    background:var(--green-soft);border:1px solid #cdeee0;border-radius:16px;
+    padding:12px 16px;font-size:12.5px;color:#0b6b53;margin-bottom:16px;line-height:1.6;
+  }
+  #halli-app .rules b{color:#075c46;}
+
+  #halli-app .players{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:12px;margin-bottom:16px;
+  }
+  #halli-app .pcard{
+    background:var(--card);border:1px solid var(--border);border-radius:18px;
+    padding:14px;box-shadow:var(--shadow);transition:.2s;
+  }
+  #halli-app .pcard.turn{border-color:var(--green-1);box-shadow:0 0 0 2px rgba(18,184,134,.25), var(--shadow);cursor:pointer;}
+  #halli-app .pcard.turn:hover{box-shadow:0 0 0 2px rgba(18,184,134,.4), var(--shadow-lg);transform:translateY(-1px);}
+  #halli-app .pcard.idle{cursor:not-allowed;opacity:.92;}
+  #halli-app .pcard.shake{animation:hgShake .35s;}
+  @keyframes hgShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+  #halli-app .prow{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+  #halli-app .pname{font-weight:700;font-size:13.5px;}
+  #halli-app .turntag{font-size:9.5px;font-weight:800;color:var(--green-2);background:var(--green-soft);padding:2px 7px;border-radius:999px;}
+  #halli-app .pstats{display:flex;gap:14px;margin-bottom:10px;}
+  #halli-app .pstat .n{font-size:16px;font-weight:800;}
+  #halli-app .pstat .l{font-size:9.5px;color:var(--text-dim);}
+  #halli-app .pstat.won .n{color:var(--green-2);}
+  #halli-app .floor-slot{
+    min-height:64px;border-radius:12px;border:1.5px dashed #DCE3EF;
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    padding:8px;font-size:11.5px;color:#B7C1D1;background:#FAFBFE;
+  }
+  #halli-app .floor-slot.filled{
+    border-style:solid;border-color:#cfe0da;background:#fff;color:var(--text);
+    font-weight:600;font-size:12px;line-height:1.4;box-shadow:0 2px 8px rgba(0,0,0,.05);
+    animation:hgPop .25s ease;
+  }
+  #halli-app .floor-slot.trigger{border-color:var(--green-1);box-shadow:0 0 0 2px rgba(18,184,134,.2);}
+  @keyframes hgPop{from{transform:scale(.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+  #halli-app .stage{
+    background:var(--card);border-radius:20px;box-shadow:var(--shadow);
+    padding:18px 16px;text-align:center;margin-bottom:16px;
+  }
+  #halli-app .stage-note{font-size:12px;color:var(--text-dim);margin-bottom:14px;}
+  #halli-app .stage-note b{color:var(--green-2);}
+  #halli-app .penalty-note{font-size:11.5px;color:var(--amber);margin-top:4px;}
+  #halli-app .actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  #halli-app .btn{font-weight:700;font-size:14.5px;border:none;border-radius:14px;padding:14px 22px;cursor:pointer;transition:.15s;}
+  #halli-app .btn-bell{background:linear-gradient(135deg, var(--green-1), var(--green-2));color:#fff;box-shadow:0 6px 16px rgba(18,184,134,.35);}
+  #halli-app .btn-bell:hover{transform:translateY(-1px);}
+  #halli-app .btn-bell:disabled{opacity:.35;cursor:not-allowed;box-shadow:none;}
+  #halli-app .ringwrap{position:relative;}
+  #halli-app .ringwrap.pulse:after{content:"";position:absolute;inset:-5px;border-radius:16px;border:2px solid var(--green-1);animation:pulse .9s ease-out;}
+  @keyframes pulse{0%{opacity:.9;transform:scale(1);}100%{opacity:0;transform:scale(1.3);}}
+
+  #halli-app .log-panel{
+    background:var(--card);border:1px solid var(--border);border-radius:16px;
+    padding:12px 16px;font-size:12.5px;color:var(--text-dim);max-height:130px;overflow-y:auto;box-shadow:var(--shadow);
+  }
+  #halli-app .log-panel .entry{padding:4px 0;border-bottom:1px dashed #EEF1F6;}
+  #halli-app .log-panel .entry:last-child{border-bottom:none;}
+  #halli-app .log-panel .entry.ok{color:var(--green-2);}
+  #halli-app .log-panel .entry.bad{color:var(--red);}
+  #halli-app .log-panel .entry b{color:var(--text);}
+
+  #halli-app .overlay{position:fixed;inset:0;background:rgba(20,30,45,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px;}
+  #halli-app .overlay.show{display:flex;}
+  #halli-app .modal{background:var(--card);border-radius:22px;max-width:440px;width:100%;padding:24px 22px;text-align:center;box-shadow:var(--shadow-lg);position:relative;}
+  #halli-app .modal h2{font-size:18px;margin:0 0 6px;font-weight:800;}
+  #halli-app .modal p.sub{font-size:12.5px;color:var(--text-dim);margin:0 0 16px;}
+  #halli-app .who-grid{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:14px;}
+  #halli-app .who-btn{flex:1 1 90px;background:#F3F5F9;border:1px solid var(--border);color:var(--text);padding:12px 8px;border-radius:14px;font-weight:700;font-size:13.5px;cursor:pointer;transition:.15s;}
+  #halli-app .who-btn:hover{border-color:var(--green-1);background:var(--green-soft);}
+  #halli-app .cancel-link{background:none;border:none;color:var(--text-dim);font-size:12px;text-decoration:underline;cursor:pointer;}
+  #halli-app .close-x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--text-dim);font-size:18px;cursor:pointer;}
+  #halli-app .result-icon{font-size:42px;margin-bottom:6px;}
+  #halli-app .result-title{font-size:17px;font-weight:800;margin-bottom:6px;}
+  #halli-app .result-title.ok{color:var(--green-2);}
+  #halli-app .result-title.bad{color:var(--red);}
+  #halli-app .result-detail{font-size:13px;color:#4b5768;margin-bottom:16px;line-height:1.6;background:#F7F9FC;border-radius:12px;padding:12px 14px;}
+  #halli-app .result-detail b{color:var(--text);}
+  #halli-app .result-detail.ok-box{background:var(--green-soft);}
+  #halli-app .result-detail.bad-box{background:var(--red-soft);}
+  #halli-app .gameover-list{list-style:none;margin:0 0 16px;padding:0;text-align:left;}
+  #halli-app .gameover-list li{display:flex;justify-content:space-between;background:#F7F9FC;border-radius:12px;padding:10px 12px;margin-bottom:6px;font-weight:700;font-size:13.5px;}
+  #halli-app .gameover-list li:first-child{background:var(--green-soft);border:1px solid #bfe9d9;}
+
+  #halli-app .hidden{display:none !important;}
+  @media (max-width:600px){ #halli-app .players{grid-template-columns:repeat(2,1fr);} }
+
   </style>
 </head>
 <body>
@@ -540,7 +702,6 @@
       </div>
     </div>
   </div>
-</div>
 
   <!-- ════ 랭킹 선택 허브 ════ -->
   <div class="view" id="view-rank-hub">
@@ -781,6 +942,125 @@
     <div class="sec-head"><span class="sec-label">단원을 선택하세요</span><div class="sec-div"></div></div>
     <div class="ch-grid" id="halli-unit-grid"></div>
   </div>
+
+  <!-- ════ 할리갈리 OX 게임 (임베드) ════ -->
+<div class="view" id="view-halligalli">
+  <div id="halli-app">
+<div class="wrap">
+
+  <div class="sub-head" style="margin-bottom:16px;">
+    <button class="back-btn" onclick="showView('halli-units')"><i class="fa-solid fa-arrow-left"></i></button>
+    <div class="sub-title"><span class="crumb">OX HALLI GALLI</span><h2 id="mainTitle" style="font-size:20px;">OX 할리갈리</h2></div>
+    <div class="sub-actions" id="gameNav" style="display:none;gap:7px;flex-wrap:wrap;">
+      <button class="navbtn" id="btnRule">📖 게임 방법</button>
+      <button class="navbtn" id="btnPlayers">👥 <span id="pcLabel">4명</span></button>
+      <button class="navbtn" id="btnResheet">📄 다른 시트</button>
+      <button class="navbtn primary" id="btnNew">🔄 새 게임</button>
+    </div>
+  </div>
+  <p id="mainSub" style="font-size:12.5px;color:var(--text-dim);margin:-8px 0 16px;">구글 시트를 불러와 문제를 자동으로 구성합니다</p>
+
+  <!-- ===== 1. 시트 불러오기 화면 ===== -->
+  <div id="setupScreen">
+    <div class="setup-card">
+      <h2>📄 구글 시트 불러오기</h2>
+      <p class="sub">시트를 <b>"링크가 있는 모든 사용자 - 뷰어"</b>로 공유한 뒤, 주소와 탭(시트) 이름을 입력하세요.</p>
+
+      <div class="field">
+        <label>구글 시트 주소 또는 ID</label>
+        <input type="text" id="inputUrl" placeholder="https://docs.google.com/spreadsheets/d/xxxx.../edit" value="https://docs.google.com/spreadsheets/d/1J7ZuGQkYECtU12BQP64vTAniiVbQes8XX0ZiFBIcXAw/edit">
+        <div class="hint">전체 주소를 붙여넣어도 되고, /d/ 뒤의 ID만 넣어도 됩니다.</div>
+      </div>
+      <div class="field">
+        <label>탭(시트) 이름</label>
+        <input type="text" id="inputSheetName" placeholder="예: [2]식물과 에너지">
+        <div class="hint">화면 아래쪽 시트 탭에 적힌 이름을 정확히 입력하세요 (대괄호 포함).</div>
+      </div>
+      <div class="field">
+        <label>게임 제목 (선택)</label>
+        <input type="text" id="inputTitle" placeholder="예: 식물과 에너지 · 할리갈리">
+      </div>
+
+      <button class="load-btn" id="btnLoad">📥 불러와서 게임 시작</button>
+      <div class="status-box" id="statusBox"></div>
+
+      <div class="req-box">
+        <b>열 순서 요구사항</b> (왼쪽부터)<br>
+        A: 번호 &nbsp;·&nbsp; B: 소주제 &nbsp;·&nbsp; C: 문제(OX 문장) &nbsp;·&nbsp; D: 정답(O 또는 X) &nbsp;·&nbsp; E: 해설<br><br>
+        <b>공유 설정</b>: 시트 오른쪽 상단 "공유" → "링크가 있는 모든 사용자" → 역할 "뷰어"로 설정되어 있어야 불러올 수 있습니다. ("웹에 게시"까지는 필요 없습니다.)
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 2. 게임 화면 ===== -->
+  <div id="gameScreen" class="hidden">
+    <div class="rules">
+      <b>규칙</b> · 자기 차례인 학생의 카드 자리를 눌러야 카드가 뒤집힙니다(차례가 아니면 눌러도 뒤집히지 않아요). 뒤집힌 카드는 가져가기 전까지 화면에 계속 남아 있습니다. 방금 공개된 문장이 <b>맞는 설명(O)</b>이라고 생각되면 종을 치세요 → 누가 먼저 쳤는지 고르면 실제 정답 여부는 게임이 판정합니다 → 맞으면 지금까지 깔린 카드를 모두 가져가고, 틀리면 카드 1장을 벌칙으로 냅니다.
+    </div>
+
+    <div class="players" id="playersRow"></div>
+
+    <div class="stage">
+      <div class="stage-note">지금까지 바닥에 깔린 카드 <b id="floorCount">0</b>장 <span id="penaltyNote" class="penalty-note"></span></div>
+      <div class="actions">
+        <div class="ringwrap" id="ringWrap">
+          <button class="btn btn-bell" id="btnBell" disabled>🔔 종 치기!</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="log-panel" id="logPanel"></div>
+  </div>
+
+</div>
+
+<!-- 규칙 모달 -->
+<div class="overlay" id="ovRule">
+  <div class="modal">
+    <button class="close-x" data-close="ovRule">✕</button>
+    <h2>📖 게임 방법</h2>
+    <p class="sub" style="text-align:left;line-height:1.7;">
+      1. 차례인 학생의 카드 자리를 누르면 카드가 한 장 뒤집힙니다 (차례가 아닌 학생은 눌러도 뒤집히지 않아요).<br>
+      2. 뒤집은 카드는 그 학생 자리에 계속 놓여 있습니다 (가져가기 전까지 사라지지 않아요).<br>
+      3. 방금 뒤집힌 문장이 <b>맞는 설명(O)</b>이면 바로 종을 치세요.<br>
+      4. 종을 먼저 친 학생을 고르면, 실제로 정답인지 게임이 자동으로 확인해줍니다.<br>
+      5. 정답이면 바닥에 깔린 카드를 모두 가져가고, 오답이면 카드 1장을 벌칙으로 냅니다.<br>
+      6. 모든 카드를 다 뒤집으면 게임 종료, 가장 많은 카드를 모은 학생이 승리!
+    </p>
+    <button class="navbtn primary" style="width:100%;" data-close="ovRule">확인했어요</button>
+  </div>
+</div>
+
+<div class="overlay" id="ovPlayers">
+  <div class="modal">
+    <button class="close-x" data-close="ovPlayers">✕</button>
+    <h2>인원수 선택</h2>
+    <p class="sub">인원을 바꾸면 새 게임으로 다시 시작됩니다</p>
+    <div class="who-grid" id="playerCountGrid"></div>
+  </div>
+</div>
+
+<div class="overlay" id="ovWho">
+  <div class="modal">
+    <h2>🔔 누가 먼저 종을 쳤나요?</h2>
+    <p class="sub">해당하는 학생을 선택하세요</p>
+    <div class="who-grid" id="whoGrid"></div>
+    <button class="cancel-link" data-close="ovWho">취소하고 계속 진행</button>
+  </div>
+</div>
+
+<div class="overlay" id="ovResult"><div class="modal" id="resultModal"></div></div>
+
+<div class="overlay" id="ovOver">
+  <div class="modal">
+    <h2>🏁 게임 종료!</h2>
+    <p class="sub">최종 카드 획득 순위</p>
+    <ul class="gameover-list" id="overList"></ul>
+    <button class="navbtn primary" style="width:100%;" id="btnRestart">다시 하기</button>
+  </div>
+</div>
+  </div>
+</div>
 
   <!-- ════ 과학 게임 난이도 선택 ════ -->
   <div class="view" id="view-mem-level">
@@ -1955,10 +2235,8 @@ function loadHalliSheetList(g){
 
 function startHalli(g, unit){
   const tab = `[${g}]${unit}`;
-  const url = 'halligalli.html?tab=' + encodeURIComponent(tab)
-            + '&sheetId=' + encodeURIComponent(HALLI_SHEET_ID)
-            + '&title=' + encodeURIComponent(unit + ' · 할리갈리');
-  location.href = url;
+  showView('halligalli');
+  window.startHalliGame(HALLI_SHEET_ID, tab, unit + ' · 할리갈리');
 }
 
 // 퀴즈 상태
@@ -2499,6 +2777,317 @@ function qzShuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.
    ════════════════════════════════════════════════════════ */
 renderWordHome();   // '준비 중' 상태로 즉시 표시
 loadAllSheets();    // 구글 시트 로딩 (로컬에서는 CORS로 실패하나 UI는 정상)
+</script>
+
+<script>
+(function(){
+
+let STATEMENTS = [];
+let state = null;
+
+/* ---------- 구글 시트 불러오기 ---------- */
+function extractSheetId(raw){
+  const m = raw.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  return m ? m[1] : raw.trim();
+}
+
+// 최소한의 CSV 파서 (따옴표 안의 줄바꿈/쉼표 처리)
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for(let i=0;i<text.length;i++){
+    const ch = text[i], next = text[i+1];
+    if(inQuotes){
+      if(ch === '"' && next === '"'){ field += '"'; i++; }
+      else if(ch === '"'){ inQuotes = false; }
+      else { field += ch; }
+    } else {
+      if(ch === '"'){ inQuotes = true; }
+      else if(ch === ','){ row.push(field); field=''; }
+      else if(ch === '\n'){ row.push(field); rows.push(row); row=[]; field=''; }
+      else if(ch === '\r'){ /* skip */ }
+      else { field += ch; }
+    }
+  }
+  if(field.length>0 || row.length>0){ row.push(field); rows.push(row); }
+  return rows;
+}
+
+function setStatus(msg, type){
+  const box = document.getElementById('statusBox');
+  box.className = 'status-box show ' + type;
+  box.innerHTML = msg;
+}
+
+async function loadFromSheet(){
+  const urlRaw = document.getElementById('inputUrl').value.trim();
+  const sheetName = document.getElementById('inputSheetName').value.trim();
+  const customTitle = document.getElementById('inputTitle').value.trim();
+  if(!urlRaw || !sheetName){
+    setStatus('구글 시트 주소와 탭 이름을 모두 입력해주세요.', 'error');
+    return;
+  }
+  const id = extractSheetId(urlRaw);
+  const csvUrl = `https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+
+  document.getElementById('btnLoad').disabled = true;
+  setStatus('시트를 불러오는 중입니다...', 'loading');
+
+  try{
+    const res = await fetch(csvUrl);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    if(text.trim().startsWith('<')){
+      throw new Error('SHARE');
+    }
+    const rows = parseCSV(text).filter(r => r.length>1 && r[2] && r[2].trim().length>0);
+    // 헤더로 보이는 첫 줄(번호가 숫자가 아닌 경우) 제거
+    if(rows.length && isNaN(parseInt(rows[0][0]))){ rows.shift(); }
+
+    const parsed = rows.map(r=>{
+      const ans = (r[3]||'').trim().toUpperCase();
+      return {
+        no: r[0] ? r[0].trim() : '',
+        topic: r[1] ? r[1].trim() : '',
+        text: r[2] ? r[2].trim() : '',
+        correct: ans === 'O',
+        why: r[4] ? r[4].trim() : ''
+      };
+    }).filter(item => item.text.length>0);
+
+    if(parsed.length < 4){
+      throw new Error('EMPTY');
+    }
+
+    STATEMENTS = parsed;
+    setStatus(`✅ ${parsed.length}문항을 불러왔습니다! (정답 O: ${parsed.filter(p=>p.correct).length}개 · 오답 X: ${parsed.filter(p=>!p.correct).length}개)`, 'ok');
+
+    document.getElementById('mainTitle').textContent = customTitle || sheetName.replace(/^\[\d+\]/,'');
+    document.getElementById('mainSub').innerHTML = '자기 차례인 학생의 카드를 눌러 뒤집고, <b style="color:#0d8f6a">맞는 설명(O)</b>이면 재빨리 종을 치세요';
+
+    setTimeout(()=>{
+      document.getElementById('setupScreen').classList.add('hidden');
+      document.getElementById('gameScreen').classList.remove('hidden');
+      document.getElementById('gameNav').style.display = 'flex';
+      newGame(4);
+    }, 500);
+
+  }catch(err){
+    if(err.message === 'SHARE'){
+      setStatus('⚠️ 시트를 불러오지 못했습니다. 공유 설정이 "링크가 있는 모든 사용자 - 뷰어"인지, 탭 이름 철자가 정확한지 확인해주세요.', 'error');
+    } else if(err.message === 'EMPTY'){
+      setStatus('⚠️ 유효한 문제가 4개 미만입니다. 열 순서(번호·소주제·문제·정답·해설)를 확인해주세요.', 'error');
+    } else {
+      setStatus('⚠️ 불러오기에 실패했습니다: ' + err.message, 'error');
+    }
+  } finally {
+    document.getElementById('btnLoad').disabled = false;
+  }
+}
+
+/* ---------- 게임 엔진 (플레이어별 카드 유지) ---------- */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+function newGame(playerCount){
+  const deck = shuffle(STATEMENTS);
+  const players = [];
+  for(let i=0;i<playerCount;i++){ players.push({name:`${i+1}번 학생`, hand:[], won:0, floor:null}); }
+  deck.forEach((card,idx)=>{ players[idx % playerCount].hand.push(card); });
+  state = { playerCount, players, turn:0, over:false, lastFlippedIdx:null, penaltyPile:[] };
+  logClear();
+  log(`새 게임 시작 · ${playerCount}명 · 각자 ${players[0].hand.length}장 안팎으로 나눠 가졌습니다.`);
+  render();
+}
+
+function activePlayerIdx(fromIdx){
+  const n = state.playerCount;
+  for(let i=0;i<n;i++){ const idx=(fromIdx+i)%n; if(state.players[idx].hand.length>0) return idx; }
+  return -1;
+}
+function log(msg,cls){
+  const panel=document.getElementById('logPanel');
+  const div=document.createElement('div');
+  div.className='entry'+(cls?(' '+cls):'');
+  div.innerHTML=msg;
+  panel.prepend(div);
+}
+function logClear(){ document.getElementById('logPanel').innerHTML=''; }
+function floorTotalCount(){
+  let n = state.penaltyPile.length;
+  state.players.forEach(p=>{ if(p.floor) n++; });
+  return n;
+}
+function requestFlip(idx){
+  if(state.over) return;
+  const currentIdx = activePlayerIdx(state.turn);
+  if(currentIdx===-1){ checkGameOver(); return; }
+  if(idx!==currentIdx){
+    const el = document.querySelector(`.pcard[data-idx="${idx}"]`);
+    if(el){ el.classList.add('shake'); setTimeout(()=>el.classList.remove('shake'),350); }
+    return;
+  }
+  const player = state.players[currentIdx];
+  const card = player.hand.pop();
+  player.floor = card;
+  state.lastFlippedIdx = currentIdx;
+  state.turn = (currentIdx+1)%state.playerCount;
+  log(`<b>${player.name}</b>이(가) 카드를 뒤집었습니다.`);
+  render();
+  checkGameOver();
+}
+function render(){
+  renderPlayers();
+  document.getElementById('floorCount').textContent = floorTotalCount();
+  document.getElementById('pcLabel').textContent = state.playerCount+'명';
+  document.getElementById('penaltyNote').textContent = state.penaltyPile.length>0 ? `(벌칙 카드 ${state.penaltyPile.length}장 포함)` : '';
+  document.getElementById('btnBell').disabled = floorTotalCount()===0 || state.lastFlippedIdx===null;
+}
+function renderPlayers(){
+  const row = document.getElementById('playersRow');
+  row.innerHTML = state.players.map((p,i)=>{
+    const isTurn = activePlayerIdx(state.turn)===i && !state.over;
+    const isTrigger = state.lastFlippedIdx===i && p.floor;
+    const emptyHint = p.hand.length===0 ? '낼 카드 없음' : (isTurn ? '👆 눌러서 카드 뒤집기' : '카드를 기다리는 중');
+    return `
+      <div class="pcard ${isTurn?'turn':'idle'}" data-idx="${i}">
+        <div class="prow">
+          <div class="pname">${p.name}</div>
+          ${isTurn?'<div class="turntag">▶ 차례</div>':''}
+        </div>
+        <div class="pstats">
+          <div class="pstat"><div class="n">${p.hand.length}</div><div class="l">남은 카드</div></div>
+          <div class="pstat won"><div class="n">${p.won}</div><div class="l">획득</div></div>
+        </div>
+        <div class="floor-slot ${p.floor?'filled':''} ${isTrigger?'trigger':''}">
+          ${p.floor ? p.floor.text : emptyHint}
+        </div>
+      </div>`;
+  }).join('');
+}
+function openWho(){
+  if(floorTotalCount()===0 || state.lastFlippedIdx===null) return;
+  const grid = document.getElementById('whoGrid');
+  grid.innerHTML = state.players.map((p,i)=> `<button class="who-btn" data-idx="${i}">${p.name}</button>`).join('');
+  document.getElementById('ringWrap').classList.add('pulse');
+  setTimeout(()=>document.getElementById('ringWrap').classList.remove('pulse'),900);
+  showOverlay('ovWho');
+}
+function collectAllFloorCards(winnerIdx){
+  let count = 0;
+  state.players.forEach(p=>{ if(p.floor){ count++; p.floor=null; } });
+  count += state.penaltyPile.length;
+  state.penaltyPile = [];
+  state.players[winnerIdx].won += count;
+  return count;
+}
+function resolveBell(playerIdx){
+  hideOverlay('ovWho');
+  const triggerIdx = state.lastFlippedIdx;
+  const triggerPlayer = state.players[triggerIdx];
+  const card = triggerPlayer.floor;
+  const ringer = state.players[playerIdx];
+  const modal = document.getElementById('resultModal');
+  if(!card) return;
+
+  if(card.correct){
+    const totalCollected = collectAllFloorCards(playerIdx);
+    state.turn = playerIdx; state.lastFlippedIdx = null;
+    log(`✅ <b>${ringer.name}</b> 정답! "${card.text}" → 카드 ${totalCollected}장 획득`, 'ok');
+    modal.innerHTML = `
+      <div class="result-icon">✅</div>
+      <div class="result-title ok">정답입니다!</div>
+      <div class="result-detail ok-box">
+        <b>"${card.text}"</b><br>← 과학적으로 맞는 설명입니다.<br><br>
+        <b>${ringer.name}</b>이(가) 바닥에 깔린 카드 <b>${totalCollected}장</b>을 모두 획득했습니다!
+      </div>
+      <button class="navbtn primary" style="width:100%;" data-close="ovResult">계속하기</button>`;
+  } else {
+    let penaltyMsg='';
+    if(ringer.hand.length>0){
+      const c = ringer.hand.pop();
+      state.penaltyPile.push(c);
+      penaltyMsg = `벌칙으로 카드 1장을 냈습니다.`;
+    } else { penaltyMsg = `낼 카드가 없어 벌칙은 생략됩니다.`; }
+    log(`❌ <b>${ringer.name}</b> 오답. "${card.text}" 는 틀린 설명입니다. ${penaltyMsg}`, 'bad');
+    modal.innerHTML = `
+      <div class="result-icon">❌</div>
+      <div class="result-title bad">아직 정답이 아니에요</div>
+      <div class="result-detail bad-box">
+        <b>"${card.text}"</b><br>← 틀린 설명입니다.<br><br>
+        <b>왜 틀렸을까요?</b> ${card.why||''}<br><br>${penaltyMsg}
+      </div>
+      <button class="navbtn primary" style="width:100%;" data-close="ovResult">계속하기</button>`;
+  }
+  showOverlay('ovResult');
+  render();
+}
+function checkGameOver(){
+  const anyLeft = state.players.some(p=>p.hand.length>0);
+  if(!anyLeft && !state.over){
+    state.over = true; render();
+    if(floorTotalCount()===0){ showGameOver(); }
+    else { log('모든 카드를 다 뒤집었습니다. 마지막으로 깔린 카드를 정리할 종을 치세요.'); }
+  }
+}
+function showGameOver(){
+  const ranked = state.players.slice().sort((a,b)=>b.won-a.won);
+  const medals=['🥇','🥈','🥉'];
+  document.getElementById('overList').innerHTML = ranked.map((p,i)=>
+    `<li><span>${medals[i]||'　'} ${p.name}</span><span>${p.won}장</span></li>`).join('');
+  showOverlay('ovOver');
+}
+function renderPlayerCountGrid(){
+  document.getElementById('playerCountGrid').innerHTML = [2,3,4].map(n=>`<button class="who-btn" data-n="${n}">${n}명</button>`).join('');
+}
+function showOverlay(id){ document.getElementById(id).classList.add('show'); }
+function hideOverlay(id){ document.getElementById(id).classList.remove('show'); }
+
+document.getElementById('btnLoad').addEventListener('click', loadFromSheet);
+
+/* ---------- JK Science Learning 사이트에서 호출하는 진입점 ---------- */
+window.startHalliGame = function(sheetId, tab, title){
+  document.getElementById('inputSheetName').value = tab;
+  document.getElementById('inputUrl').value = sheetId;
+  document.getElementById('inputTitle').value = title || '';
+  document.getElementById('setupScreen').classList.remove('hidden');
+  document.getElementById('gameScreen').classList.add('hidden');
+  document.getElementById('gameNav').style.display = 'none';
+  loadFromSheet();
+};
+document.getElementById('btnBell').addEventListener('click', openWho);
+document.getElementById('btnRule').addEventListener('click', ()=> showOverlay('ovRule'));
+document.getElementById('btnPlayers').addEventListener('click', ()=>{ renderPlayerCountGrid(); showOverlay('ovPlayers'); });
+document.getElementById('btnNew').addEventListener('click', ()=> newGame(state.playerCount));
+document.getElementById('btnRestart').addEventListener('click', ()=>{ hideOverlay('ovOver'); newGame(state.playerCount); });
+document.getElementById('btnResheet').addEventListener('click', ()=>{
+  document.getElementById('gameScreen').classList.add('hidden');
+  document.getElementById('gameNav').style.display = 'none';
+  document.getElementById('setupScreen').classList.remove('hidden');
+});
+document.getElementById('playersRow').addEventListener('click',(e)=>{
+  const card = e.target.closest('.pcard'); if(!card) return;
+  requestFlip(parseInt(card.dataset.idx));
+});
+document.getElementById('whoGrid').addEventListener('click',(e)=>{
+  const btn=e.target.closest('.who-btn'); if(!btn) return;
+  resolveBell(parseInt(btn.dataset.idx));
+});
+document.getElementById('playerCountGrid').addEventListener('click',(e)=>{
+  const btn=e.target.closest('.who-btn'); if(!btn) return;
+  hideOverlay('ovPlayers'); newGame(parseInt(btn.dataset.n));
+});
+document.addEventListener('click',(e)=>{
+  const closeBtn = e.target.closest('[data-close]');
+  if(closeBtn){ hideOverlay(closeBtn.dataset.close); return; }
+  const overlay = e.target.closest('.overlay');
+  if(overlay && e.target===overlay){ hideOverlay(overlay.id); }
+});
+
+})();
 </script>
 
 <div class="login-overlay" id="login-overlay">

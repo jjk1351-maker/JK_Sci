@@ -219,6 +219,7 @@
     .rank-score { font-family:'DM Mono',monospace; font-size:18px; font-weight:700; color:var(--accent); }
 
     /* ══ 과학 게임 — 게임 선택 카드 ══ */
+    .chicken-frame { display:block; width:100%; height:calc(100dvh - 130px); min-height:680px; border:0; border-radius:18px; background:var(--bg); }
     .mem-game-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:22px; }
     @media (max-width:620px){ .mem-game-grid{ grid-template-columns:1fr; } }
     .mem-game-card {
@@ -939,7 +940,39 @@
         <div class="mgc-desc">단원별 OX 문장을 보고 종을 치는 반응속도 게임! 모둠·전체 학급으로 함께 즐겨요.</div>
         <div class="mgc-go">게임하기 <i class="fa-solid fa-arrow-right"></i></div>
       </div>
+      <div class="mem-game-card" style="--mgc:var(--red)" onclick="enterChickenSection()">
+        <div class="mgc-glow"></div>
+        <div class="mgc-icon"><i class="fa-solid fa-dice"></i></div>
+        <div class="mgc-title">기억 레이스</div>
+        <div class="mgc-en">MEMORY RACE</div>
+        <div class="mgc-desc">카드를 뒤집어 짝을 기억하며 달리는 보드게임! 같은 팀원·친구와 한 화면에서 함께 즐겨요.</div>
+        <div class="mgc-go">게임하기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
     </div>
+  </div>
+
+  <!-- ════ 기억 레이스(치킨차차 방식) 주제 선택 ════ -->
+  <div class="view" id="view-chicken-home">
+    <div class="sub-head">
+      <button class="back-btn" onclick="showView('mem-home')"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb">MEMORY RACE · 주제 선택</span><h2>기억 레이스</h2></div>
+    </div>
+    <div class="sec-head"><span class="sec-label">Select Topic</span><div class="sec-div"></div></div>
+    <div class="mem-game-grid" id="chicken-grid">
+      <div class="mem-game-card" style="--mgc:var(--blue)" onclick="openChickenGame('solar')">
+        <div class="mgc-glow"></div>
+        <div class="mgc-icon"><i class="fa-solid fa-star"></i></div>
+        <div class="mgc-title">별과 우주</div>
+        <div class="mgc-en">SOLAR SYSTEM RACE</div>
+        <div class="mgc-desc">태양계 12개 천체의 이름과 모습을 기억해 짝을 찾고, 별조각을 모아 우승하세요! (2~4팀)</div>
+        <div class="mgc-go">게임하기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ 기억 레이스 게임 (iframe 임베드) ════ -->
+  <div class="view" id="view-chicken-play">
+    <iframe id="chicken-frame" class="chicken-frame" title="기억 레이스 게임"></iframe>
   </div>
 
   <!-- ════ 할리갈리 학년 선택 ════ -->
@@ -1361,6 +1394,637 @@
   </div>
 </div>
 
+<script type="text/plain" id="game-chicken-solar"><!doctype html>
+<html lang="ko">
+<head><script>window.JKRaceExit=function(){try{parent.exitChickenGame();}catch(e){}};document.documentElement.className+=" emb";<\/script><style>html.emb header,html.emb .bg-glow,html.emb body::before{display:none!important}html.emb body{background:transparent;padding-bottom:24px;min-height:0}html.emb .wrap{padding-top:4px}</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>태양계 기억 레이스</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout: JK SCIENCE LEARNING 통합 디자인 시스템을 그대로 사용. 설정 화면은 2열 카드, 게임 화면은 8x6 레이스 트랙 + 4x3 마당. */
+:root {
+  color-scheme: light;
+  --bg:#eef2fb; --surface:#ffffff; --card:#ffffff; --card-h:#f5f8ff;
+  --accent:#0ea36f; --a-glow:rgba(14,163,111,0.16);
+  --blue:#3763e8; --red:#e0463f; --green:#12b886; --gold:#e2960b; --purple:#7048e8;
+  --text:#1a2233; --sub:#6a7488;
+  --border:rgba(20,30,60,0.09); --border-h:rgba(14,163,111,0.35);
+  /* 팀 색상: 포털 팔레트 (금색은 목표·정답 표시용으로 비워 둠) */
+  --p1:var(--blue); --t1:#ffffff;
+  --p2:var(--red); --t2:#ffffff;
+  --p3:var(--green); --t3:#053b30;
+  --p4:var(--purple); --t4:#ffffff;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+[hidden] { display:none !important; }
+body {
+  font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--text);
+  min-height:100vh; display:flex; flex-direction:column; align-items:center;
+  padding:0 max(16px, env(safe-area-inset-right, 0px)) 60px max(16px, env(safe-area-inset-left, 0px));
+}
+body::before {
+  content:''; position:fixed; inset:0; z-index:0;
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:48px 48px; pointer-events:none;
+}
+.bg-glow { position:fixed; z-index:0; pointer-events:none; border-radius:50%; filter:blur(120px); opacity:0.12; }
+.bg-glow-1 { width:600px; height:600px; background:var(--accent); top:-200px; left:-200px; }
+.bg-glow-2 { width:500px; height:500px; background:var(--blue); bottom:-150px; right:-150px; }
+.wrap { position:relative; z-index:1; width:100%; max-width:clamp(1100px, 82vw, 1500px); display:flex; flex-direction:column; gap:22px; padding-top:28px; }
+
+/* HEADER */
+header { display:flex; justify-content:space-between; align-items:center; padding-bottom:16px; border-bottom:1px solid var(--border); }
+.logo h1 { font-family:'Syne',sans-serif; font-size:25px; font-weight:800; letter-spacing:2px; color:var(--accent); }
+.logo p { font-size:13px; color:var(--sub); margin-top:5px; }
+
+/* VIEW / SUBPAGE HEAD / SECTION LABEL */
+.view { display:flex; flex-direction:column; gap:22px; animation:fadeIn .4s ease; }
+.sub-head { display:flex; align-items:center; gap:16px; }
+.back-btn { width:44px; height:44px; border-radius:12px; background:var(--card); border:1px solid var(--border); color:var(--text); display:grid; place-items:center; cursor:pointer; transition:all .2s; flex-shrink:0; }
+.back-btn:hover { border-color:var(--border-h); color:var(--accent); }
+.back-btn svg { width:17px; height:17px; }
+.sub-title { display:flex; flex-direction:column; }
+.sub-title h2 { font-size:24px; font-weight:900; letter-spacing:-0.5px; }
+.sub-title .crumb { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--sub); margin-bottom:4px; }
+.sec-head { display:flex; align-items:center; gap:12px; }
+.sec-label { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--accent); }
+.sec-div { flex:1; height:1px; background:var(--border); }
+
+/* BUTTONS (포털 .btn / .btn-primary / .btn-ghost 동일) */
+.btn { padding:14px 28px; border-radius:11px; border:none; font-family:'Noto Sans KR',sans-serif; font-size:15px; font-weight:700; cursor:pointer; transition:all .2s; }
+.btn-primary { background:var(--accent); color:var(--bg); }
+.btn-primary:hover { box-shadow:0 0 24px var(--a-glow); transform:translateY(-2px); }
+.btn-ghost { background:transparent; color:var(--sub); border:1px solid var(--border); }
+.btn-ghost:hover { color:var(--text); border-color:rgba(20,30,60,.22); }
+button:focus-visible, label:has(input:focus-visible), summary:focus-visible { outline:3px solid var(--blue); outline-offset:2px; }
+
+/* SETUP */
+.setup-grid { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr); gap:22px; align-items:start; }
+@media (max-width:900px) { .setup-grid { grid-template-columns:1fr; } }
+.card { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:26px; display:flex; flex-direction:column; gap:20px; }
+.card h3 { font-size:17px; font-weight:900; }
+.field { display:flex; flex-direction:column; gap:10px; border:0; min-width:0; }
+.field > legend, .field-label { font-size:13px; color:var(--sub); font-weight:600; padding:0; }
+.opts { display:flex; gap:8px; flex-wrap:wrap; }
+.ftab { position:relative; }
+.ftab input, .lvl-card input { position:absolute; opacity:0; inset:0; cursor:pointer; }
+.ftab span { display:block; padding:9px 18px; border-radius:9px; background:var(--card); border:1px solid var(--border); color:var(--sub); font-size:13.5px; font-weight:600; cursor:pointer; transition:all .2s; }
+.ftab:hover span { color:var(--text); }
+.ftab input:checked + span { background:var(--accent); color:var(--bg); border-color:var(--accent); }
+.levels-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; }
+.lvl-card { position:relative; background:var(--card); border:1px solid var(--border); border-radius:18px; padding:20px 14px; cursor:pointer; transition:all .2s; text-align:center; display:flex; flex-direction:column; align-items:center; gap:6px; }
+.lvl-card:hover { transform:translateY(-4px); background:var(--card-h); border-color:var(--border-h); box-shadow:0 12px 30px rgba(20,30,60,.128); }
+.lvl-card:has(input:checked) { border-color:var(--accent); background:#f1fbf7; box-shadow:0 0 0 2px var(--a-glow); }
+.lvl-num { font-family:'Syne',sans-serif; font-size:30px; font-weight:800; color:var(--accent); line-height:1; }
+.lvl-title { font-size:15px; font-weight:900; }
+.lvl-desc { font-size:12.5px; color:var(--sub); line-height:1.5; }
+.lvl-pts { font-size:12px; font-weight:700; color:var(--bg); background:var(--accent); padding:3px 10px; border-radius:20px; display:inline-block; margin-top:2px; }
+.names { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+.mem-name-box { display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid var(--border); border-radius:14px; padding:10px 14px; min-width:0; }
+.mem-name-box input { flex:1; min-width:0; background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:9px 12px; color:var(--text); font-family:'Noto Sans KR',sans-serif; font-size:15px; font-weight:700; }
+.mem-name-box input:focus { outline:none; border-color:var(--accent); }
+.dot { flex:none; width:26px; height:26px; border-radius:50%; background:var(--c); color:var(--t); font-size:13px; font-weight:900; display:grid; place-items:center; line-height:1; }
+.pl1 { --c:var(--p1); --t:var(--t1); } .pl2 { --c:var(--p2); --t:var(--t2); }
+.pl3 { --c:var(--p3); --t:var(--t3); } .pl4 { --c:var(--p4); --t:var(--t4); }
+.start-btn { width:100%; padding:16px 28px; font-size:16px; }
+.rules { padding-left:22px; display:flex; flex-direction:column; gap:6px; font-size:14px; line-height:1.65; }
+.rules b { color:var(--accent); }
+.pv-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(78px,1fr)); gap:10px; }
+.pv { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:10px 4px; display:flex; flex-direction:column; align-items:center; gap:4px; min-width:0; }
+.pv .pic { width:42px; display:block; }
+.pv .nm { font-size:13px; }
+
+/* GAME HUD (포털 .mem-hud .chip / .mem-btn) */
+.game-col { width:min(100%, 1040px, max(540px, calc((100vh - 330px) * 1.3333))); width:min(100%, 1040px, max(540px, calc((100dvh - 330px) * 1.3333))); margin:0 auto; gap:12px; }
+.mem-hud { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+.teams { display:flex; gap:8px; flex-wrap:wrap; }
+.chip { background:var(--card); border:2px solid var(--border); border-radius:30px; padding:6px 16px 6px 8px; font-weight:700; font-size:14px; display:flex; align-items:center; gap:8px; transition:border-color .15s, box-shadow .15s; }
+.chip.on { border-color:var(--c); box-shadow:0 0 0 3px color-mix(in srgb, var(--c) 22%, transparent); }
+.chip .cn { max-width:9em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chip b { font-family:'DM Mono',monospace; font-size:17px; color:var(--gold); }
+.mem-hud-btns { display:flex; gap:8px; }
+.mem-btn { background:var(--card); border:1px solid var(--border); color:var(--text); cursor:pointer; padding:10px 16px; border-radius:30px; font-weight:700; font-size:14px; font-family:inherit; transition:all .2s; }
+.mem-btn:hover { border-color:var(--border-h); color:var(--accent); }
+.status { font-weight:700; font-size:16px; line-height:1.4; min-height:2.8em; display:flex; align-items:center; }
+.status b { color:var(--accent); }
+.status .ok { color:var(--accent); }
+.status .no { color:var(--red); }
+.timer { display:flex; align-items:center; gap:10px; }
+.timer .bar { flex:1; height:10px; border-radius:6px; background:rgba(20,30,60,.09); overflow:hidden; }
+.timer .fill { height:100%; width:100%; background:var(--accent); border-radius:6px; transition:width .1s linear, background-color .2s; }
+.timer .fill.mid { background:var(--gold); }
+.timer .fill.low { background:var(--red); animation:urgent .45s ease-in-out infinite; }
+.timer .left { font-family:'DM Mono',monospace; font-weight:700; min-width:2.8em; text-align:right; color:var(--sub); }
+.timer .left.low { color:var(--red); }
+@keyframes urgent { 50% { opacity:.55; } }
+
+/* BOARD */
+.stage { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:8px; box-shadow:0 4px 18px rgba(30,50,90,.07); }
+.board { position:relative; width:100%; aspect-ratio:8 / 6; container-type:inline-size; display:grid; grid-template-columns:repeat(8,1fr); grid-template-rows:repeat(6,1fr); }
+.tile { margin:.7cqw; background:var(--card); border:1px solid rgba(20,30,60,.14); border-radius:1.8cqw; box-shadow:0 .3cqw .8cqw rgba(20,30,60,.08); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.3cqw; min-width:0; overflow:hidden; }
+.tile .pic { display:block; }
+.tile.picy .pic { width:66%; }
+.tile.both .pic { width:46%; }
+.nm { font-weight:800; line-height:1.1; text-align:center; white-space:nowrap; }
+.tile .n1 { font-size:4cqw; } .tile .n2 { font-size:3.6cqw; } .tile .n3 { font-size:3.3cqw; } .tile .n4 { font-size:2.7cqw; }
+.tile.occ { border:max(2px, .5cqw) solid var(--c); background:color-mix(in srgb, var(--c) 9%, #fff); }
+.tile.target { background:color-mix(in srgb, var(--c) 16%, #fff); border:max(2px, .5cqw) solid var(--c); animation:glow 1s ease-in-out infinite; z-index:1; }
+@keyframes glow { 0%,100% { box-shadow:0 0 0 .3cqw color-mix(in srgb, var(--c) 35%, transparent), 0 0 1.2cqw color-mix(in srgb, var(--c) 35%, transparent); } 50% { box-shadow:0 0 0 .3cqw color-mix(in srgb, var(--c) 70%, transparent), 0 0 3.2cqw color-mix(in srgb, var(--c) 80%, transparent); } }
+
+.yard { grid-column:2 / 8; grid-row:2 / 6; margin:1.8cqw; display:grid; grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(3,1fr); gap:1.6cqw; padding:1.4cqw; background:rgba(55,99,232,.05); border-radius:2.6cqw; }
+.yt { position:relative; border:2px solid rgba(20,30,60,.10); padding:0; min-width:0; cursor:pointer; border-radius:1.8cqw; font-family:inherit;
+  background:linear-gradient(135deg,#e3e9fb,#eef2fb); color:var(--sub); box-shadow:0 .4cqw 1cqw rgba(20,30,60,.14);
+  display:grid; place-items:center; transition:transform .12s, border-color .12s; }
+.yt:hover { transform:translateY(-.4cqw); border-color:var(--border-h); }
+.yt:active { transform:scale(.95); }
+.yt .back { font-size:6.4cqw; font-weight:800; }
+.yt .front { display:none; position:absolute; inset:0; border-radius:1.6cqw; flex-direction:column; align-items:center; justify-content:center; gap:.3cqw; overflow:hidden; }
+.yt .front.pic-face { background:linear-gradient(135deg,#ffffff,#fff4e6); color:#9a3412; }
+.yt .front.name-face { background:linear-gradient(135deg,#11998e,#38ef7d); color:#053b30; }
+.yt .front .pic { width:62%; display:block; }
+.yt .n1 { font-size:6.4cqw; } .yt .n2 { font-size:5.6cqw; } .yt .n3 { font-size:4.8cqw; } .yt .n4 { font-size:3.9cqw; }
+.yt.open { cursor:default; border-color:transparent; animation:flip .22s ease-out; }
+.yt.open .back { display:none; }
+.yt.open .front { display:flex; }
+.yt.open.good { box-shadow:0 0 0 .6cqw var(--gold), 0 .4cqw 1cqw rgba(20,30,60,.18); }
+.yt.open.bad { box-shadow:0 0 0 .6cqw var(--red), 0 .4cqw 1cqw rgba(20,30,60,.18); animation:shake .3s ease-out; }
+@keyframes flip { from { transform:rotateY(90deg); } to { transform:none; } }
+@keyframes shake { 0% { transform:rotateY(90deg); } 40% { transform:translateX(-.8cqw); } 70% { transform:translateX(.8cqw); } 100% { transform:none; } }
+.board.locked .yt:not(.open) { cursor:progress; }
+
+/* 번호표: 자기 타일 왼쪽 위 안쪽, 글자와 겹치지 않도록 작게 */
+.layer { position:absolute; inset:0; pointer-events:none; }
+.pc { position:absolute; width:max(3.2%, 14px); aspect-ratio:1; border-radius:50%; background:var(--c); color:var(--t); border:max(1.5px, .25cqw) solid #fff; display:grid; place-items:center; font-weight:900; font-size:max(2.1cqw, 9px); line-height:1; transform:translate(-50%,-50%); transition:left .32s cubic-bezier(.34,1.4,.5,1), top .32s cubic-bezier(.34,1.4,.5,1); box-shadow:0 .3cqw .7cqw rgba(20,30,60,.35); z-index:2; }
+.pc.active { animation:bob .9s ease-in-out infinite; z-index:3; }
+@keyframes bob { 0%,100% { transform:translate(-50%,-50%) scale(1); } 50% { transform:translate(-50%,-50%) scale(1.15); } }
+
+.fact { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 16px; min-height:3.6em; font-size:14.5px; }
+.fact b { color:var(--accent); }
+.fact .muted { color:var(--sub); }
+details { font-size:14px; }
+summary { cursor:pointer; font-weight:700; color:var(--sub); }
+details .rules { margin-top:8px; }
+
+/* RESULT MODAL (포털 .overlay / .mem-result-modal / .mmb) */
+.overlay { display:none; position:fixed; inset:0; z-index:1000; background:rgba(2,8,20,.8); backdrop-filter:blur(6px); align-items:center; justify-content:center; padding:20px; }
+.overlay.open { display:flex; animation:fadeIn .25s; }
+.mem-result-modal { background:var(--surface); border:1px solid var(--border-h); border-radius:24px; width:100%; max-width:400px; padding:32px 28px; box-shadow:0 30px 70px rgba(20,30,60,.18); animation:pop .3s cubic-bezier(.2,.9,.3,1.2); text-align:center; }
+.mem-result-modal .trophy { font-size:54px; margin-bottom:8px; }
+.mem-result-modal h2 { font-size:22px; font-weight:900; margin-bottom:4px; }
+.mem-result-modal .mem-sub { font-size:13px; color:var(--sub); margin:4px 0 12px; }
+.mem-result-modal table { width:100%; border-collapse:collapse; margin:10px 0 16px; font-variant-numeric:tabular-nums; font-size:14px; }
+.mem-result-modal th, .mem-result-modal td { padding:8px 4px; border-bottom:1px solid var(--border); text-align:center; }
+.mem-result-modal th:first-child, .mem-result-modal td:first-child { text-align:left; }
+.mem-result-modal th { color:var(--sub); font-weight:500; font-size:12px; }
+.mem-modal-btns { display:flex; gap:10px; margin-top:8px; }
+.mmb { flex:1; border:none; cursor:pointer; padding:14px; border-radius:14px; font-family:inherit; font-weight:800; font-size:15px; color:#fff; transition:all .2s; }
+.mmb:hover { transform:translateY(-2px); }
+.mmb.again { background:#f97316; }
+.mmb.home { background:#4b5563; }
+
+@keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
+@keyframes pop { from { opacity:0; transform:scale(.92) translateY(10px); } to { opacity:1; transform:none; } }
+@media (prefers-reduced-motion: reduce) {
+  .pc, .yt.open, .pc.active, .timer .fill.low, .view { animation:none; transition:none; }
+  .tile.target { animation:none; box-shadow:0 0 0 .3cqw var(--c); }
+}
+</style>
+</head>
+<body>
+
+
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<div class="wrap">
+  <header>
+    <div class="logo"><h1>JK SCIENCE LEARNING</h1><p>중학교 과학 학습 포털</p></div>
+  </header>
+
+  <!-- 설정 화면 -->
+  <div class="view" id="view-setup">
+    <div class="sub-head">
+      <button class="back-btn" id="setupBack" type="button" aria-label="뒤로" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <div class="sub-title"><span class="crumb">SCIENCE GAME · 기억 레이스</span><h2>태양계 기억 레이스</h2></div>
+    </div>
+    <div class="sec-head"><span class="sec-label">Game Setup</span><div class="sec-div"></div></div>
+
+    <div class="setup-grid">
+      <div class="card">
+        <fieldset class="field"><legend>참가 인원</legend>
+          <div class="opts">
+            <label class="ftab"><input type="radio" name="n" value="2"><span>2명</span></label>
+            <label class="ftab"><input type="radio" name="n" value="3"><span>3명</span></label>
+            <label class="ftab"><input type="radio" name="n" value="4"><span>4명</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="field"><legend>난이도</legend>
+          <div class="levels-grid">
+            <label class="lvl-card"><input type="radio" name="mode" value="easy"><div class="lvl-num">LV 1</div><div class="lvl-title">쉬움</div><div class="lvl-desc">길 위 카드에 그림과 이름이 모두 보여요</div><span class="lvl-pts">같은 그림 찾기</span></label>
+            <label class="lvl-card"><input type="radio" name="mode" value="mid"><div class="lvl-num">LV 2</div><div class="lvl-title">보통</div><div class="lvl-desc">길 위 카드에 이름만 보여요</div><span class="lvl-pts">이름 → 그림</span></label>
+            <label class="lvl-card"><input type="radio" name="mode" value="hard"><div class="lvl-num">LV 3</div><div class="lvl-title">어려움</div><div class="lvl-desc">길 위 카드에 그림만 보여요</div><span class="lvl-pts">그림 → 이름</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="field"><legend>카드 고르는 시간</legend>
+          <div class="opts">
+            <label class="ftab"><input type="radio" name="tl" value="0"><span>제한 없음</span></label>
+            <label class="ftab"><input type="radio" name="tl" value="15"><span>15초</span></label>
+            <label class="ftab"><input type="radio" name="tl" value="10"><span>10초</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="field"><legend>팀 이름</legend><div class="names" id="names"></div></fieldset>
+        <button class="btn btn-primary start-btn" id="btnStart" type="button">게임 시작</button>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:22px;min-width:0">
+        <div class="card">
+          <h3>게임 방법</h3>
+          <ol class="rules">
+            <li>내 번호표가 붙은 <b>반짝이는 칸</b>을 확인해요. 그 칸의 짝을 찾는 거예요.</li>
+            <li>가운데 마당에서 그 칸의 <b>짝</b>을 찾아 뒤집어요. 맞으면 한 칸 앞으로 가고, 계속 뒤집을 수 있어요.</li>
+            <li>틀리거나 시간이 끝나면 다음 팀 차례예요. 어디에 있었는지 기억해 두세요.</li>
+            <li>앞선 말을 <b>추월</b>하면 그 팀의 별조각을 모두 가져와요. 별조각을 전부 모으면 승리!</li>
+          </ol>
+        </div>
+        <div class="card">
+          <h3>이번에 만나는 카드 12장</h3>
+          <div class="pv-grid" id="preview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 게임 화면 -->
+  <div class="view game-col" id="view-game" hidden>
+    <div class="sub-head">
+      <button class="back-btn" id="gameBack" type="button" aria-label="설정으로"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+      <div class="sub-title"><span class="crumb">SCIENCE GAME · 기억 레이스</span><h2>태양계 기억 레이스</h2></div>
+    </div>
+    <div class="mem-hud">
+      <div class="teams" id="hud"></div>
+      <div class="mem-hud-btns">
+        <button class="mem-btn" id="btnRestart" type="button">🔄 다시 시작</button>
+        <button class="mem-btn" id="btnMenu" type="button">🏠 나가기</button>
+      </div>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+    <div class="timer" id="timer" hidden><div class="bar"><div class="fill" id="fill"></div></div><span class="left" id="tleft"></span></div>
+    <div class="stage"><div class="board" id="board"></div></div>
+    <div class="fact" id="fact"></div>
+    <details>
+      <summary>게임 방법 다시 보기</summary>
+      <ol class="rules">
+        <li>반짝이는 칸의 짝을 마당에서 찾아 뒤집어요.</li>
+        <li>맞으면 전진하고 계속, 틀리거나 시간이 끝나면 다음 팀 차례예요.</li>
+        <li>앞선 말을 추월하면 별조각을 모두 가져와요.</li>
+        <li>별조각을 전부 모으면 승리!</li>
+      </ol>
+    </details>
+  </div>
+</div>
+
+<div class="overlay" id="end">
+  <div class="mem-result-modal" role="dialog" aria-modal="true" aria-labelledby="endTitle">
+    <div class="trophy">🏆</div>
+    <h2 id="endTitle"></h2>
+    <p class="mem-sub" id="endSub"></p>
+    <table>
+      <thead><tr><th>팀</th><th>맞힘 / 시도</th><th>추월</th></tr></thead>
+      <tbody id="endRows"></tbody>
+    </table>
+    <div class="mem-modal-btns">
+      <button class="mmb again" id="btnAgain" type="button">한 번 더</button>
+      <button class="mmb home" id="btnBack" type="button">설정으로</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- 카드 팩 (이 데이터만 바꾸면 다른 주제 팩이 됩니다) ---------- */
+  var rays = '';
+  for (var r = 0; r < 12; r++) rays += '<line x1="50" y1="5" x2="50" y2="15" transform="rotate(' + (r * 30) + ' 50 50)"/>';
+  function ball(inner, s) {
+    return '<g transform="translate(50 50) scale(' + s + ') translate(-50 -50)"><g clip-path="url(#cp)">' + inner + '</g><circle cx="50" cy="50" r="40" fill="url(#shade)"/></g>';
+  }
+  var PACK = {
+    title: '태양계',
+    items: [
+      { name: '태양', desc: '태양계의 중심에 있고 스스로 빛을 내는 별(항성)이다.',
+        art: '<g stroke="#ffb02e" stroke-width="5" stroke-linecap="round">' + rays + '</g><circle cx="50" cy="50" r="30" fill="url(#g-sun)"/>' },
+      { name: '수성', desc: '태양에 가장 가까운 행성이다.',
+        art: ball('<circle cx="50" cy="50" r="40" fill="#a39b93"/><circle cx="36" cy="40" r="7" fill="#81796f"/><circle cx="62" cy="58" r="9" fill="#8a8278"/><circle cx="48" cy="72" r="4.5" fill="#81796f"/><circle cx="66" cy="32" r="4" fill="#81796f"/>', 0.62) },
+      { name: '금성', desc: '표면 온도가 가장 높은 행성이다.',
+        art: ball('<circle cx="50" cy="50" r="40" fill="#e9c47d"/><g fill="none" stroke="#f7e0aa" stroke-width="6" stroke-linecap="round" opacity=".85"><path d="M8 34 Q30 24 50 36 T92 32"/><path d="M8 54 Q32 44 52 56 T92 52"/><path d="M8 74 Q30 66 50 76 T92 72"/></g>', 0.9) },
+      { name: '지구', desc: '액체 상태의 물이 있고 생명체가 살고 있는 행성이다.',
+        art: ball('<circle cx="50" cy="50" r="40" fill="#2f74dc"/><g fill="#3fae5a"><path d="M28 30 Q40 22 52 30 Q50 42 40 46 Q30 44 24 38Z"/><path d="M56 52 Q72 46 78 60 Q74 74 62 76 Q54 66 56 52Z"/><path d="M28 62 Q38 56 44 64 Q40 76 30 72Z"/></g><ellipse cx="50" cy="12" rx="22" ry="7" fill="#fff"/><ellipse cx="64" cy="36" rx="14" ry="4" fill="#fff" opacity=".7"/><ellipse cx="34" cy="68" rx="12" ry="3.5" fill="#fff" opacity=".7"/>', 0.92) },
+      { name: '달', desc: '지구의 둘레를 도는 위성이고 스스로 빛을 내지 못한다.',
+        art: '<circle cx="50" cy="50" r="39.3" fill="none" stroke="#c5cbe0" stroke-width="1.5" stroke-dasharray="3 3"/><path d="M60 12 A39.3 39.3 0 1 0 60 88 A44 44 0 0 1 60 12 Z" fill="#c9cfe3"/><circle cx="24" cy="44" r="3.6" fill="#aab2cc"/><circle cx="22" cy="62" r="2.6" fill="#aab2cc"/><circle cx="34" cy="30" r="2.4" fill="#aab2cc"/>' },
+      { name: '화성', desc: '표면이 붉게 보이는 행성이다.',
+        art: ball('<circle cx="50" cy="50" r="40" fill="#d65a30"/><path d="M22 46 Q36 38 48 46 Q52 58 40 64 Q26 62 22 46Z" fill="#9c3a1f"/><ellipse cx="66" cy="62" rx="10" ry="6" fill="#b84826"/><ellipse cx="50" cy="12" rx="16" ry="5" fill="#fff" opacity=".9"/>', 0.7) },
+      { name: '소행성대', desc: '화성과 목성 사이에서 작은 천체들이 모여 태양 주위를 도는 곳이다.',
+        art: '<ellipse cx="50" cy="52" rx="43" ry="21" fill="none" stroke="#9aa0c4" stroke-width="1.5" stroke-dasharray="2 4"/><polygon points="8,52 12,46 19,47 21,54 15,58" fill="#8d8478"/><polygon points="20,38 25,31 33,32 35,40 28,45" fill="#a59c8f"/><polygon points="46,32 50,27 57,28 59,35 52,38" fill="#766e64"/><polygon points="66,38 70,32 78,33 80,41 72,44" fill="#8d8478"/><polygon points="83,52 86,46 93,48 93,56 87,58" fill="#a59c8f"/><polygon points="18,66 22,60 29,61 31,68 24,72" fill="#766e64"/><polygon points="43,72 47,66 55,67 58,74 50,78" fill="#a59c8f"/><polygon points="70,66 74,60 82,61 83,69 76,72" fill="#8d8478"/>' },
+      { name: '목성', desc: '태양계에서 가장 큰 행성이다.',
+        art: ball('<circle cx="50" cy="50" r="40" fill="#d9a56a"/><rect x="0" y="22" width="100" height="8" fill="#b97a4b"/><rect x="0" y="36" width="100" height="6" fill="#efd2a6"/><rect x="0" y="48" width="100" height="10" fill="#c98b57"/><rect x="0" y="62" width="100" height="5" fill="#f0d9b4"/><rect x="0" y="72" width="100" height="8" fill="#b98050"/><ellipse cx="64" cy="58" rx="9" ry="5.5" fill="#b5472c"/>', 1.1) },
+      { name: '토성', desc: '크고 뚜렷한 고리가 있는 행성이다.',
+        art: '<g transform="rotate(-18 50 50)"><ellipse cx="50" cy="50" rx="46" ry="14" fill="none" stroke="#bfa56c" stroke-width="5"/><ellipse cx="50" cy="50" rx="37" ry="10.5" fill="none" stroke="#e3cf9f" stroke-width="3"/><g clip-path="url(#cp27)"><circle cx="50" cy="50" r="27" fill="#e9d08e"/><rect x="0" y="40" width="100" height="5" fill="#d3b774"/><rect x="0" y="56" width="100" height="4" fill="#d3b774"/></g><circle cx="50" cy="50" r="27" fill="url(#shade)"/><g clip-path="url(#cp-lower)"><ellipse cx="50" cy="50" rx="46" ry="14" fill="none" stroke="#bfa56c" stroke-width="5"/><ellipse cx="50" cy="50" rx="37" ry="10.5" fill="none" stroke="#e3cf9f" stroke-width="3"/></g></g>' },
+      { name: '천왕성', desc: '자전축이 거의 누워 있어서 옆으로 굴러가듯 도는 행성이다.',
+        art: '<g transform="rotate(10 50 50)"><ellipse cx="50" cy="50" rx="9" ry="43" fill="none" stroke="#6fc9ce" stroke-width="3"/><circle cx="50" cy="50" r="26" fill="#7fd8dc"/><circle cx="50" cy="50" r="26" fill="url(#shade)"/><g clip-path="url(#cp-right)"><ellipse cx="50" cy="50" rx="9" ry="43" fill="none" stroke="#6fc9ce" stroke-width="3"/></g></g>' },
+      { name: '해왕성', desc: '태양에서 가장 멀리 있는 행성이다.',
+        art: ball('<circle cx="50" cy="50" r="40" fill="#2b50d6"/><path d="M10 36 Q40 28 90 38" fill="none" stroke="#9fb7ff" stroke-width="3" opacity=".7"/><path d="M12 70 Q50 62 88 72" fill="none" stroke="#9fb7ff" stroke-width="3" opacity=".7"/><ellipse cx="36" cy="50" rx="8" ry="5" fill="#162a8f"/>', 0.8) },
+      { name: '혜성', desc: '태양에 가까워지면 얼음이 녹아 긴 꼬리가 생기는 천체이다.',
+        art: '<polygon points="68,20 4,84 16,95 80,34" fill="url(#g-tail)"/><path d="M62 40 L14 72" stroke="#5aa8f0" stroke-opacity=".55" stroke-width="2" stroke-linecap="round"/><path d="M72 48 L40 84" stroke="#5aa8f0" stroke-opacity=".5" stroke-width="2" stroke-linecap="round"/><circle cx="74" cy="27" r="17" fill="#8cc4f0" opacity=".3"/><circle cx="74" cy="27" r="11" fill="#fff" stroke="#8cc4f0" stroke-width="2.5"/><circle cx="74" cy="27" r="5.5" fill="#5d8fb5"/>' }
+    ]
+  };
+  var ITEMS = PACK.items;
+  var TRACK_N = 24, MODES = { easy: { t: 'both', y: 'pic' }, mid: { t: 'name', y: 'pic' }, hard: { t: 'pic', y: 'name' } };
+  var HINT = { easy: '반짝이는 칸과 같은 그림을 찾으세요', mid: '반짝이는 칸의 이름에 맞는 그림을 찾으세요', hard: '반짝이는 칸의 그림에 맞는 이름을 찾으세요' };
+  /* 카드를 뒤집은 뒤 결과를 보여 주는 시간(ms). 짧을수록 긴장감이 높아요. */
+  var WAIT_OK = 450, WAIT_FAIL = 900, SKIP_AFTER = 350;
+
+  /* ---------- SVG 정의 삽입 ---------- */
+  var DEFS = '<defs>' +
+    '<radialGradient id="shade" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".4"/></radialGradient>' +
+    '<radialGradient id="g-sun" cx="42%" cy="40%" r="70%"><stop offset="0" stop-color="#fff2a8"/><stop offset=".6" stop-color="#ffc83d"/><stop offset="1" stop-color="#f08a1c"/></radialGradient>' +
+    '<linearGradient id="g-tail" x1="1" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fb6ff" stop-opacity=".95"/><stop offset="1" stop-color="#6fb6ff" stop-opacity="0"/></linearGradient>' +
+    '<clipPath id="cp"><circle cx="50" cy="50" r="40"/></clipPath>' +
+    '<clipPath id="cp27"><circle cx="50" cy="50" r="27"/></clipPath>' +
+    '<clipPath id="cp-lower"><rect x="0" y="50" width="100" height="50"/></clipPath>' +
+    '<clipPath id="cp-right"><rect x="50" y="0" width="50" height="100"/></clipPath></defs>';
+  var syms = ITEMS.map(function (it, i) { return '<symbol id="sym-' + i + '" viewBox="0 0 100 100">' + it.art + '</symbol>'; }).join('');
+  document.body.insertAdjacentHTML('afterbegin', '<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">' + DEFS + syms + '</svg>');
+
+  /* ---------- 유틸 ---------- */
+  function $(s) { return document.querySelector(s); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function shuffle(a) { a = a.slice(); for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function face(i, kind) {
+    var it = ITEMS[i];
+    var pic = '<svg class="pic" viewBox="0 0 100 100" aria-hidden="true"><use href="#sym-' + i + '"/></svg>';
+    var nm = '<span class="nm n' + Array.from(it.name).length + '">' + esc(it.name) + '</span>';
+    return kind === 'pic' ? pic : kind === 'name' ? nm : pic + nm;
+  }
+  function ringPos(i) {
+    if (i < 8) return { c: i + 1, r: 1 };
+    if (i < 12) return { c: 8, r: i - 8 + 2 };
+    if (i < 20) return { c: 8 - (i - 12), r: 6 };
+    return { c: 1, r: 5 - (i - 20) };
+  }
+  function makeTrack() {
+    var base = [], i;
+    for (i = 0; i < ITEMS.length; i++) base.push(i, i);
+    var t;
+    do { t = shuffle(base); } while (t.some(function (v, k) { return v === t[(k + 1) % t.length]; }));
+    return t;
+  }
+
+  /* ---------- 설정: 화면을 열 때마다 항상 2명 / 쉬움 / 제한 없음 ---------- */
+  var cfg = { n: 2, mode: 'easy', tl: 0, names: ['1팀', '2팀', '3팀', '4팀'] };
+  try {
+    var saved = JSON.parse(localStorage.getItem('solarRaceNames') || 'null');
+    if (Array.isArray(saved)) for (var q = 0; q < 4; q++) if (typeof saved[q] === 'string' && saved[q].trim()) cfg.names[q] = saved[q].slice(0, 8);
+  } catch (e) { /* 저장 공간을 못 쓰는 환경에서는 기본 이름 사용 */ }
+  function saveNames() { try { localStorage.setItem('solarRaceNames', JSON.stringify(cfg.names)); } catch (e) { /* 무시 */ } }
+  function resetOptions() { cfg.n = 2; cfg.mode = 'easy'; cfg.tl = 0; }
+
+  function renderNames() {
+    var h = '';
+    for (var p = 0; p < cfg.n; p++) {
+      h += '<label class="mem-name-box pl' + (p + 1) + '"><span class="dot">' + (p + 1) + '</span><input type="text" id="nm' + p + '" maxlength="8" value="' + esc(cfg.names[p]) + '" aria-label="' + (p + 1) + '번 팀 이름"></label>';
+    }
+    $('#names').innerHTML = h;
+    cfg.names.forEach(function (_, p) {
+      var el = $('#nm' + p);
+      if (el) el.addEventListener('input', function () { cfg.names[p] = el.value; });
+    });
+  }
+  function syncRadios() {
+    document.querySelectorAll('input[name="n"]').forEach(function (r) { r.checked = (+r.value === cfg.n); });
+    document.querySelectorAll('input[name="mode"]').forEach(function (r) { r.checked = (r.value === cfg.mode); });
+    document.querySelectorAll('input[name="tl"]').forEach(function (r) { r.checked = (+r.value === cfg.tl); });
+  }
+  document.querySelectorAll('input[name="n"]').forEach(function (r) { r.addEventListener('change', function () { cfg.n = +r.value; renderNames(); }); });
+  document.querySelectorAll('input[name="mode"]').forEach(function (r) { r.addEventListener('change', function () { cfg.mode = r.value; }); });
+  document.querySelectorAll('input[name="tl"]').forEach(function (r) { r.addEventListener('change', function () { cfg.tl = +r.value; }); });
+  $('#preview').innerHTML = ITEMS.map(function (_, i) { return '<div class="pv">' + face(i, 'both') + '</div>'; }).join('');
+  syncRadios(); renderNames();
+
+  /* 포털에 넣을 때: window.JKRaceExit = function(){ showView('mem-home'); } 를 지정하면 설정 화면에 뒤로가기 단추가 나타나요. */
+  function exitToPortal() { if (typeof window.JKRaceExit === 'function') window.JKRaceExit(); }
+  if (typeof window.JKRaceExit === 'function') $('#setupBack').hidden = false;
+  $('#setupBack').addEventListener('click', exitToPortal);
+
+  /* ---------- 게임 ---------- */
+  var G = null, gens = 0;
+  var board = $('#board');
+
+  function stopAll() {
+    if (!G) return;
+    clearTimeout(G.pt); clearTimeout(G.to); clearInterval(G.tick);
+    G.pending = null; G.gen = ++gens;
+  }
+
+  function startGame() {
+    stopAll();
+    cfg.names = cfg.names.map(function (n, i) { return (n && n.trim()) ? n.trim().slice(0, 8) : (i + 1) + '팀'; });
+    saveNames();
+    var n = cfg.n, m = MODES[cfg.mode], gap = TRACK_N / n;
+    G = {
+      n: n, mode: cfg.mode, m: m, tl: cfg.tl, names: cfg.names.slice(0, n), gen: ++gens,
+      track: makeTrack(), yard: shuffle(ITEMS.map(function (_, i) { return i; })),
+      pos: [], tails: [], stats: [], turn: 0, locked: false, over: false, target: null,
+      pending: null, pt: 0, to: 0, tick: 0, revealAt: 0, deadline: 0
+    };
+    for (var p = 0; p < n; p++) { G.pos.push(p * gap); G.tails.push(1); G.stats.push({ tries: 0, hits: 0, jumps: 0 }); }
+
+    var tcls = m.t === 'both' ? 'both' : (m.t === 'name' ? 'namey' : 'picy');
+    var faceCls = m.y === 'name' ? 'name-face' : 'pic-face';
+    var h = G.track.map(function (it, i) {
+      var c = ringPos(i);
+      return '<div class="tile ' + tcls + '" data-i="' + i + '" style="grid-column:' + c.c + ';grid-row:' + c.r + '">' + face(it, m.t) + '</div>';
+    }).join('');
+    h += '<div class="yard">' + G.yard.map(function (it, k) {
+      return '<button type="button" class="yt" data-k="' + k + '" aria-label="마당 카드 ' + (k + 1) + '번 뒤집기"><span class="back" aria-hidden="true">?</span><span class="front ' + faceCls + '">' + face(it, m.y) + '</span></button>';
+    }).join('') + '</div>';
+    h += '<div class="layer">' + G.names.map(function (_, p) { return '<div class="pc pl' + (p + 1) + '" id="pc' + p + '">' + (p + 1) + '</div>'; }).join('') + '</div>';
+    board.innerHTML = h;
+    board.classList.remove('locked');
+    $('#timer').hidden = !G.tl;
+    $('#fact').innerHTML = '<span class="muted">카드를 뒤집으면 어떤 천체인지 설명이 여기에 나와요.</span>';
+    $('#view-setup').hidden = true; $('#view-game').hidden = false; $('#end').classList.remove('open');
+    beginTurn('');
+    window.scrollTo(0, 0);
+  }
+
+  /* 번호표와 팀 색 테두리는 '그 팀이 다음에 짝을 찾아야 할 칸'에 놓여요. 번호표는 항상 그 칸의 왼쪽 위 안쪽입니다. */
+  function updateMarkers() {
+    var byTile = {};
+    G.names.forEach(function (_, p) {
+      var idx = calcTarget(p).idx;
+      (byTile[idx] = byTile[idx] || []).push(p);
+    });
+    board.querySelectorAll('.tile.occ').forEach(function (t) { t.classList.remove('occ', 'pl1', 'pl2', 'pl3', 'pl4'); });
+    Object.keys(byTile).forEach(function (key) {
+      var list = byTile[key], c = ringPos(+key);
+      var t = board.querySelector('.tile[data-i="' + key + '"]');
+      var lead = list.indexOf(G.turn) > -1 ? G.turn : list[0];
+      if (t) t.classList.add('occ', 'pl' + (lead + 1));
+      list.forEach(function (p, k) {
+        var el = $('#pc' + p);
+        el.style.left = 'calc(' + ((c.c - 0.5) / 8 * 100) + '% - 3.45% + ' + (k * 3.8) + '%)';
+        el.style.top = 'calc(' + ((c.r - 0.5) / 6 * 100) + '% - 4.6%)';
+      });
+    });
+  }
+
+  function calcTarget(p) {
+    var occ = {}, jumped = [], k = 1, idx;
+    G.pos.forEach(function (x, q) { occ[x] = q; });
+    for (;;) {
+      idx = (G.pos[p] + k) % TRACK_N;
+      if (occ[idx] !== undefined) { jumped.push(occ[idx]); k++; } else return { idx: idx, jumped: jumped };
+    }
+  }
+
+  function renderHud() {
+    $('#hud').innerHTML = G.names.map(function (nm, p) {
+      return '<div class="chip pl' + (p + 1) + (p === G.turn ? ' on' : '') + '"><span class="dot">' + (p + 1) + '</span><span class="cn">' + esc(nm) + '</span><span aria-label="별조각 ' + G.tails[p] + '개">★ <b>' + G.tails[p] + '</b></span></div>';
+    }).join('');
+    G.names.forEach(function (_, p) { $('#pc' + p).classList.toggle('active', p === G.turn); });
+  }
+
+  /* ---------- 제한 시간 ---------- */
+  function startTimer() {
+    clearInterval(G.tick);
+    if (!G.tl) return;
+    G.deadline = Date.now() + G.tl * 1000;
+    G.tick = setInterval(tickTimer, 100);
+    tickTimer();
+  }
+  function stopTimer() { clearInterval(G.tick); }
+  function tickTimer() {
+    if (!G || G.locked || G.over) return;
+    var left = G.deadline - Date.now(), frac = Math.max(0, left / (G.tl * 1000));
+    var fill = $('#fill'), lab = $('#tleft');
+    fill.style.width = (frac * 100) + '%';
+    fill.className = 'fill' + (frac < 0.3 ? ' low' : frac < 0.6 ? ' mid' : '');
+    lab.textContent = Math.max(0, Math.ceil(left / 1000)) + '초';
+    lab.className = 'left' + (frac < 0.3 ? ' low' : '');
+    if (left <= 0) timeUp();
+  }
+  function timeUp() {
+    stopTimer();
+    G.locked = true; board.classList.add('locked');
+    var gen = G.gen;
+    $('#status').innerHTML = '<span class="no">시간 끝! 다음 팀 차례예요.</span>';
+    G.to = setTimeout(function () { if (!G || G.gen !== gen) return; fail(); }, 650);
+  }
+
+  function beginTurn(prefix) {
+    G.target = calcTarget(G.turn);
+    updateMarkers();
+    board.querySelectorAll('.tile.target').forEach(function (t) { t.classList.remove('target'); });
+    var t = board.querySelector('.tile[data-i="' + G.target.idx + '"]');
+    if (t) t.classList.add('target');
+    $('#status').innerHTML = prefix + '<span><b>' + esc(G.names[G.turn]) + '</b> 차례 · ' + HINT[G.mode] + '</span>';
+    G.locked = false; board.classList.remove('locked');
+    renderHud();
+    startTimer();
+  }
+
+  board.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.yt') : null;
+    if (!G || G.over) return;
+    if (G.locked) { skipWait(); return; }
+    if (b) flip(+b.dataset.k, b);
+  });
+
+  /* 결과를 보여 주는 동안 화면을 누르면 바로 다음으로 넘어가요. */
+  function skipWait() {
+    if (G && G.pending && Date.now() - G.revealAt > SKIP_AFTER) { var f = G.pending; f(); }
+  }
+
+  function flip(k, btn) {
+    if (btn.classList.contains('open')) return;
+    stopTimer();
+    G.locked = true; board.classList.add('locked');
+    var gen = G.gen, p = G.turn, item = G.yard[k], tgt = G.target;
+    var ok = G.track[tgt.idx] === item;
+    btn.classList.add('open', ok ? 'good' : 'bad');
+    G.stats[p].tries++;
+    G.revealAt = Date.now();
+    $('#fact').innerHTML = '<b>' + esc(ITEMS[item].name) + '</b> · ' + esc(ITEMS[item].desc);
+    $('#status').innerHTML = ok ? '<span class="ok">짝이 맞았어요!</span>' : '<span class="no">아쉬워요! ' + esc(ITEMS[item].name) + ' 카드예요. 위치를 기억하세요.</span>';
+    G.pending = function () {
+      clearTimeout(G.pt); G.pending = null;
+      if (!G || G.gen !== gen) return;
+      btn.classList.remove('open', 'good', 'bad');
+      if (ok) success(p, tgt); else fail();
+    };
+    G.pt = setTimeout(G.pending, ok ? WAIT_OK : WAIT_FAIL);
+  }
+
+  function success(p, tgt) {
+    G.stats[p].hits++;
+    var stolen = 0, from = [];
+    tgt.jumped.forEach(function (q) {
+      if (G.tails[q] > 0) { stolen += G.tails[q]; from.push(G.names[q]); G.tails[q] = 0; }
+    });
+    G.tails[p] += stolen;
+    if (stolen > 0) G.stats[p].jumps++;
+    G.pos[p] = tgt.idx;
+    updateMarkers();
+    renderHud();
+    if (G.tails[p] >= G.n) { finish(p); return; }
+    var msg = '';
+    if (stolen > 0) msg = '<span class="ok">추월! ' + esc(from.join(', ')) + '의 별조각 ' + stolen + '개를 가져왔어요.&nbsp;</span>';
+    else if (tgt.jumped.length) msg = '<span class="ok">추월했지만 가져올 별조각이 없어요.&nbsp;</span>';
+    else msg = '<span class="ok">전진!&nbsp;</span>';
+    beginTurn(msg);
+  }
+
+  function fail() {
+    G.turn = (G.turn + 1) % G.n;
+    beginTurn('');
+  }
+
+  function finish(p) {
+    G.over = true; G.locked = true; stopTimer();
+    $('#endTitle').textContent = G.names[p] + ' 승리!';
+    $('#endSub').textContent = '별조각을 모두 모았어요.';
+    $('#endRows').innerHTML = G.names.map(function (nm, i) {
+      var s = G.stats[i];
+      return '<tr><td><span class="dot pl' + (i + 1) + '" style="display:inline-grid;vertical-align:middle;margin-right:6px">' + (i + 1) + '</span>' + esc(nm) + (i === p ? ' ★' : '') + '</td><td>' + s.hits + ' / ' + s.tries + '</td><td>' + s.jumps + '</td></tr>';
+    }).join('');
+    setTimeout(function () { $('#end').classList.add('open'); $('#btnAgain').focus(); }, 600);
+  }
+
+  /* 설정으로 돌아오면 항상 처음 값(2명 / 쉬움 / 제한 없음)으로 */
+  function toSetup() {
+    stopAll(); G = null; resetOptions();
+    $('#end').classList.remove('open'); $('#view-game').hidden = true; $('#view-setup').hidden = false;
+    syncRadios(); renderNames(); window.scrollTo(0, 0);
+  }
+
+  $('#btnStart').addEventListener('click', startGame);
+  $('#btnRestart').addEventListener('click', startGame);
+  $('#btnAgain').addEventListener('click', startGame);
+  $('#btnMenu').addEventListener('click', toSetup);
+  $('#gameBack').addEventListener('click', toSetup);
+  $('#btnBack').addEventListener('click', toSetup);
+})();
+<\/script>
+
+</body>
+</html>
+</script>
+
 <div class="toast" id="toast"><i class="fa-solid fa-circle-check"></i> <span id="toastMsg"></span></div>
 
 <script>
@@ -1448,6 +2112,8 @@ function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.fl
 function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 let __navFromHistory=false;
 function showView(id){
+  if(id==='chicken-play' && !chickenLoaded) id='chicken-home';
+  if(id!=='chicken-play') unloadChicken();
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+id).classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
@@ -1854,6 +2520,26 @@ const getMemLevels=()=> memGameType==='element' ? ELEM_LEVELS : BIO_LEVELS;
 const getMemData=()=> memGameType==='element' ? ELEMENTS : BIO_PAIRS;
 
 function enterMemSection(){ showView('mem-home'); }
+
+/* ── 기억 레이스(치킨차차 방식) ──
+   새 주제를 추가하려면: ① 게임 HTML을 <script type="text/plain" id="game-chicken-XXX"> 로 넣고
+   ② CHICKEN_GAMES 에 항목 추가 ③ view-chicken-home 에 카드 추가(onclick="openChickenGame('XXX')") */
+const CHICKEN_GAMES = { solar:{ tpl:'game-chicken-solar' } };
+var chickenLoaded = false;
+function enterChickenSection(){ showView('chicken-home'); }
+function openChickenGame(key){
+  const g = CHICKEN_GAMES[key]; if(!g) return;
+  const html = document.getElementById(g.tpl).textContent.replace(/<\\\/script/g,'</script');
+  chickenLoaded = true;
+  document.getElementById('chicken-frame').srcdoc = html;
+  showView('chicken-play');
+}
+function unloadChicken(){
+  if(!chickenLoaded) return;
+  chickenLoaded = false;
+  try{ document.getElementById('chicken-frame').srcdoc = ''; }catch(e){}
+}
+function exitChickenGame(){ showView('chicken-home'); }
 function enterMemGame(type){
   memGameType=type;
   const isElem=type==='element';

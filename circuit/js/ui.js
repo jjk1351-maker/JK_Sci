@@ -146,7 +146,7 @@ function buildExMenu() {
   const m = $('#exMenu');
   m.innerHTML = EXAMPLES.map(e => `<button data-id="${e.id}"><i>${e.icon}</i><span>${e.title}</span></button>`).join('');
   m.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; m.classList.remove('on'); loadExample(b.dataset.id, true); toast('예제 회로를 불러왔어요'); });
-  $('#exBtn').addEventListener('click', e => { e.stopPropagation(); m.classList.toggle('on'); });
+  $('#exBtn').addEventListener('click', e => { e.stopPropagation(); const r = $('#exBtn').getBoundingClientRect(); m.style.top = (r.bottom + 6) + 'px'; m.style.left = Math.max(8, Math.min(r.left, innerWidth - 340)) + 'px'; m.classList.toggle('on'); });
   document.addEventListener('pointerdown', e => { if (!e.target.closest('#exMenu') && !e.target.closest('#exBtn')) m.classList.remove('on'); });
 }
 

@@ -168,5 +168,26 @@ body.v3d #chBar,body.v3d #chTarget{display:none}
 .chbox .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}.chbox .row button{background:#f1f5fd;border:1px solid var(--line);border-radius:8px;padding:9px 14px;font-weight:800;color:#2a3550}.chbox .row .go{background:var(--grad);color:#ffffff;border-color:transparent}
 @media (max-width:640px){#chTarget{left:8px;right:8px;width:auto;top:44px;max-height:40%}#chImg{height:150px;object-fit:contain}body.challenge #chBar{top:auto;bottom:128px}#chPeekBar{top:auto;bottom:176px}}
 
-#homeLink{flex:0 0 auto;text-decoration:none;font-size:12.5px;font-weight:800;color:var(--ink);background:#f1f5fd;border:1px solid var(--line);border-radius:8px;padding:7px 10px;min-height:34px;display:inline-flex;align-items:center}
-#homeLink:hover{border-color:var(--pri);color:var(--pri)}
+
+/* ---- 포털과 같은 상단 바 ---- */
+body{background:var(--bg)}
+#top{margin:10px 14px 8px;padding:9px 16px;border:1px solid rgba(20,30,60,.09);border-radius:16px;background:#fff;box-shadow:0 2px 14px rgba(20,30,60,.05);gap:10px}
+#top .brand{text-decoration:none;color:inherit;gap:10px;margin-right:6px}
+#top .brand img{width:34px;height:34px;object-fit:contain}
+#top .brand .logo{width:34px;height:34px;border:0;box-shadow:none;background:transparent;font-size:26px;color:#3763e8}
+#top .brand .t{line-height:1.2}
+#top .brand h1{margin:0;font-family:'Syne','Noto Sans KR',sans-serif;font-size:17px;font-weight:800;letter-spacing:.3px;color:#1a2233;white-space:nowrap}
+#top .brand h1 span{color:#3763e8}
+#top .brand p{margin:0;font-size:11px;color:#6a7488;white-space:nowrap}
+#pnav{display:flex;gap:4px;flex:0 0 auto}
+#pnav a{display:flex;align-items:center;gap:6px;padding:8px 13px;border-radius:10px;font-size:13px;font-weight:500;color:#6a7488;text-decoration:none;white-space:nowrap;cursor:pointer;transition:all .2s}
+#pnav a i{font-style:normal;font-size:14px}
+#pnav a:hover{background:#f5f8ff;color:#1a2233}
+#pnav a.active{background:#3763e8;color:#fff;font-weight:700;cursor:default}
+#top .vsep{width:1px;height:26px;background:rgba(20,30,60,.12);flex:0 0 auto;margin:0 4px}
+#top button{border-radius:10px}
+#view{border-radius:16px;margin:0 14px 12px;border:1px solid rgba(20,30,60,.09)}
+#exMenu{top:78px;left:430px}
+@media (max-width:1180px){#pnav a span{display:none}#pnav a{padding:8px 11px}}
+@media (max-width:900px){#pnav,#top .vsep{display:none}#exMenu{left:20px}}
+@media (max-width:640px){#top{margin:6px 6px 6px;padding:6px 8px}#view{margin:0 6px 6px}#top .brand .t{display:none}}

@@ -251,3 +251,22 @@ body.short .chTime{font-size:13px;min-width:60px}
 body.short #chTitle{font-size:10px}
 @media (max-width:900px){#learn:not(.open) #lDiag{display:none}}
 #measure.min{width:auto}
+body.short #zoombar{left:6px;right:auto;bottom:6px}
+body.short #measure:not(.min){width:270px;max-height:calc(100% - 20px)}
+
+#chTog{margin-left:auto;background:#f1f5fd;border:1px solid var(--line);border-radius:6px;width:26px;height:26px;font-size:12px;color:var(--pri);flex:0 0 auto}
+#chTarget.min #chImg,#chTarget.min #chParts{display:none}
+#chTarget.min{padding-bottom:8px;width:260px}
+#chBar button:disabled{opacity:.4;pointer-events:none}
+body.short #chBar #chUndo,body.short #chBar #chRedo{padding:3px 7px}
+
+/* ---- 좁은 화면(세로 폰): 부품 상자도 버튼으로 열고 닫기 ---- */
+body.narrow #palBtn{display:flex}
+body.narrow #palette{display:none}
+body.narrow.palopen #palette{display:flex}
+body.narrow #palBtn.on,body.narrow.palopen #palBtn{border-color:var(--pri);color:var(--pri)}
+body.narrow:not(.palopen) #rail{bottom:8px}
+body.narrow:not(.palopen) #learn{bottom:58px}
+body.narrow:not(.palopen).challenge #chBar{bottom:58px}
+body.narrow:not(.palopen) #chPeekBar{bottom:104px}
+body.narrow:not(.palopen) #ctx{bottom:58px;top:auto}

@@ -113,9 +113,21 @@ function syncLinks() {
 /* ---------- 실행 취소 ---------- */
 const undoStack = [];
 const snapJSON = () => JSON.stringify({ comps: S.comps, links: S.links, nextId: S.nextId }, (k, v) => (k[0] === '_' ? undefined : v));
-function pushUndo() { undoStack.push(snapJSON()); if (undoStack.length > 80) undoStack.shift(); }
+const redoStack = [];
+function pushUndo() { undoStack.push(snapJSON()); if (undoStack.length > 80) undoStack.shift(); redoStack.length = 0; }
 function undo() {
+  if (typeof CH !== 'undefined' && CH.saved) return false;
   const s = undoStack.pop(); if (!s) return false;
+  redoStack.push(snapJSON());
+  const o = JSON.parse(s);
+  S.comps = o.comps; S.links = o.links; S.nextId = o.nextId;
+  if (!byId(S.selId)) S.selId = null;
+  touch(); return true;
+}
+function redo() {
+  if (typeof CH !== 'undefined' && CH.saved) return false;
+  const s = redoStack.pop(); if (!s) return false;
+  undoStack.push(snapJSON());
   const o = JSON.parse(s);
   S.comps = o.comps; S.links = o.links; S.nextId = o.nextId;
   if (!byId(S.selId)) S.selId = null;

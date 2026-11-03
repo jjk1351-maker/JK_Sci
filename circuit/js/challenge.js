@@ -105,7 +105,7 @@ function chMakeThumb(id) {
 }
 
 /* ---- 진행 ---- */
-function chClearBoard() { S.comps = []; S.links = []; S.nextId = 1; S.selId = null; undoStack.length = 0; touch(); fitView(); }
+function chClearBoard() { S.comps = []; S.links = []; S.nextId = 1; S.selId = null; undoStack.length = 0; redoStack.length = 0; touch(); fitView(); }
 function chUpdateTimer() {
   const el = $('#chTime'); if (!el) return;
   if (!CH.on || CH.done) return;
@@ -115,17 +115,19 @@ function chUpdateTimer() {
 function chStart(id) {
   if (UI.view !== '2d') setView('2d');
   const ex = EXAMPLES.find(e => e.id === id), th = chMakeThumb(id);
-  if (document.body.classList.contains('short')) document.body.classList.add('palopen');
+  if (document.body.classList.contains('short') || document.body.classList.contains('narrow')) document.body.classList.add('palopen');
   CH.on = true; CH.id = id; CH.sig = th.sig; CH.parts = chPartsText(th.sig); CH.hinted = false; CH.peeked = false; CH.saved = null; CH.done = false;
   chClearBoard();
   document.body.classList.add('challenge');
   $('#chTT').textContent = ex.title; $('#chImg').src = th.url; $('#chParts').textContent = '필요한 부품: ' + CH.parts;
   chMsg('목표 회로도와 똑같이 만들고 [채점]을 눌러요. 스위치는 닫아야 해요.', 'info');
+  chSetColl(UI.chColl !== undefined ? UI.chColl : (innerWidth < 1280 || innerHeight < 700));
   $('#chPeekBar').classList.remove('on'); $('#chPop').classList.remove('on'); $('#chMenu').classList.remove('on');
   $('#chTitle').textContent = '도전 ' + (CH_LIST.indexOf(id) + 1) + '/' + CH_LIST.length;
   CH.t0 = performance.now(); clearInterval(CH.tick); CH.tick = setInterval(chUpdateTimer, 200); chUpdateTimer();
   buildCtx();
 }
+function chSetColl(v) { $('#chTarget').classList.toggle('min', v); $('#chTog').textContent = v ? '▾' : '▴'; }
 function chMsg(t, lvl) { const m = $('#chMsg'); m.textContent = t; m.className = 'dg ' + (lvl || 'info'); }
 function chGrade() {
   if (!CH.on || CH.done) return;
@@ -176,6 +178,10 @@ function initChallenge() {
   $('#chGrade').addEventListener('click', chGrade); $('#chHint').addEventListener('click', chHint);
   $('#chPeek').addEventListener('click', chPeek); $('#chBack').addEventListener('click', chBack);
   $('#chExit').addEventListener('click', chExit);
+  $('#chTog').addEventListener('click', () => { UI.chColl = !$('#chTarget').classList.contains('min'); chSetColl(UI.chColl); });
+  const chUR = f => () => { if (CH.saved) { toast('정답을 보는 중에는 쓸 수 없어요'); return; } if (!f()) toast(f === undo ? '되돌릴 작업이 없어요' : '다시 할 작업이 없어요'); buildCtx(); };
+  $('#chUndo').addEventListener('click', chUR(undo)); $('#chRedo').addEventListener('click', chUR(redo));
+  setInterval(() => { if (!CH.on) return; $('#chUndo').disabled = !undoStack.length || !!CH.saved; $('#chRedo').disabled = !redoStack.length || !!CH.saved; }, 200);
   $('#chEye').addEventListener('click', () => { CH.showTimer = !CH.showTimer; $('#chEye').classList.toggle('on', CH.showTimer); chUpdateTimer(); });
   $('#chEye').classList.add('on');
   $('#chAgain').addEventListener('click', () => chStart(CH.id));

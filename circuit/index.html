@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>전기회로 실험실 · 중학교 과학2 전기와 자기</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header id="top">
+  <a id="homeLink" href="../index.html" title="JK SCIENCE LEARNING 포털로">🏠 포털</a><div class="brand"><div class="logo">⚡</div><div class="t"><small>JK SCIENCE LAB</small><b>전기회로 실험실</b></div></div>
+  <div class="dd"><button id="exBtn" class="pri">📂 예제 회로 ▾</button></div>
+  <button id="chBtn" class="chb">🏁 도전 모드</button>
+  <span class="sp"></span>
+  <div class="seg big"><button data-view="2d" class="on">📐 2D 회로도</button><button data-view="3d">🧊 3D 실험대</button></div>
+  <span class="sp"></span>
+  <button id="helpBtn">❓ 사용법</button>
+  <button id="fsBtn" class="ic" title="전체 화면">⛶</button>
+</header>
+<div id="exMenu"></div>
+<div id="stage">
+  <div id="view">
+    <canvas id="c2d"></canvas>
+    <div id="c3dWrap"></div>
+    <div id="modes">
+      <div class="seg"><button data-flow="electron">🔵 전자</button><button data-flow="current" class="on">🟠 전류</button><button data-flow="off">⏹ 끄기</button></div>
+      <div class="seg" id="styleSeg"><button data-style="real" class="on">🎨 실물</button><button data-style="symbol">✏️ 기호</button></div>
+      <button id="valBtn" class="on">🏷 값:ON</button>
+    </div>
+    <div id="rail">
+      <button id="centerBtn"><i>🎯</i><span>중앙</span></button>
+      <button id="panBtn" title="켜면 어디를 끌어도 화면이 움직여요"><i>✋</i><span id="panTxt">이동 꺼짐</span></button>
+      <button id="undoBtn"><i>↩</i><span>취소</span></button>
+      <button id="resetBtn"><i>🔄</i><span>처음으로</span></button>
+    </div>
+    <div id="measure" class="card">
+      <div class="mh" id="mHead">📟 계기 확대 <span id="mState" class="state off">열림 (OFF)</span><button id="mMin" title="접기/펼치기">▾</button></div>
+      <div id="mBody">
+        <div class="mtab"><div class="mlab"><b>전압계</b> <em id="vSrc"></em></div><canvas id="fcV"></canvas><div class="mrd"><span class="big"><b id="mV">0.00</b> V</span><span id="vInfo" class="info"></span></div></div>
+        <div class="mtab"><div class="mlab"><b>전류계</b> <em id="iSrc"></em></div><canvas id="fcI"></canvas><div class="mrd"><span class="big i"><b id="mI">0.00</b> A</span><span id="iInfo" class="info"></span></div></div>
+        <div class="prow">⚡ 소비 전력 <span><b id="mP">0.00</b> W</span></div>
+      </div>
+    </div>
+    <div id="learn" class="card">
+      <div class="lh"><span class="bd">학습</span><span id="lTitle"></span><button id="lToggle" title="펼치기/접기">▾</button></div>
+      <div id="lBody"><p id="lDesc"></p><ol id="lSteps"></ol><div id="lKey" class="key"></div></div>
+      <div id="lDiag"></div>
+    </div>
+    <div id="chBar"><span id="chTitle"></span><span id="chTime" class="chTime">⏱ 00:00</span><button id="chEye" title="시간 보이기/숨기기">👁</button><button id="chHint">💡 힌트</button><button id="chPeek">👀 정답 보기</button><button id="chGrade" class="go">✅ 채점</button><button id="chExit">✖ 그만하기</button></div>
+    <div id="chTarget" class="card"><div class="lh"><span class="bd">목표</span><span id="chTT"></span></div><img id="chImg" alt="목표 회로도"><div id="chParts"></div><div id="chMsg" class="dg info"></div></div>
+    <div id="chPeekBar">👀 정답 회로를 보는 중이에요 (시간 기록 안 됨) <button id="chBack">내 회로로 돌아가기</button></div>
+    <div id="hint3d" class="card">💡 3D 실험대의 스위치를 클릭하면 On/Off 돼요</div>
+    <aside id="palette"></aside>
+    <div id="ctx"></div>
+    <div id="zoombar"><button id="zIn">＋</button><button style="pointer-events:none"><span id="zoomPct">100%</span></button><button id="zOut">－</button></div>
+    <div id="viewbar"><span>시점</span><button data-cam="iso" class="on">🧊 입체도</button><button data-cam="plan">👁 평면도</button><button data-cam="front">📐 정면도</button><button data-cam="center">🎯 중앙</button></div>
+    <div id="bubble">✂ 연결 끊기</div>
+    <div id="toast"></div>
+  </div>
+</div>
+<div id="chMenu"><div class="chbox"><h2>🏁 도전 모드</h2><p>예제 회로도를 보고 빈 화면에서 똑같이 만들어 보세요. 성공하면 걸린 시간이 팝업으로 나와요.<br><small>※ 힌트나 정답 보기를 쓰면 성공해도 시간은 나오지 않아요.</small></p><div id="chList"></div><button id="chClose" class="chx">닫기</button></div></div>
+<div id="chPop"><div class="chbox pop"><div class="big">🎉 성공!</div><div id="chPopTime" class="ptime"></div><div id="chPopSub" class="psub"></div><div class="row"><button id="chAgain">🔁 다시 도전</button><button id="chNext" class="go">다음 단계 ▶</button><button id="chEnd">끝내기</button></div></div></div>
+<div id="modal"><div class="mbox">
+  <div class="mhead"><div><h2>전기회로 실험실 사용법</h2><p style="margin:0">회로를 직접 만들고, 전류·전자의 방향과 전압계·전류계 연결을 눈으로 확인해요.</p></div><button id="modalClose">닫기 ✕</button></div>
+  <h3>🖱 조작 방법</h3>
+  <table>
+    <tr><th>부품 꺼내기</th><td>왼쪽 부품 상자의 부품을 <b>끌어다 놓거나</b>, 눌러서 화면 가운데에 추가해요.</td></tr>
+    <tr><th>연결하기</th><td>부품(또는 전선 끝)을 다른 단자 <b>가까이</b> 가져가면 <span style="color:#12a150;font-weight:800">초록 원</span>이 나타나고, 손을 떼면 자석처럼 딱 붙어요. 부품 단자(빨간 동그라미)에서 바로 끌어도 새 전선이 나와요.</td></tr>
+    <tr><th>연결 끊기</th><td>연결된 <b>파란 점</b>을 한 번 누르면 <b style="color:#e83a5e">연결 끊기</b> 버튼이 나타나요. 전선 끝을 끌어서 떼어 낼 수도 있어요.</td></tr>
+    <tr><th>이동 · 방향 전환</th><td>부품을 끌면 이동해요(연결된 전선은 늘어나며 따라와요). 부품을 선택하면 나타나는 <b>⟳ 손잡이</b>를 돌리거나 ↺ ↻ 버튼(또는 R 키)으로 방향을 바꿔요.</td></tr>
+    <tr><th>값 바꾸기</th><td>부품을 선택하면 아래에 도구가 나타나요. 건전지 전압·극성, 저항값, 스위치 열기/닫기를 바꿀 수 있어요.</td></tr>
+    <tr><th>화면 이동 · 확대</th><td>빈 곳을 끌면 화면이 움직이고, 마우스 휠 또는 두 손가락 벌리기로 확대·축소해요.</td></tr>
+    <tr><th>3D 실물</th><td>[3D 실물]에서 입체도·평면도·정면도로 볼 수 있고, 스위치를 클릭하면 켜고 꺼져요. (드래그: 회전, 오른쪽 버튼/두 손가락: 이동)</td></tr>
+  </table>
+  <h3>📗 교과서 개념 정리 (Ⅶ. 전기와 자기)</h3>
+  <table>
+    <tr><th>전류</th><td>전하의 흐름. 단위 A(암페어). <b>전류의 방향은 (+)극 → (−)극</b>(과거에 (+)전하의 이동 방향으로 정함)이고, <b>전자는 반대로 (−)극 → (+)극</b>으로 이동해요.</td></tr>
+    <tr><th>전압</th><td>전류를 흐르게 하는 능력. 단위 V(볼트). 전지는 펌프처럼 전자를 이동시켜 전류가 계속 흐르게 해요.</td></tr>
+    <tr><th>저항</th><td>전류의 흐름을 방해하는 정도. 단위 Ω(옴). <b>옴의 법칙 V = I R</b> (전류는 전압에 비례, 저항에 반비례)</td></tr>
+    <tr><th>직렬연결</th><td>각 저항에 걸리는 전압의 합 = 전체 전압 · 저항이 늘수록 전체 전류는 <b>작아짐</b> · 하나라도 고장 나면 회로 전체에 전류가 흐르지 않음</td></tr>
+    <tr><th>병렬연결</th><td>각 저항에 <b>같은 전압</b>이 걸림 · 저항이 늘수록 전체 전류는 <b>커짐</b> · 하나가 고장 나도 다른 기구는 영향을 받지 않음</td></tr>
+  </table>
+  <h3>📏 전압계와 전류계 연결 방법</h3>
+  <table>
+    <tr><th></th><th>전류계 (A)</th><th>전압계 (V)</th></tr>
+    <tr><th>연결 방법</th><td><b>직렬</b>로 연결 (회로를 끊고 그 사이에 끼움)</td><td><b>병렬</b>로 연결 (재려는 부품의 양쪽 끝에 나란히)</td></tr>
+    <tr><th>내부 저항</th><td>매우 작음 (회로에 영향을 주지 않도록)</td><td>매우 큼 (전류가 거의 흐르지 않도록)</td></tr>
+    <tr><th>단자 연결</th><td>(+)단자 → 전지의 (+)극 쪽, (−)단자 → 전지의 (−)극 쪽</td><td>(+)단자 → 전위가 높은 쪽(전지의 (+)극 쪽), (−)단자 → 낮은 쪽</td></tr>
+    <tr><th>잘못 연결하면</th><td>병렬로 연결하면 <b>합선</b>(매우 큰 전류)</td><td>직렬로 연결하면 전류가 거의 흐르지 않아 <b>전구가 꺼짐</b></td></tr>
+  </table>
+  <p class="src">※ 교과서 내용: 미래엔 중학교 과학2 「Ⅶ. 전기와 자기 · 1. 전기」 단원을 바탕으로 구성했어요. 건전지·저항의 값은 이상적인 소자로 계산해요(건전지 내부저항, 전선 저항 무시).</p>
+</div></div>
+<script src="vendor/three.min.js"></script>
+<script src="js/core.js"></script>
+<script src="js/view2d.js"></script>
+<script src="js/meter.js"></script>
+<script src="js/examples.js"></script>
+<script src="js/view3d.js"></script>
+<script src="js/challenge.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>

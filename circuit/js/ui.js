@@ -141,6 +141,12 @@ function setLearn(ex) {
 }
 window.onExample = ex => { setLearn(ex); buildCtx(); };
 
+/* ---------- 화면 크기에 맞춘 배치 ---------- */
+function applyLayout() {
+  const short = innerHeight < 560, narrow = innerWidth < 700;
+  document.body.classList.toggle('short', short); document.body.classList.toggle('narrow', narrow);
+  return short + '|' + narrow;
+}
 /* ---------- 예제 메뉴 ---------- */
 function buildExMenu() {
   const m = $('#exMenu');
@@ -165,7 +171,8 @@ function setView(v) {
 }
 function bindTop() {
   const mm = $('#mMin'), mp = $('#measure');
-  if (window.innerWidth < 700) mp.classList.add('min');
+  applyLayout(); UI.lay = applyLayout(); if (window.innerWidth < 1200 || window.innerHeight < 560) mp.classList.add('min');
+  if (!(document.fullscreenEnabled || document.webkitFullscreenEnabled)) $('#fsBtn').style.display = 'none';
   mm.addEventListener('click', () => { mp.classList.toggle('min'); });
   $('#mHead').addEventListener('click', e => { if (e.target.id !== 'mMin') mp.classList.toggle('min'); });
   $$('[data-view]').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
@@ -175,6 +182,7 @@ function bindTop() {
   $('#centerBtn').addEventListener('click', () => { if (UI.view === '2d') fitView(); else setCam('iso'); });
   $('#panBtn').addEventListener('click', () => { UI.pan = !UI.pan; $('#panBtn').classList.toggle('on', UI.pan); $('#panTxt').textContent = '이동 ' + (UI.pan ? '켜짐' : '꺼짐'); cv.style.cursor = UI.pan ? 'grab' : 'default'; });
   $('#undoBtn').addEventListener('click', () => { if (!undo()) toast('되돌릴 작업이 없어요'); buildCtx(); });
+  $('#palBtn').addEventListener('click', () => { const o = document.body.classList.toggle('palopen'); $('#palBtn').classList.toggle('on', o); });
   $('#resetBtn').addEventListener('click', () => { if (CH.on) { if (CH.saved) return; pushUndo(); S.comps = []; S.links = []; S.nextId = 1; S.selId = null; touch(); toast('빈 화면으로 되돌렸어요'); return; } loadExample(currentExample, true); toast('처음 상태로 되돌렸어요 (취소로 복구 가능)'); });
   $('#helpBtn').addEventListener('click', () => $('#modal').classList.add('on'));
   $('#modalClose').addEventListener('click', () => $('#modal').classList.remove('on'));
@@ -196,10 +204,10 @@ function loop(now) {
 }
 function boot() {
   buildPalette(); buildExMenu(); bindTop(); initChallenge();
-  const ro = new ResizeObserver(() => { resize2d(); if (UI.view === '3d') resize3D(); }); ro.observe($('#view'));
+  const ro = new ResizeObserver(() => { const lay = applyLayout(); resize2d(); if (UI.view === '3d') resize3D(); else if (lay !== UI.lay) { UI.lay = lay; fitView(); } }); ro.observe($('#view'));
   resize2d();
   loadExample('basic', false);
-  if (window.innerWidth >= 900) $('#learn').classList.add('open');
+  if (window.innerWidth >= 900 && window.innerHeight >= 560) $('#learn').classList.add('open');
   setActive('[data-flow]', x => x.dataset.flow === UI.flow);
   requestAnimationFrame(loop);
 }

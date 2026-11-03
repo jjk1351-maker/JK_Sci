@@ -159,6 +159,7 @@ function loadExample(id, keepUndo) {
   S.comps = []; S.links = []; S.nextId = 1; S.selId = null;
   ex.build(); autoLink(3); syncLinks();
   currentExample = ex.id;
+  if (ex.id === 'blank' && document.body.classList.contains('short')) document.body.classList.add('palopen');
   touch(); fitView();
   if (window.onExample) window.onExample(ex);
 }

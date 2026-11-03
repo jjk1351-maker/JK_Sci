@@ -188,6 +188,66 @@ body{background:var(--bg)}
 #top button{border-radius:10px}
 #view{border-radius:16px;margin:0 14px 12px;border:1px solid rgba(20,30,60,.09)}
 #exMenu{top:78px;left:430px}
-@media (max-width:1180px){#pnav a span{display:none}#pnav a{padding:8px 11px}}
+@media (max-width:1320px){#pnav a span{display:none}#pnav a{padding:8px 11px}#top .brand p{display:none}}
+@media (max-width:1100px){#pnav,#top .vsep{display:none}}
 @media (max-width:900px){#pnav,#top .vsep{display:none}#exMenu{left:20px}}
 @media (max-width:640px){#top{margin:6px 6px 6px;padding:6px 8px}#view{margin:0 6px 6px}#top .brand .t{display:none}}
+
+/* ---- 화면 크기별 배치 : 가로로 든 폰(짧은 화면)·세로 폰(좁은 화면) ---- */
+:is(body.short,body.narrow) #top{margin:0;border-radius:0;border-width:0 0 1px;padding:4px 8px;gap:6px;box-shadow:none}
+:is(body.short,body.narrow) #top .brand{margin-right:2px}
+:is(body.short,body.narrow) #top .brand img,:is(body.short,body.narrow) #top .brand .logo{width:26px;height:26px;font-size:20px}
+:is(body.short,body.narrow) #top .brand h1{font-size:12.5px}
+:is(body.short,body.narrow) #top .brand p{display:none}
+:is(body.short,body.narrow) #pnav,:is(body.short,body.narrow) #top .vsep{display:none}
+:is(body.short,body.narrow) #top button{min-height:30px;padding:4px 9px;font-size:12px}
+:is(body.short,body.narrow) .seg button{min-height:26px!important;padding:3px 8px!important;font-size:12px!important}
+:is(body.short,body.narrow) #view{margin:0;border:0;border-radius:0}
+body.narrow .tx,body.narrow #top .brand .t{display:none}
+body.narrow #top .brand .logo{font-size:22px}
+body.short #exMenu,body.narrow #exMenu{max-height:70vh}
+body.short #rail{left:6px;top:6px;gap:4px}
+body.short #rail button{width:44px;padding:5px 2px 4px;border-radius:9px}
+body.short #rail i{font-size:16px}body.short #rail span{font-size:9px}
+body.short #modes{top:6px;gap:4px}
+body.short #modes .seg button,body.short #modes>button{font-size:11.5px;min-height:26px!important}
+body.short #modes>button{padding:0 9px}
+body.short #learn{left:56px;top:6px}
+body.short #learn:not(.open){width:auto}
+body.short #learn:not(.open) #lTitle{display:none}
+body.short #learn.open{max-height:calc(100% - 76px)}
+body.short #measure{top:6px;right:6px}
+body.short #measure.min{width:auto}
+body.short #measure:not(.min){max-height:calc(100% - 76px);overflow:auto}
+body.short #palette{bottom:6px;padding:4px 6px;gap:4px;border-radius:12px;max-width:calc(100% - 170px)}
+body.short .ptitle{display:none}
+body.short .pitem{padding:3px 6px;min-width:50px;gap:1px;border-radius:9px}
+body.short .pitem svg{width:36px;height:22px}body.short .pitem span{font-size:9.5px}
+body.short #ctx{bottom:62px;padding:5px 8px;gap:5px}
+body.short #ctx input[type=range]{width:150px}
+body.short #zoombar{bottom:6px;right:6px;flex-direction:row-reverse;padding:3px;gap:3px}
+body.short #zoombar button{min-width:32px;height:28px}
+body.short #viewbar{bottom:6px;padding:4px 6px}
+body.short #hint3d{display:none!important}
+body.short #chBar{top:40px;padding:4px 6px}
+body.short #chPeekBar{top:78px;padding:6px 10px;font-size:12px}
+body.short #chTarget{left:56px;top:6px;width:250px;max-height:calc(100% - 76px)}
+body.short.challenge #modes{display:none}
+body.short.challenge #chBar{top:6px}
+body.short.challenge #chPeekBar{top:46px}
+body.short.challenge #chTarget{top:46px;max-height:calc(100% - 120px)}
+body.narrow #palette{max-width:calc(100% - 12px)}
+
+#palBtn{display:none}
+body.short #palBtn{display:flex}
+body.short #palette{display:none}
+body.short.palopen #palette{display:flex}
+body.short #palBtn.on,body.short.palopen #palBtn{border-color:var(--pri);color:var(--pri)}
+body.short #learn:not(.open){max-width:170px}
+body.short #learn:not(.open) #lDiag{display:none}
+
+body.short #chBar button{padding:3px 7px;font-size:11.5px;min-height:28px}
+body.short .chTime{font-size:13px;min-width:60px}
+body.short #chTitle{font-size:10px}
+@media (max-width:900px){#learn:not(.open) #lDiag{display:none}}
+#measure.min{width:auto}

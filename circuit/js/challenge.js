@@ -115,6 +115,7 @@ function chUpdateTimer() {
 function chStart(id) {
   if (UI.view !== '2d') setView('2d');
   const ex = EXAMPLES.find(e => e.id === id), th = chMakeThumb(id);
+  if (document.body.classList.contains('short')) document.body.classList.add('palopen');
   CH.on = true; CH.id = id; CH.sig = th.sig; CH.parts = chPartsText(th.sig); CH.hinted = false; CH.peeked = false; CH.saved = null; CH.done = false;
   chClearBoard();
   document.body.classList.add('challenge');

@@ -29,11 +29,18 @@ function contentBounds() {
   return { x0, y0, x1, y1 };
 }
 function fitView(animate) {
-  const b = contentBounds(), lp = $('#learn'), wide = V2.w > 900;
-  const padL = (wide ? 84 : 0) + (wide && (CH.on || (lp && lp.classList.contains('open'))) ? 300 : 0), padR = wide ? 330 : 0;
-  const padT = 56, padB = 120, W = V2.w - padL - padR, H = V2.h - padT - padB;
-  const bw = b.x1 - b.x0 + 100, bh = b.y1 - b.y0 + 140;
-  const k = clamp(Math.min(W / bw, H / bh), 0.4, 1.5);
+  const b = contentBounds(), lp = $('#learn'), mp = $('#measure'), pal = $('#palette'), bd = document.body.classList;
+  const short = bd.contains('short'), narrow = bd.contains('narrow');
+  const palH = pal ? pal.getBoundingClientRect().height : 0;
+  const padT = CH.on ? (short ? 74 : 104) : (short ? 40 : 56);
+  const padB = (palH > 0 ? palH + 16 : (short ? 14 : 86)) + (narrow ? 44 : 0);
+  let padL = narrow ? 8 : (short ? 56 : 84), padR = 10;
+  if (!narrow && mp && !mp.classList.contains('min')) padR = mp.offsetWidth + 20;
+  const sideOpen = !narrow && (CH.on || (lp && lp.classList.contains('open')));
+  if (sideOpen && V2.w - padL - 300 - padR >= 420) padL += 300;
+  const W = Math.max(120, V2.w - padL - padR), H = Math.max(100, V2.h - padT - padB);
+  const bw = b.x1 - b.x0 + 80, bh = b.y1 - b.y0 + (short ? 90 : 130);
+  const k = clamp(Math.min(W / bw, H / bh), 0.3, 1.5);
   const cx = (b.x0 + b.x1) / 2, cy = (b.y0 + b.y1) / 2;
   V2.k = k; V2.ox = padL + W / 2 - cx * k; V2.oy = padT + H / 2 - cy * k;
   updateZoomLabel();

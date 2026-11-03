@@ -2781,6 +2781,7 @@ function requireNickname(callback){
 }
 // 첫 접속 시 자동 표시
 window.addEventListener('DOMContentLoaded', ()=>{
+  if(location.hash==='#mem-home'){ try{ showView('mem-home'); }catch(e){} }
   if(!hasNickname()){
     pendingNicknameCallback = null;
     openOverlay('nicknameModal');

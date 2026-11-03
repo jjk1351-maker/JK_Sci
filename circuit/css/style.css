@@ -270,3 +270,7 @@ body.narrow:not(.palopen) #learn{bottom:58px}
 body.narrow:not(.palopen).challenge #chBar{bottom:58px}
 body.narrow:not(.palopen) #chPeekBar{bottom:104px}
 body.narrow:not(.palopen) #ctx{bottom:58px;top:auto}
+
+#chTog{width:auto;padding:0 9px;font-size:12px;font-weight:800;white-space:nowrap}
+body.chHide #chTarget{display:none!important}
+body.short #chBar #chTgt{padding:3px 7px}

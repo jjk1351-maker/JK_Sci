@@ -36,7 +36,7 @@ function fitView(animate) {
   const padB = (palH > 0 ? palH + 16 : ((short || narrow) ? 8 : 86)) + (narrow ? 44 : 0);
   let padL = narrow ? 8 : (short ? 56 : 84), padR = 10;
   if (!narrow && mp && !mp.classList.contains('min')) padR = mp.offsetWidth + 20;
-  const chT = $('#chTarget'), sideOpen = !narrow && ((CH.on && chT && !chT.classList.contains('min')) || (lp && lp.classList.contains('open')));
+  const chT = $('#chTarget'), sideOpen = !narrow && ((CH.on && chT && !chT.classList.contains('min') && !bd.contains('chHide')) || (lp && lp.classList.contains('open')));
   if (sideOpen && V2.w - padL - 300 - padR >= 420) padL += 300;
   const W = Math.max(120, V2.w - padL - padR), H = Math.max(100, V2.h - padT - padB);
   const bw = b.x1 - b.x0 + (short ? 50 : 80), bh = b.y1 - b.y0 + (short ? 36 : 130);

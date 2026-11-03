@@ -274,3 +274,10 @@ body.narrow:not(.palopen) #ctx{bottom:58px;top:auto}
 #chTog{width:auto;padding:0 9px;font-size:12px;font-weight:800;white-space:nowrap}
 body.chHide #chTarget{display:none!important}
 body.short #chBar #chTgt{padding:3px 7px}
+
+#chRank{margin:0 0 12px;font-size:13px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:6px}
+#chRank .rk{color:var(--mut)}#chRank .rk.ok{color:#0a8a5c}#chRank .rk.bad{color:#c4332c}
+#chRank .rklink{color:#3763e8;font-weight:800;text-decoration:none}
+#chRank input{width:100%;max-width:240px;padding:8px 10px;border:1.5px solid var(--line);border-radius:8px;font:inherit;text-align:center;-webkit-user-select:text;user-select:text}
+#chRank button{background:#f1f5fd;border:1px solid var(--line);border-radius:8px;padding:7px 14px;font-weight:800;color:#2a3550}
+#chRank button.go{background:var(--grad);color:#fff;border-color:transparent}

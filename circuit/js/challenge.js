@@ -143,8 +143,50 @@ function chGrade() {
   if (valid) { const prev = chBest(CH.id), isNew = chSaveBest(CH.id, ms); extra = isNew ? (prev ? '🏅 새 최고 기록이에요! (이전 ' + chFmt(prev) + ')' : '🏅 첫 기록이에요!') : '내 최고 기록 ' + chFmt(prev); }
   $('#chPopTime').innerHTML = valid ? '⏱ ' + chFmt(ms) : '<small>' + (CH.peeked ? '정답 보기' : '힌트') + '를 사용해서<br>시간 기록은 나오지 않아요</small>';
   $('#chPopSub').textContent = extra;
+  chRankFlow(valid, ms);
   const idx = CH_LIST.indexOf(CH.id); $('#chNext').style.display = idx < CH_LIST.length - 1 ? '' : 'none';
   $('#chPop').classList.add('on'); chMsg('성공!', 'ok');
+}
+/* ---------- 랭킹 등록 (구글 시트) ---------- */
+const chEsc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function chNick() { try { return sessionStorage.getItem('jk_nickname') || ''; } catch (e) { return ''; } }
+function chSetNick(n) { try { sessionStorage.setItem('jk_nickname', n); } catch (e) {} }
+function chJsonp(url, ms) {
+  return new Promise((res, rej) => {
+    const cb = 'jk_cb_' + Math.random().toString(36).slice(2), s = document.createElement('script');
+    const cleanup = () => { clearTimeout(t); delete window[cb]; if (s.parentNode) s.parentNode.removeChild(s); };
+    const t = setTimeout(() => { cleanup(); rej(new Error('timeout')); }, ms || 9000);
+    window[cb] = d => { cleanup(); res(d); };
+    s.onerror = () => { cleanup(); rej(new Error('network')); };
+    s.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + cb; document.body.appendChild(s);
+  });
+}
+function chRankFlow(valid, ms) {
+  const box = $('#chRank'); box.innerHTML = '';
+  if (!valid) { box.innerHTML = '<div class="rk">랭킹에는 올라가지 않아요</div>'; return; }
+  if (typeof CIRCUIT_RANK_API === 'undefined' || !CIRCUIT_RANK_API) return;
+  const step = CH_LIST.indexOf(CH.id) + 1, sec = ms / 1000, nick = chNick();
+  if (nick) { chSubmitRank(nick, step, sec); return; }
+  box.innerHTML = '<div class="rk">🏆 랭킹에 올릴까요?</div><input id="chNickIn" maxlength="10" placeholder="닉네임 (비우면 익명)"><button id="chNickGo" class="go">랭킹 등록</button>';
+  $('#chNickGo').addEventListener('click', () => { const n = ($('#chNickIn').value || '').trim().slice(0, 10) || '익명'; chSetNick(n); chSubmitRank(n, step, sec); });
+}
+async function chSubmitRank(name, step, sec) {
+  const box = $('#chRank'); box.innerHTML = '<div class="rk">🏆 랭킹 등록 중…</div>';
+  try {
+    const r = await chJsonp(CIRCUIT_RANK_API + '?action=add&name=' + encodeURIComponent(name) + '&step=' + step + '&sec=' + sec.toFixed(1));
+    if (!r || !r.ok) { const er = new Error((r && r.error) || 'fail'); throw er; }
+    let pos = '';
+    try {
+      const l = await chJsonp(CIRCUIT_RANK_API + '?action=list&step=' + step), rows = (l && l.rows) || [];
+      const mine = rows.filter(x => x.name === name).sort((a, b) => a.sec - b.sec)[0];
+      if (mine) pos = ' · 이번 주 ' + (rows.filter(x => x.sec < mine.sec).length + 1) + '위';
+    } catch (e) {}
+    box.innerHTML = '<div class="rk ok">✅ ' + chEsc(name) + '님 랭킹 등록 완료!' + pos + '</div><a class="rklink" href="../index.html#circuit-rank">🏆 순위표 보기</a>';
+  } catch (e) {
+    const msg = e.message === 'bad time' ? '기록이 너무 짧아서 올라가지 않았어요' : '랭킹 등록에 실패했어요';
+    box.innerHTML = '<div class="rk bad">⚠️ ' + msg + '</div>' + (e.message === 'bad time' ? '' : '<button id="chRankRetry">다시 시도</button>');
+    const rb = $('#chRankRetry'); if (rb) rb.addEventListener('click', () => chSubmitRank(name, step, sec));
+  }
 }
 function chHint() {
   if (!CH.on || CH.done || CH.saved) return;

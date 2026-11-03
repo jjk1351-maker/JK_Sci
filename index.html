@@ -755,6 +755,14 @@
         <div class="htc-desc">적응형 퀴즈의 학년·단원별 누적 순위와 최고 순위를 확인하세요.</div>
         <div class="htc-go">랭킹 보기 <i class="fa-solid fa-arrow-right"></i></div>
       </div>
+      <div class="home-tab-card" style="--htc:var(--blue)" onclick="openCircuitRanking()">
+        <div class="htc-glow"></div>
+        <div class="htc-icon"><i class="fa-solid fa-bolt"></i></div>
+        <div class="htc-title">전기회로 도전</div>
+        <div class="htc-en">CIRCUIT CHALLENGE</div>
+        <div class="htc-desc">전기회로 실험실 도전 모드의 단계별 최단 시간 순위를 확인하세요.</div>
+        <div class="htc-go">랭킹 보기 <i class="fa-solid fa-arrow-right"></i></div>
+      </div>
     </div>
   </div>
 
@@ -906,6 +914,19 @@
     </div>
     <div class="filters" id="rank-chapter-filters" style="margin-top:-14px"></div>
     <div id="rank-list"></div>
+  </div>
+
+  <!-- ════ RANKING (전기회로 도전) ════ -->
+  <div class="view" id="view-circuit-rank">
+    <div class="sub-head">
+      <button class="back-btn" onclick="showView('rank-hub')"><i class="fa-solid fa-arrow-left"></i></button>
+      <div class="sub-title"><span class="crumb">Leaderboard · 전기회로 도전</span><h2>명예의 전당</h2></div>
+    </div>
+    <div class="filters" id="crank-tabs"></div>
+    <div id="crank-title" style="font-size:14px;font-weight:700;color:var(--sub);margin-top:-8px"></div>
+    <div id="crank-list"></div>
+    <p style="font-size:12.5px;color:var(--sub);line-height:1.6">⏱ 힌트·정답 보기를 쓰지 않고 성공한 기록만 올라가요. 같은 닉네임은 단계마다 가장 빠른 기록 하나만 남고, 매주 월요일에 초기화돼요.</p>
+    <a href="circuit/index.html" class="ftab" style="align-self:flex-start;text-decoration:none"><i class="fa-solid fa-bolt"></i>&nbsp; 도전하러 가기</a>
   </div>
 
   <!-- ════ 과학 게임 선택 ════ -->
@@ -2665,6 +2686,8 @@ const WORD_RANK_API = "https://script.google.com/macros/s/AKfycbxihxqvQcM7dfajMo
 const MEM_RANK_API  = "https://script.google.com/macros/s/AKfycbyg52xYVV15ZuSGueL5VZ9Odx1ukMXGRTnfxSHTBWrCLwzJ4JxpzcxqYjAj9MSKTCd5/exec";
 // 과학 퀴즈 랭킹 서버 (Code C Apps Script)
 const QUIZ_RANK_API = "https://script.google.com/macros/s/AKfycbwAugkgFWcybMDz06r7O9y8RGgw4fzemitMqKL8hlL6pdsZZRKM2al4orqXAzfGHdRI3A/exec";
+// 전기회로 도전 랭킹 서버 (Circuit Apps Script)
+const CIRCUIT_RANK_API = "https://script.google.com/macros/s/AKfycbyxbLKM66dIDyQvkTwv4OB4J1nK3W0Y8DGkCDsfBluMT8lSIqC4RbRPtUvqiFpD3vob/exec";
 
 /* 단어장 시트 */
 const GRADE_SHEETS = {
@@ -2782,6 +2805,7 @@ function requireNickname(callback){
 // 첫 접속 시 자동 표시
 window.addEventListener('DOMContentLoaded', ()=>{
   if(location.hash==='#mem-home'){ try{ showView('mem-home'); }catch(e){} }
+  else if(location.hash==='#circuit-rank'){ try{ openCircuitRanking(); }catch(e){} }
   if(!hasNickname()){
     pendingNicknameCallback = null;
     openOverlay('nicknameModal');
@@ -2803,6 +2827,50 @@ function jsonp(url){
     s.onerror=()=>{ cleanup(); reject(new Error('network')); };
     document.body.appendChild(s);
   });
+}
+
+/* ════════════════════════════════════════════════════════
+   ⚡ 전기회로 도전 랭킹
+   ════════════════════════════════════════════════════════ */
+const CIRCUIT_STEPS=['전류의 방향과 전자의 이동 방향','전류계의 직렬 연결','전압계의 병렬 연결','건전지의 직렬 연결','건전지의 병렬 연결','저항(전구)의 직렬 연결','저항(전구)의 병렬 연결'];
+let cRankStep=1;
+function fmtCircuitSec(s){ s=Number(s)||0; if(s<60) return s.toFixed(1)+'초'; const m=Math.floor(s/60); return m+'분 '+(s-m*60).toFixed(1)+'초'; }
+function openCircuitRanking(){ renderCircuitRankTabs(); showView('circuit-rank'); loadCircuitRank(); }
+function renderCircuitRankTabs(){
+  const box=document.getElementById('crank-tabs'); box.innerHTML='';
+  CIRCUIT_STEPS.forEach((_,i)=>{
+    const b=document.createElement('button'); b.className='ftab'+(i+1===cRankStep?' active':''); b.textContent=(i+1)+'단계';
+    b.onclick=()=>{ cRankStep=i+1; renderCircuitRankTabs(); loadCircuitRank(); };
+    box.appendChild(b);
+  });
+  document.getElementById('crank-title').textContent=cRankStep+'단계 · '+CIRCUIT_STEPS[cRankStep-1];
+}
+async function loadCircuitRank(){
+  const box=document.getElementById('crank-list'), step=cRankStep;
+  box.innerHTML='<div class="empty"><i class="fa-solid fa-spinner fa-spin"></i><h4>불러오는 중...</h4></div>';
+  if(!CIRCUIT_RANK_API){ box.innerHTML='<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i><h4>API 미설정</h4></div>'; return; }
+  try{
+    const d=await jsonp(CIRCUIT_RANK_API+'?action=list&step='+step);
+    if(step!==cRankStep) return;
+    let rows=((d&&d.rows)||[]).filter(r=>Number(r.step)===step&&withinThisWeek(r.ts)).sort((a,b)=>a.sec-b.sec);
+    const seen={}; rows=rows.filter(r=>{ if(r.name==='익명') return true; if(seen[r.name]) return false; seen[r.name]=1; return true; });
+    renderCircuitRankRows(box,rows);
+  }catch(e){
+    box.innerHTML='<div class="empty"><i class="fa-solid fa-triangle-exclamation"></i><h4>불러오지 못했어요</h4><p>인터넷 연결을 확인하고 다시 눌러 보세요.</p></div>';
+  }
+}
+function renderCircuitRankRows(box,rows){
+  if(!rows.length){ box.innerHTML='<div class="empty"><i class="fa-solid fa-trophy"></i><h4>이번 주 기록이 없습니다</h4><p>첫 번째 도전자가 되어보세요!</p></div>'; return; }
+  const med=['🥇','🥈','🥉'], me=getNickname();
+  let html='<div class="rank-table">';
+  rows.slice(0,20).forEach((r,i)=>{
+    const pc=i===0?'top1':i===1?'top2':i===2?'top3':'';
+    html+='<div class="rank-row'+(r.name===me&&me!=='익명'?' me':'')+'">'+
+      '<div class="rank-pos '+pc+'">'+(med[i]||(i+1))+'</div>'+
+      '<div class="rank-name">'+escapeHtml(r.name)+'</div>'+
+      '<div class="rank-score">'+fmtCircuitSec(r.sec)+'</div></div>';
+  });
+  box.innerHTML=html+'</div>';
 }
 
 /* ════════════════════════════════════════════════════════

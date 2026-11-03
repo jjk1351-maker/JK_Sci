@@ -63,8 +63,8 @@
     <div id="toast"></div>
   </div>
 </div>
-<div id="chMenu"><div class="chbox"><h2>🏁 도전 모드</h2><p>예제 회로도를 보고 빈 화면에서 똑같이 만들어 보세요. 성공하면 걸린 시간이 팝업으로 나와요.<br><small>※ 힌트나 정답 보기를 쓰면 성공해도 시간은 나오지 않아요.</small></p><div id="chList"></div><button id="chClose" class="chx">닫기</button></div></div>
-<div id="chPop"><div class="chbox pop"><div class="big">🎉 성공!</div><div id="chPopTime" class="ptime"></div><div id="chPopSub" class="psub"></div><div class="row"><button id="chAgain">🔁 다시 도전</button><button id="chNext" class="go">다음 단계 ▶</button><button id="chEnd">끝내기</button></div></div></div>
+<div id="chMenu"><div class="chbox"><h2>🏁 도전 모드</h2><p>예제 회로도를 보고 빈 화면에서 똑같이 만들어 보세요. 성공하면 걸린 시간이 팝업으로 나와요.<br><small>※ 힌트나 정답 보기를 쓰면 성공해도 시간은 나오지 않아요.</small></p><div id="chList"></div><button id="chClose" class="chx">닫기</button> <a class="chx" href="../index.html#circuit-rank" style="text-decoration:none;display:inline-block">🏆 순위표 보기</a></div></div>
+<div id="chPop"><div class="chbox pop"><div class="big">🎉 성공!</div><div id="chPopTime" class="ptime"></div><div id="chPopSub" class="psub"></div><div id="chRank"></div><div class="row"><button id="chAgain">🔁 다시 도전</button><button id="chNext" class="go">다음 단계 ▶</button><button id="chEnd">끝내기</button></div></div></div>
 <div id="modal"><div class="mbox">
   <div class="mhead"><div><h2>전기회로 실험실 사용법</h2><p style="margin:0">회로를 직접 만들고, 전류·전자의 방향과 전압계·전류계 연결을 눈으로 확인해요.</p></div><button id="modalClose">닫기 ✕</button></div>
   <h3>🖱 조작 방법</h3>
@@ -96,6 +96,7 @@
   <p class="src">※ 교과서 내용: 미래엔 중학교 과학2 「Ⅶ. 전기와 자기 · 1. 전기」 단원을 바탕으로 구성했어요. 건전지·저항의 값은 이상적인 소자로 계산해요(건전지 내부저항, 전선 저항 무시).</p>
 </div></div>
 <script src="vendor/three.min.js"></script>
+<script src="js/config.js"></script>
 <script src="js/core.js"></script>
 <script src="js/view2d.js"></script>
 <script src="js/meter.js"></script>

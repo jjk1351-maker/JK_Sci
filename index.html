@@ -67,6 +67,15 @@
     .home-tab-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
     @media (max-width:860px){ .home-tab-grid{ grid-template-columns:repeat(2,1fr); } }
     @media (max-width:560px){ .home-tab-grid{ grid-template-columns:1fr; } }
+    /* 랭킹 선택: 카드 4개를 한 줄로 (아이콘·여백 축소) */
+    #view-rank-hub .home-tab-grid{ grid-template-columns:repeat(4,1fr); gap:14px; }
+    #view-rank-hub .home-tab-card{ padding:26px 14px 22px; gap:8px; border-radius:18px; }
+    #view-rank-hub .htc-icon{ width:54px; height:54px; border-radius:15px; font-size:24px; margin-bottom:2px; }
+    #view-rank-hub .htc-title{ font-size:17px; }
+    #view-rank-hub .htc-en{ font-size:10px; }
+    #view-rank-hub .htc-desc{ font-size:12px; line-height:1.55; }
+    #view-rank-hub .htc-go{ font-size:13px; margin-top:2px; }
+    @media (max-width:700px){ #view-rank-hub .home-tab-grid{ grid-template-columns:repeat(2,1fr); } }
     .home-tab-card {
       background:var(--card); border:1px solid var(--border); border-radius:22px; padding:44px 32px;
       cursor:pointer; transition:all 0.28s cubic-bezier(.25,.8,.25,1); position:relative; overflow:hidden;
@@ -715,7 +724,7 @@
         <div class="panel">
           <div class="panel-title"><i class="fa-solid fa-trophy" style="color:var(--gold);"></i> 랭킹 TOP 5</div>
           <div class="rank-tabs2" id="home-rank-tabs">
-            <span class="active" data-src="word" onclick="switchHomeRankTab('word',this)">단어장</span><span data-src="mem" onclick="switchHomeRankTab('mem',this)">과학 게임</span><span data-src="quiz" onclick="switchHomeRankTab('quiz',this)">과학 퀴즈</span>
+            <span class="active" data-src="word" onclick="switchHomeRankTab('word',this)">단어장</span><span data-src="mem" onclick="switchHomeRankTab('mem',this)">과학 게임</span><span data-src="quiz" onclick="switchHomeRankTab('quiz',this)">과학 퀴즈</span><span data-src="circuit" onclick="switchHomeRankTab('circuit',this)">전기회로</span>
           </div>
           <div id="home-rank-list"><div class="empty" style="padding:20px 10px;text-align:center;"><i class="fa-solid fa-spinner fa-spin" style="color:var(--sub);"></i></div></div>
         </div>
@@ -4612,6 +4621,24 @@ document.addEventListener('click',(e)=>{
         const d = await jsonp(QUIZ_RANK_API+'?action=load');
         rows = (d && d.data) ? d.data : [];
         rows = rows.filter(r=>withinThisWeek(r.time));
+      } else if(source==='circuit' && typeof CIRCUIT_RANK_API !== 'undefined' && CIRCUIT_RANK_API){
+        const d = await jsonp(CIRCUIT_RANK_API+'?action=list');
+        const cr = ((d && d.rows) || []).filter(r=>withinThisWeek(r.ts));
+        // 닉네임별로 단계마다 가장 빠른 기록만 모아서: 깬 단계 수 ↑, 합계 시간 ↓ (익명은 기록마다 따로)
+        const acc2 = {};
+        cr.forEach((r,i)=>{
+          const k = r.name==='익명' ? '익명#'+i : r.name;
+          if(!acc2[k]) acc2[k] = {name:r.name, best:{}};
+          const s = Number(r.step), t = Number(r.sec);
+          if(acc2[k].best[s]===undefined || t<acc2[k].best[s]) acc2[k].best[s] = t;
+        });
+        const list2 = Object.values(acc2).map(o=>{
+          const ts = Object.values(o.best);
+          return {name:o.name, steps:ts.length, total:ts.reduce((a,b)=>a+b,0)};
+        }).sort((a,b)=> b.steps-a.steps || a.total-b.total).slice(0,5)
+          .map(o=>({name:o.name, label:o.steps+'단계 · '+fmtCircuitSec(o.total)}));
+        renderHomeRank(list2);
+        return;
       }
     }catch(e){ rows = []; }
     const acc = {};
@@ -4628,7 +4655,7 @@ document.addEventListener('click',(e)=>{
     }
     let html='';
     list.forEach((r,i)=>{
-      html += '<div class="rank-item2"><div class="n">'+(i+1)+'</div><div class="name">'+escapeHtml(r.name)+'</div><div class="pt">'+r.score.toLocaleString()+'점</div></div>';
+      html += '<div class="rank-item2"><div class="n">'+(i+1)+'</div><div class="name">'+escapeHtml(r.name)+'</div><div class="pt">'+(r.label||(r.score.toLocaleString()+'점'))+'</div></div>';
     });
     box.innerHTML = html;
   }
